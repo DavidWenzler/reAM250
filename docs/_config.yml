@@ -12,38 +12,9 @@ remote_theme: pages-themes/cayman@v0.2.0
 # Permalinks for clean URLs
 permalink: /:title/
 
-# Social links in the footer
-social_links:
-  - name: GitHub
-    url: https://davidwenzler.github.io/reAM250/
-  - name: Instagram
-    url: https://www.instagram.com/tum.iwb/?hl=en
-  - name: LinkedIn
-    url: https://www.linkedin.com/company/11570029/admin/feed/posts/
-
 # Optional plugins (e.g., for SEO)
 plugins:
-  - jekyll-seo-tag # Helps with search engine optimization 
-  - jekyll-feed # Generates an RSS feed
   - jekyll-remote-theme # add this line to the plugins list if you already have one
-
-
-# Other configurations
-show_downloads: true # Show download buttons (can be used for your CAD data)
-show_explore_button: true # Show "Explore the project" button on homepage
-
-# Custom navigation links
-navigation:
-  - title: Home
-    url: /
-  - title: Documentation
-    url: /docs/
-  - title: CAD Files
-    url: /cad/
-  - title: Source Code
-    url: /code/
-  - title: Blog
-    url: /blog/
 
 # Exclude specific files or directories from being processed by Jekyll
 exclude:
