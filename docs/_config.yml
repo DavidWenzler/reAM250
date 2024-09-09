@@ -47,9 +47,9 @@ navigation:
 
 # Exclude specific files or directories from being processed by Jekyll
 exclude:
-  - README.md
-  - LICENSE
-  - /docs/CAD/ # excluding large CAD files
+  - ../README.md
+  - ../LICENSE
+  - /CAD/ # excluding large CAD files
 
 # Build settings
 markdown_ext: markdown,md
