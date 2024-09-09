@@ -1,34 +1,40 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+#
+# If you need help with YAML syntax, here are some quick references for you:
+# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
+# https://learnxinyminutes.com/docs/yaml/
+#
 # Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+
 title: reAM250
-description: "An open-source research platform for process monitoring and control in powder bed fusion of metals using a laser beam"
-baseurl: ""
-url: "https://davidwenzler.github.io/reAM250/" # Your GitHub Pages URL
-github_username: DavidWenzler # Your GitHub username
+email: david.wenzler@tum.de
+description: >- # this means to ignore newlines until "baseurl:"
+  An open-source research platform for process monitoring and control in powder bed fusion of metals using a laser beam
+baseurl: "/reAM250/" # the subpath of your site, e.g. /blog
+url: "https://davidwenzler.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: jekyllrb
+github_username:  jekyll
 
-# Jekyll settings
+# Build settings
 theme: jekyll-theme-cayman
+remote_theme: pages-themes/cayman@v0.2.0
 
-# Permalinks for clean URLs
-permalink: /:title/
-
-# Social links in the footer
-social_links:
-  - name: GitHub
-    url: https://davidwenzler.github.io/reAM250/
-  - name: Instagram
-    url: https://www.instagram.com/tum.iwb/?hl=en
-  - name: LinkedIn
-    url: https://www.linkedin.com/company/11570029/admin/feed/posts/
-
-# Optional plugins (e.g., for SEO)
 plugins:
   - jekyll-seo-tag # Helps with search engine optimization 
   - jekyll-feed # Generates an RSS feed
-
-
-# Other configurations
-show_downloads: true # Show download buttons (can be used for your CAD data)
-show_explore_button: true # Show "Explore the project" button on homepage
+  - jekyll-remote-theme 
 
 # Custom navigation links
 navigation:
@@ -42,12 +48,33 @@ navigation:
     url: /code/
   - title: Blog
     url: /blog/
+ 
+ # Other configurations
+show_downloads: true # Show download buttons (can be used for your CAD data)
+show_explore_button: true # Show "Explore the project" button on homepage
 
-# Exclude specific files or directories from being processed by Jekyll
+# Exclude from processing.
+# The following items will not be processed, by default.
+# Any item listed under the `exclude:` key here will be automatically added to
+# the internal "default list".
+#
+# Excluded items can be processed by explicitly listing the directories or
+# their entries' file path in the `include:` list.
+#
 exclude:
+#   - .sass-cache/
+#   - .jekyll-cache/
+#   - gemfiles/
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules/
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
   - README.md
   - LICENSE
   - /docs/CAD/ # excluding large CAD files
-
+  
 # Build settings
 markdown_ext: markdown,md
