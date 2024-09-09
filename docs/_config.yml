@@ -7,14 +7,6 @@ github_username: DavidWenzler # Your GitHub username
 
 # Jekyll settings
 theme: jekyll-theme-cayman
-remote_theme: pages-themes/cayman@v0.2.0
-
-# Permalinks for clean URLs
-permalink: /:title/
-
-# Optional plugins (e.g., for SEO)
-plugins:
-  - jekyll-remote-theme # add this line to the plugins list if you already have one
 
 # Exclude specific files or directories from being processed by Jekyll
 exclude:
