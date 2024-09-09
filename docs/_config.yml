@@ -8,7 +8,7 @@ github_username: DavidWenzler # Your GitHub username
 # Jekyll settings
 theme: jekyll-theme-cayman
 
-# Exclude specific files or directories from being processed by Jekyll
+# Exclude specific files or directories from being processed by Jekyll 
 exclude:
   - README.md
   - LICENSE
