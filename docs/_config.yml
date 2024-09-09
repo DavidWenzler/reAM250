@@ -31,7 +31,7 @@ plugins:
 show_downloads: true # Show download buttons (can be used for your CAD data)
 show_explore_button: true # Show "Explore the project" button on homepage
 
-# Custom navigation links (add as needed)
+# Custom navigation links
 navigation:
   - title: Home
     url: /
