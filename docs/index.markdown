@@ -3,4 +3,8 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
+title: reAM250
 ---
+# Welcome to reAM250
+
+Welcome to the reAM250 project site. Here you will find information about our open-source research platform for powder bed fusion.
