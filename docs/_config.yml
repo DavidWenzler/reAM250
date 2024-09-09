@@ -6,7 +6,6 @@ url: "https://davidwenzler.github.io/reAM250/" # Your GitHub Pages URL
 github_username: DavidWenzler # Your GitHub username
 
 # Jekyll settings
-markdown: kramdown
 theme: jekyll-theme-cayman
 
 # Permalinks for clean URLs
