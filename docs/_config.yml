@@ -23,7 +23,7 @@ social_links:
 
 # Optional plugins (e.g., for SEO)
 plugins:
-  - jekyll-seo-tag # Helps with search engine optimization
+  - jekyll-seo-tag # Helps with search engine optimization 
   - jekyll-feed # Generates an RSS feed
 
 
