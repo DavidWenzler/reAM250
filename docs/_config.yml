@@ -29,29 +29,29 @@ github_username:  jekyll
 
 # Build settings
 theme: jekyll-theme-cayman
-remote_theme: pages-themes/cayman@v0.2.0
+# remote_theme: pages-themes/cayman@v0.2.0
 
-plugins:
-  - jekyll-seo-tag # Helps with search engine optimization 
-  - jekyll-feed # Generates an RSS feed
-  - jekyll-remote-theme 
+# plugins:
+#   - jekyll-seo-tag # Helps with search engine optimization 
+#   - jekyll-feed # Generates an RSS feed
+#   - jekyll-remote-theme 
 
 # Custom navigation links
-navigation:
-  - title: Home
-    url: /
-  - title: Documentation
-    url: /docs/
-  - title: CAD Files
-    url: /cad/
-  - title: Source Code
-    url: /code/
-  - title: Blog
-    url: /blog/
+# navigation:
+#   - title: Home
+#     url: /
+#   - title: Documentation
+#     url: /docs/
+#   - title: CAD Files
+#     url: /cad/
+#   - title: Source Code
+#     url: /code/
+#   - title: Blog
+#     url: /blog/
  
  # Other configurations
-show_downloads: true # Show download buttons (can be used for your CAD data)
-show_explore_button: true # Show "Explore the project" button on homepage
+# show_downloads: true # Show download buttons (can be used for your CAD data)
+# show_explore_button: true # Show "Explore the project" button on homepage
 
 # Exclude from processing.
 # The following items will not be processed, by default.
