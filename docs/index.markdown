@@ -2,11 +2,8 @@
 layout: default
 ---
 
----
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-title: reAM250
----
-# Welcome to reAM250
+<img src="{{ site.baseurl }}/assets/reAM250_Logo.png" alt="reAM250 Logo" width="200" style="display: block; margin: 0 auto;" />
 
-Welcome to the reAM250 project site. Here you will find information about our open-source research platform for powder bed fusion.
+# An open-source research PBF-LB/M platform
+
+Welcome to the _reAM250_ project. Here you will find more information about our open-source PBF-LB/M research platform.

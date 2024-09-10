@@ -25,13 +25,13 @@
         <a href="{{ site.github.zip_url }}" class="btn">Download Software</a>
         <a href="https://autodesk6181.autodesk360.com/g/shares/SH30dd5QT870c25f12fc09d52961e497b3c1" class="btn">Download CAD</a>
       {% endif %}
-	  <nav class="nav">
-      <ul>
-        {% for item in site.navigation %}
-          <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
-        {% endfor %}
-      </ul>
-    </nav>
+	  <nav>
+	    <ul>
+		  {% for item in site.navigation %}
+		    <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+		  {% endfor %}
+	    </ul>
+	  </nav>
     </header>
 
     <main id="content" class="main-content" role="main">
