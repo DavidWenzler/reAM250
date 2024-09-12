@@ -19,6 +19,8 @@ plugins:
 navigation:
   - title: Home
     url: /
+  - title: Getting Started
+    url: /docs/getting-started/
   - title: Documentation
     url: /docs/
   - title: CAD Files

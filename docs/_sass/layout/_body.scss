@@ -1,0 +1,21 @@
+.chapter-nav {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.chapter-nav a {
+  margin: 0 10px;
+  padding: 8px 15px;
+  background-color: #0065BD;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.chapter-nav a:hover {
+  background-color: #004A92;
+}
+
+.main-content h1,.main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6{
+    color: #000;
+}

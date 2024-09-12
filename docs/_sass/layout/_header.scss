@@ -1,7 +1,10 @@
 /* Header Styles */
 header {
   position: relative; 
-  background-color: #f8f9fa; 
+  background-image: url('/docs/assets/header_background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 20px; 
 }
 /* Navigation Styles */
@@ -34,4 +37,20 @@ nav ul li a {
 
 nav ul li a:hover {
   text-decoration: underline;
+}
+
+.logo-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 250px; /* Adjust size as needed */
+  height: auto;
+}
+
+.logo-right {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  width: 120px; /* Adjust size as needed */
+  height: auto;
 }
