@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#157878">
+    <meta name="theme-color" content="#0065BD">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     {% include head-custom.html %}
@@ -15,14 +15,16 @@
   <body>
     <a id="skip-to-content" href="#content">Skip to the content.</a>
 
-    <header class="page-header" role="banner">
+    <header class="page-header" role="banner" style="background-color: #ffffff; background-image: url('{{ site.baseurl }}assets/header_background.png');">
       <h1 class="project-name">{{ page.title | default: site.title | default: site.github.repository_name }}</h1>
       <h2 class="project-tagline">{{ page.description | default: site.description | default: site.github.project_tagline }}</h2>
+	  <img src="{{ site.baseurl }}/assets/reAM250_Logo.png" class="logo-left" alt="Logo Left">
+      <img src="{{ site.baseurl }}/assets/TUM_Logo.png" class="logo-right" alt="Logo Right">
       {% if site.github.is_project_page %}
         <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
       {% endif %}
       {% if site.show_downloads %}
-        <a href="{{ site.github.zip_url }}" class="btn">Download Software</a>
+        <a href="https://github.com/DavidWenzler/reAM250/archive/refs/heads/main.zip" class="btn">Download Software</a>
         <a href="https://autodesk6181.autodesk360.com/g/shares/SH30dd5QT870c25f12fc09d52961e497b3c1" class="btn">Download CAD</a>
       {% endif %}
 	  <nav class="nav">
