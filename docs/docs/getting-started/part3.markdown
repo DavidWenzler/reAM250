@@ -8,7 +8,7 @@ next: /docs/getting-started/part4
 # Part 3: How to Run a Simulated Build
 
 1. Start B&R Automation Studio.
-2. Navigate to `reAM250plcOpen` and open the Automation Studeo Project `./reAM250plc.apj`
+2. Navigate to `PLC` and open the Automation Studeo Project `./reAM250plc.apj`
 3. Switch to simulation mode.
 4. Build and transfer the project to the simulated target
 5. Ensure the connection settings of the simulated target are set correctly
