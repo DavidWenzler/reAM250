@@ -1,0 +1,100 @@
+(*
+T: FUNCTION_BLOCK PULSE_GEN
+FW: YES	NO_VARIANT PULSE_GEN SKIP_NOTHING	
+CI#: 78
+QSL: 0
+QVE: 15
+QVPC: 15
+QPar: 6
+QFBI: 3
+*)
+
+IN	1	VAR_INPUT	@TYP:1
+		     
+@TYP:1# 0
+;
+
+
+PTH	2	VAR_INPUT	@TYP:12
+		     
+@TYP:12# 0S0
+;
+PFW: CONST
+
+PTL	3	VAR_INPUT	@TYP:12
+		     
+@TYP:12# 0S0
+;
+PFW: CONST
+
+Q	4	VAR_OUTPUT	@TYP:1
+		     
+
+;
+
+
+ETH	5	VAR_OUTPUT	@TYP:12
+		     
+
+;
+
+
+ETL	6	VAR_OUTPUT	@TYP:12
+		     
+
+;
+
+
+InternalPauseSignal	7	VAR	@TYP:1
+		     
+
+;
+
+
+Q_TOF_PulseSignal	8	VAR	@TYP:1
+		     
+
+;
+
+
+Q_R_TRIG_IN	9	VAR	@TYP:1
+		     
+
+;
+
+
+InternalImpuls	10	VAR	@TYP:12
+		     
+
+;
+
+
+InternalPause	11	VAR	@TYP:12
+		     
+
+;
+
+
+InternalPulse	12	VAR	@TYP:1
+		     
+
+;
+
+
+TON_1	13	VAR	@FB:21
+		     
+
+;
+
+
+TOF_1	14	VAR	@FB:20
+		     
+
+;
+
+
+R_TRIG_IN	15	VAR	@FB:16
+		     
+
+;
+

@@ -1,0 +1,36 @@
+﻿{GroupDefinition(0,'NewGroup')}
+
+VAR_GLOBAL {Group(0)}
+    {LINE(1)}
+    EStopInput AT %IX7.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeTwoChannelInput0102')};
+    {LINE(2)}
+    Reset AT %IX12.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM4.SafeDigitalInput02')};
+    {LINE(3)}
+    ReleaseSC AT %QX517.0 : BOOL {Custom('SL1.SM4.ReleaseOutput')};
+    {LINE(4)}
+    ReleaseSO AT %QX516.0 : BOOL {Custom('SL1.SM3.ReleaseOutput')};
+    {LINE(5)}
+    Enable0102 AT %QX1.2 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput03')};
+    {LINE(6)}
+    Enable0304 AT %QX1.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput04')};
+    {LINE(7)}
+    UserSafeRelais AT %QX1.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput02')};
+    {LINE(8)}
+    EmergencyStopRelais AT %QX1.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput01')};
+    {LINE(9)}
+    LaserCoverTwoChannelInput0304 AT %IX13.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM4.SafeTwoChannelInput0304')};
+    {LINE(10)}
+    EStopLaser AT %IX7.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeTwoChannelInput0708')};
+    {LINE(11)}
+    FeedbackEStopRelaisSafeDI05 AT %IX6.4 : BOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput05')};
+    {LINE(12)}
+    FeedbackUserSafeRelaisDI06 AT %IX6.5 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput06')};
+    {LINE(13)}
+    EStopLaserCell AT %IX13.2 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM4.SafeTwoChannelInput0506')};
+    {LINE(14)}
+    SafetyCircuitLaserCell AT %IX13.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM4.SafeTwoChannelInput0708')};
+    {LINE(15)}
+    BuildChamberDoorInput03 AT %IX6.2 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput03')};
+    {LINE(16)}
+    BuildChamberDoorInput04 AT %IX6.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput04')};
+END_VAR

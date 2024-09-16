@@ -1,0 +1,143 @@
+(********************************************************************
+ * COPYRIGHT (C) BERNECKER + RAINER, AUSTRIA, A-5142 EGGELSBERG
+ ********************************************************************
+ * Library: CoTrace
+ * File:	CoTrace.var
+ ********************************************************************
+ * Declaration of constants for CoTrace-library; Ie. status-codes
+ ********************************************************************)
+
+VAR CONSTANT
+coTRACE_ERR_OUT_OF_MEMORY		: DINT := -1050673151;	(*Not enough RAM memory available.
+
+RAM memory is required for the following operations:
+-	CoTraceConfigLoad(): Loading a persistently stored configuration
+-	CoTraceConfigCreate(): Creating a new configuration in the RAM (very unlikely, hardly any memory required)
+-	CoTraceConfigAddDataPoint(), CoTraceConfigAddStartTrigger(),etc.: Adding parameters such as DataPoints of trigger conditions to an configuration
+-	CoTraceRecorder(): Processing/Activating the configuration (memory requirement depends on trace configuration and may be considerably large)
+-	CoTraceRecorder(): Collecting the data (memory requirement depends on trace configuration and may be considerably large)
+-	CoTraceDataSaveCsv(): Storing data (very unlikely, hardly any memory required)
+
+Reaction on error:
+The FB does not perform any action. The FB must be restarted.
+Please check the overall RAM availability before retrying.
+
+Solution:
+If this error appears on the CoTraceRecorder() FB, increasing the sample time and reducing the total recording leads to lower memory consumption.
+*)
+coTRACE_ERR_INVALID_ARG 		: DINT := -2124414974;	(*One or more input arguments are invalid.
+
+Causes an solutions:
+-	CoTraceConfigAddStartTrigger(): The input "Window" is negative
+-	CoTraceConfigLoad(): Invalid configuration name provided.
+-	CoTraceDataSaveCsv(): Input "FileDevice" or "FileName" is empty
+-	CoTraceConfigAddDataPoint() and CoTraceConfigAddStartTrigger():
+--	The DataPoint input contains an empty string
+--	For DataPoints within the namespace "*ACP:" the syntax of the following string is invalid
+-	CoTraceConfigOptionalParameter(): The input "Parameter" is known , but input "Value" is out of range
+*)
+coTRACE_ERR_FAILED				: DINT := -1050673149;	(*Internal error occurred, please contact the B&R support.
+
+Causes:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint(): Internal error in the ACOPOS driver (the driver is available, but forwards an internal error)
+-	CoTraceConfigLoad(): Internal error within the B&R configuration system
+-	CoTraceDataSaveCsv(): Internal error (thread separation)
+-	CoTraceConfigOptionalParameter():
+-	CoTraceRecorder():
+--	Internal error (system failure within the AR scheduler)
+--	Internal error (.br-module containing the recoded data on ACOPOS drives not readable)
+--	Internal error (recorded data on PLC unavailable)*)
+coTRACE_ERR_ACCESS_DENIED		: DINT := -2124414972;	(*The "Ident" input is invalid (null)
+
+Possible sources:
+-	CoTraceConfigAddStartTrigger()
+-	CoTraceConfigAddDataPoint()
+-	CoTraceConfigSetTiming()
+-	CoTraceConfigOptionalParameter()
+-	CoTraceDataSaveCsv()
+-	CoTraceDataReadRecords()
+-	CoTraceRecorder()*)
+coTRACE_ERR_INVALID_IDENT		: DINT := -2124414971;	(*The Ident input is invalid (null)
+
+Possible sources:
+-	CoTraceConfigAddStartTrigger()
+-	CoTraceConfigAddDataPoint()
+-	CoTraceConfigSetTiming()
+-	CoTraceConfigOptionalParameter()
+-	CoTraceDataSaveCsv()
+-	CoTraceDataReadRecords()
+-	CoTraceRecorder()*)
+
+coTRACE_ERR_NOT_POSSIBLE		: DINT := -2124414960;	(*Action is not possible or system is in the wrong state.
+
+Causes and solutions:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigOptionalParameter(): Executed while a trace recorder FB is using this configuration. After disabling the recorder, the FB can be executed again.
+-	CoTraceRecorder(): Provided trace configuration is not valid, because the configuration does not contain any DataPoint. Solution: A DataPoints needs to be added to the trace configuration prior to enabling the recorder.
+*)
+coTRACE_ERR_UNKNOWN_PROVIDER	: DINT := -2124414959;	(*Data-provider is not supported.
+
+Causes and solutions:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigLoad(): Name of a DataPoint starts with *namespace:, but the given namespace is invalid. Solution: Check the namespace.
+*)
+coTRACE_ERR_INVALID_DP_NAME 	: DINT := -2124414958;	(*DataPoint-name is invalid or unrecognized.
+
+Causes and solutions:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigLoad():
+--	In the namespace "*ACP": the ParID is invalid, valid range: 1-65534
+--	In the namespace "*ACP": Channel Number is invalid, valid range 1-99
+--	PV: No PV with matching name found
+*)
+coTRACE_ERR_NOT_AVAILABLE		: DINT := -2124414957;	(*Resource provider is not available.
+
+Causes:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigLoad() and CoTraceRecorder(): DataPoint with "*ACP:" namespace used, but a suitable driver/provider for this namespace is not installed.
+*)
+coTRACE_INF_ALREADY_DONE		: DINT :=  1096810516;	(*Action already performed.
+
+Causes:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint(): This DataPoint or exact start trigger condition is already part of the configuration
+No reaction required. No duplicate of DataPoint or start trigger condition added.
+*)
+coTRACE_ERR_UNSUPPORTED_TYPE	: DINT := -2124414955;	(*Variable type or size is not supported.
+
+Causes:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigLoad():
+--	PV-DataPoint: Given PV name is valid, but the data type is not supported. Only native numeric data types are supported. Only single array elements are supported.
+*)
+coTRACE_ERR_INCOMPLETE_CONFIG	: DINT := -2124414954;	(*Action aborted due to an incomplete configuration.
+
+Causes:
+-	CoTraceConfigAddStartTrigger() and CoTraceConfigAddDataPoint() and CoTraceConfigLoad():
+--	DataPoint with "*ACP:" namespace in start trigger condition is defined, but no DataPoint is to be recorded within the "*ACP:" namespace
+--	Configured start trigger condition with incomplete parameters
+-	CoTraceRecorder():
+--	No DataPoints are in the configuration
+--	TotalRecordingTime is 0 or undefined
+*)
+
+coTRACE_ERR_REF_NOT_FOUND		: DINT := -2124414953;	(*Referenced resource not found or not configured.
+
+Causes:
+-	CoTraceConfigAddStartTrigger(), CoTraceConfigAddDataPoint() or CoTraceConfigLoad(): DataPoint with "*ACP:" namespace references a module or channel, which address is currently not configured.
+*)
+
+coTRACE_ERR_NOT_EXISTS			: DINT := -2124414952;	(*Record not found or does not exist.
+-	CoTraceDataSaveCsv() and CoTraceDataReadRecords(): No data available.
+
+Possible cause:
+Trace recording has been stopped before the first value has been recorded.
+*)
+coTRACE_ERR_END_REACHED 		: DINT := -2124414951;	(*No further suitable entry found.
+
+Causes:
+-	CoTraceDataReadRecords(): Reading next records tried after last record has already been read.
+*)
+coTRACE_ERR_FILEIO_FAILED		: DINT := -2124414950;	(*File-I/O operation failed.
+
+Causes:
+-	CoTraceDataSaveCsv():
+--	Csv-file could not be created
+--	Writing into the created csv-file failed
+For further information see error number of file IO functionality provided in the description text of the EventLog entry. The EventID of this entry is -2124414950.
+*)
+END_VAR

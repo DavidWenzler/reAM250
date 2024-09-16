@@ -1,0 +1,13 @@
+(*
+T: FUNCTION GET_MSB
+FW: YES
+CI#: 60
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 0
+*)
+		LD	@FUV 1
+		SHR	@TYP:17# 00#08
+		WORD_TO_BYTE
+		ST	@FUV 2

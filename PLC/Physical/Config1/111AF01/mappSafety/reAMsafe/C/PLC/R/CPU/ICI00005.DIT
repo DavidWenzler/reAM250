@@ -1,0 +1,45 @@
+(*
+T: FUNCTION_BLOCK CTU
+FW: YES	NO_VARIANT CTU SKIP_NOTHING	
+CI#: 5
+QSL: 0
+QVE: 6
+QPar: 5
+QFBI: 0
+*)
+
+CU	1	VAR_INPUT	@TYP:1	
+	
+
+;
+PFW:
+
+RESET	2	VAR_INPUT	@TYP:1	
+	
+
+;
+PFW:
+
+PV	3	VAR_INPUT	@TYP:3	
+	
+
+;
+PFW:
+
+Q	4	VAR_OUTPUT	@TYP:1	
+	
+
+;
+PFW:
+
+CV	5	VAR_OUTPUT	@TYP:3	
+	
+
+;
+PFW:
+
+CU_R_EDGE	6	VAR	@TYP:1	
+	
+
+;
+PFW:

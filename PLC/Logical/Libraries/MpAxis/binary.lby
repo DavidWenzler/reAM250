@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.2" SubType="binary" Description="[mapp Motion] Axis library" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>MpAxis.fun</File>
+    <File>MpAxis.typ</File>
+    <File>MpAxisError.typ</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="McAxis" FromVersion="5.16.0" ToVersion="5.16.9" />
+    <Dependency ObjectName="MpBase" FromVersion="5.16.0" ToVersion="5.16.9" />
+    <Dependency ObjectName="McBase" FromVersion="5.16.0" ToVersion="5.16.9" />
+  </Dependencies>
+</Library>

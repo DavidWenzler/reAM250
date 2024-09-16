@@ -1,0 +1,26 @@
+(*
+T: FUNCTION BIT_TEST
+FW: YES	INLINE BIT_TEST SKIP_IMAGE
+CI#: 59
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:28
+		    
+
+;
+
+
+BIT_NO	2	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+BIT_TEST	3	VAR_OUTPUT	@TYP:1
+		    
+
+;

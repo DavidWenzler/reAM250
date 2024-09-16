@@ -1,0 +1,28 @@
+(*
+T: FUNCTION_BLOCK CTU_S
+FW: YES
+CI#: 28
+QSL: 0
+QJM: 2
+QJ: 3
+*)
+		LD	@IV 2
+		JMPCN_S	@LBL 1
+		LD	@TYP:48# 16#0000
+		ST	@IV 5
+		JMP	@LBL 2	
+	@LBL 1		
+		LD	@IV 5
+		LT_S	@IV 3
+		AND_S	@IV 1
+		ANDN_S	@IV 6
+		JMPCN_S	@LBL 2
+		LD	@IV 5
+		ADD_S	@TYP:48# 16#0001
+		ST	@IV 5
+	@LBL 2		
+		LD	@IV 5
+		GE_S	@IV 3
+		ST	@IV 4
+		LD	@IV 1
+		ST	@IV 6

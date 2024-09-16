@@ -1,0 +1,34 @@
+(*
+T: FUNCTION ACTF
+FW: YES	INLINE ACTF SKIP_IMAGE
+CI#: 1
+QSL: 0
+QVE: 4
+QPar: 4
+QFBI: 0
+*)
+
+C	1	VAR_INPUT	@TYP:1	
+	
+
+;
+PFW: 
+
+AT	2	VAR_INPUT	@TYP:30	
+	
+
+;
+PFW: 
+
+AF	3	VAR_INPUT	@TYP:30	
+	
+
+;
+PFW: CF#2
+
+ACTF	4	VAR_OUTPUT	@TYP:30	
+	
+
+;
+PFW: CF#2
+

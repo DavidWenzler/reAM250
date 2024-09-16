@@ -1,0 +1,14 @@
+(*
+NC: 1
+NR: 1
+NTC: 1
+NTR: 1
+*)
+PROC	CONFIGURATION	PLC	SafePCOS_31	1
+C\PLC
+PROC	RESOURCE	CPU	arm
+C\PLC\R\CPU
+PROC	VAR_GLOBAL	Global_Variables
+C\PLC\R\CPU\Global_Variables.VBB
+PROC	VAR_GLOBAL	Exchange_Variables
+C\PLC\R\CPU\Exchange_Variables.VBB

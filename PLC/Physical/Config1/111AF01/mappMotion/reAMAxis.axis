@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Configuration>
+  <Element ID="axRecoaterPowderBelt" Type="axis">
+    <Property ID="BaseTypeIsReadOnly" Value="0" />
+    <Selector ID="BaseType" Value="Linear">
+      <Property ID="MeasurementUnit" Value="5066068" />
+      <Property ID="MeasurementResolutionIsReadOnly" Value="0" />
+      <Property ID="MeasurementResolution" Value="0.01" />
+      <Property ID="CountDirectionIsReadOnly" Value="0" />
+      <Property ID="CountDirection" Value="Inverse" />
+    </Selector>
+    <Property ID="MovementLimitsIsReadOnly" Value="0" />
+    <Selector ID="MovementLimits" Value="Internal">
+      <Group ID="Position">
+        <Property ID="LowerLimitMin" Value="-1.79769313486231E308" />
+        <Property ID="UpperLimitMax" Value="1.79769313486231E308" />
+        <Property ID="LowerLimit" Value="-1000.0" />
+        <Property ID="UpperLimit" Value="1000.0" />
+      </Group>
+      <Property ID="VelocityIsReadOnly" Value="0" />
+      <Selector ID="Velocity">
+        <Property ID="VelocityMax" Value="3.4E38" />
+        <Property ID="Velocity" Value="1000" />
+      </Selector>
+      <Property ID="AccelerationIsReadOnly" Value="0" />
+      <Selector ID="Acceleration">
+        <Property ID="AccelerationMax" Value="3.4E38" />
+        <Property ID="Acceleration" Value="5000" />
+      </Selector>
+      <Property ID="DecelerationIsReadOnly" Value="0" />
+      <Selector ID="Deceleration">
+        <Property ID="DecelerationMax" Value="3.4E38" />
+        <Property ID="Deceleration" Value="5000" />
+      </Selector>
+    </Selector>
+    <Selector ID="Alarms" Value="None" />
+  </Element>
+  <Element ID="axRecoater" Type="axis">
+    <Property ID="BaseTypeIsReadOnly" Value="0" />
+    <Selector ID="BaseType" Value="LinearBounded">
+      <Property ID="MeasurementUnit" Value="5066068" />
+      <Property ID="MeasurementResolutionIsReadOnly" Value="0" />
+      <Property ID="MeasurementResolution" Value="0.01" />
+      <Property ID="CountDirectionIsReadOnly" Value="0" />
+      <Property ID="CountDirection" Value="Standard" />
+    </Selector>
+    <Property ID="MovementLimitsIsReadOnly" Value="0" />
+    <Selector ID="MovementLimits" Value="Internal">
+      <Group ID="Position">
+        <Property ID="LowerLimitMin" Value="-1.79769313486231E308" />
+        <Property ID="UpperLimitMax" Value="1.79769313486231E308" />
+        <Property ID="LowerLimit" Value="-5" />
+        <Property ID="UpperLimit" Value="590" />
+      </Group>
+      <Property ID="VelocityIsReadOnly" Value="0" />
+      <Selector ID="Velocity">
+        <Property ID="VelocityMax" Value="3.4E38" />
+        <Property ID="Velocity" Value="1000" />
+      </Selector>
+      <Property ID="AccelerationIsReadOnly" Value="0" />
+      <Selector ID="Acceleration">
+        <Property ID="AccelerationMax" Value="3.4E38" />
+        <Property ID="Acceleration" Value="5000" />
+      </Selector>
+      <Property ID="DecelerationIsReadOnly" Value="0" />
+      <Selector ID="Deceleration">
+        <Property ID="DecelerationMax" Value="3.4E38" />
+        <Property ID="Deceleration" Value="5000" />
+      </Selector>
+    </Selector>
+    <Selector ID="Alarms" Value="None" />
+  </Element>
+  <Element ID="axBuildPlatform" Type="axis">
+    <Property ID="BaseTypeIsReadOnly" Value="0" />
+    <Selector ID="BaseType" Value="LinearBounded">
+      <Property ID="MeasurementUnit" Value="5066068" />
+      <Property ID="MeasurementResolutionIsReadOnly" Value="0" />
+      <Property ID="MeasurementResolution" Value="0.01" />
+      <Property ID="CountDirectionIsReadOnly" Value="0" />
+      <Property ID="CountDirection" Value="Standard" />
+    </Selector>
+    <Property ID="MovementLimitsIsReadOnly" Value="0" />
+    <Selector ID="MovementLimits" Value="Internal">
+      <Group ID="Position">
+        <Property ID="LowerLimitMin" Value="-1.79769313486231E308" />
+        <Property ID="UpperLimitMax" Value="1.79769313486231E308" />
+        <Property ID="LowerLimit" Value="0.0" />
+        <Property ID="UpperLimit" Value="320" />
+      </Group>
+      <Property ID="VelocityIsReadOnly" Value="0" />
+      <Selector ID="Velocity">
+        <Property ID="VelocityMax" Value="3.4E38" />
+        <Property ID="Velocity" Value="10.0" />
+      </Selector>
+      <Property ID="AccelerationIsReadOnly" Value="0" />
+      <Selector ID="Acceleration">
+        <Property ID="AccelerationMax" Value="3.4E38" />
+        <Property ID="Acceleration" Value="50.0" />
+      </Selector>
+      <Property ID="DecelerationIsReadOnly" Value="0" />
+      <Selector ID="Deceleration">
+        <Property ID="DecelerationMax" Value="3.4E38" />
+        <Property ID="Deceleration" Value="50.0" />
+      </Selector>
+    </Selector>
+    <Selector ID="Alarms" Value="None" />
+  </Element>
+  <Element ID="axPowderReservoir" Type="axis">
+    <Property ID="BaseTypeIsReadOnly" Value="0" />
+    <Selector ID="BaseType" Value="Rotary">
+      <Property ID="MeasurementUnitIsReadOnly" Value="0" />
+      <Property ID="MeasurementUnit" Value="17476" />
+      <Property ID="MeasurementResolutionIsReadOnly" Value="0" />
+      <Property ID="MeasurementResolution" Value="0.01" />
+      <Property ID="CountDirectionIsReadOnly" Value="0" />
+      <Property ID="CountDirection" Value="Standard" />
+    </Selector>
+    <Property ID="MovementLimitsIsReadOnly" Value="0" />
+    <Selector ID="MovementLimits" Value="Internal">
+      <Group ID="Position">
+        <Property ID="LowerLimitMin" Value="-1.79769313486231E308" />
+        <Property ID="UpperLimitMax" Value="1.79769313486231E308" />
+        <Property ID="LowerLimit" Value="-1000.0" />
+        <Property ID="UpperLimit" Value="1000.0" />
+      </Group>
+      <Property ID="VelocityIsReadOnly" Value="0" />
+      <Selector ID="Velocity">
+        <Property ID="VelocityMax" Value="3.4E38" />
+        <Property ID="Velocity" Value="360" />
+      </Selector>
+      <Property ID="AccelerationIsReadOnly" Value="0" />
+      <Selector ID="Acceleration">
+        <Property ID="AccelerationMax" Value="3.4E38" />
+        <Property ID="Acceleration" Value="3600" />
+      </Selector>
+      <Property ID="DecelerationIsReadOnly" Value="0" />
+      <Selector ID="Deceleration">
+        <Property ID="DecelerationMax" Value="3.4E38" />
+        <Property ID="Deceleration" Value="3600" />
+      </Selector>
+    </Selector>
+    <Selector ID="Alarms" Value="None" />
+  </Element>
+</Configuration>

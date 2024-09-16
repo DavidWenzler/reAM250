@@ -1,0 +1,33 @@
+(*
+T: FUNCTION_BLOCK RS_S
+FW: YES	INLINE RS_S SKIP_IMAGE	
+CI#: 41
+QSL: 0
+QVE: 4
+QPar: 3
+QFBI: 0
+*)
+
+SET	1	VAR_INPUT	@TYP:43	
+	
+
+;
+PFW:
+
+RESET1	2	VAR_INPUT	@TYP:43	
+	
+
+;
+PFW:
+
+Q1	3	VAR_OUTPUT	@TYP:43	
+	
+
+;
+PFW:
+
+Flag	4	VAR	@TYP:43	
+	
+
+;
+PFW:

@@ -1,0 +1,27 @@
+(*
+T: FUNCTION I_BIT_IN_WORD
+FW: YES	INLINE I_BIT_IN_WORD SKIP_IMAGE
+CI#: 66
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:18
+		    
+
+;
+
+
+BIT_NO	2	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+I_BIT_IN_WORD	3	VAR_OUTPUT	@TYP:18
+		    
+
+;
+

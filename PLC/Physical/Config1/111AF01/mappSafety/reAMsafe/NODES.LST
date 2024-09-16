@@ -1,0 +1,8 @@
+CONFIGURATION	2	PLC		SafePCOS_31
+RESOURCE	3	CPU			arm
+TASKDIR	4	Tasks		SafePCOS_31	arm
+TASK	5	TASK		SafePCOS_31	arm
+PROGRAM	6	Main	Main	SafePCOS_31	arm
+VAR_GLOBALS	4	Global_Variables	C\PLC\R\CPU\Global_Variables.VBB		
+VAR_GLOBALS	4	Exchange_Variables	C\PLC\R\CPU\Exchange_Variables.VBB		
+IO/CONFIGURATION	4	IO_Configuration	C\PLC\R\CPU\IOCONFIG.CNF		

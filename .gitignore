@@ -1,0 +1,17 @@
+# Excludes for AMCF project
+/AMCF/build
+/AMCF/Framework
+/AMCF/DevPackages
+
+# Excludes for Automation Studio project
+/reAM250plc/Binaries
+/reAM250plc/Diagnosis
+/reAM250plc/Temp
+/reAM250plc/BuROutput*
+/reAM250plc/testapp*
+reAM250plc/*.isopen
+reAM250plc/*.set
+
+# Excludes for draw IO
+/DrawIO/*.bkp
+/DrawIO/*.dtmp

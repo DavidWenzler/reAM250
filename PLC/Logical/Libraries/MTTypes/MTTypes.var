@@ -1,0 +1,25 @@
+(*Errors: General*)
+VAR CONSTANT
+	mtGNR_ERR_MEM_ALLOC_FAILED : DINT := -1058013181; (*Error during memory assignment.*)
+	mtGNR_ERR_SAMPLE_TIME_INVALID : DINT := -1058013180; (*Sample time is invalid.*)
+	mtGNR_ERR_GAIN_NEGATIVE : DINT := -1058013179; (*The selected gain is negative.*)
+	mtGNR_ERR_INTEGRATION_TIME_NEG : DINT := -1058013178; (*The selected integration time is negative.*)
+	mtGNR_ERR_DERIVATIVE_TIME_NEG : DINT := -1058013177; (*The selected derivative time is negative.*)
+	mtGNR_ERR_FILTER_TIME_NEGATIVE : DINT := -1058013176; (*The selected filter time is negative.*)
+	mtGNR_ERR_DELAY_TIME_NEGATIVE : DINT := -1058013175; (*The selected delay time is negative.*)
+	mtGNR_ERR_DELAY_TIME_HIGH : DINT := -1058013174; (*The selected delay time is too high.*)
+	mtGNR_ERR_OUTPUT_LIMIT_INVALID : DINT := -1058013173; (*The limits selected for the output are invalid.*)
+	mtGNR_ERR_DELAY_TIME_TOO_HIGH : DINT := -1058013172; (*The selected delay time is too high.*)
+END_VAR
+(*Warnings:General*)
+VAR CONSTANT
+	mtGNR_WRN_OTHER_FB_USES_SYSREF : DINT := -2131755007; (*Another function block uses the data in this SystemReference.*)
+	mtGNR_WRN_MEM_ALLOC_FAILED : DINT := -2131755006; (*Error during memory assignment.*)
+	mtGNR_WRN_GAIN_NEGATIVE : DINT := -2131755005; (*The selected gain is negative.*)
+	mtGNR_WRN_INTEGRATION_TIME_NEG : DINT := -2131755004; (*The selected integration time is negative.*)
+	mtGNR_WRN_DERIVATIVE_TIME_NEG : DINT := -2131755003; (*The selected derivative time is negative.*)
+	mtGNR_WRN_FILTER_TIME_NEGATIVE : DINT := -2131755002; (*The selected filter time is negative.*)
+	mtGNR_WRN_OUTPUT_LIMIT_INVALID : DINT := -2131755001; (*The limits selected for the output are invalid.*)
+	mtGNR_WRN_DELAY_TIME_NEGATIVE : DINT := -2131755000; (*The selected delay time is negative.*)
+	mtGNR_WRN_DELAY_TIME_TOO_HIGH : DINT := -2131754999; (*The selected delay time is too high.*)
+END_VAR

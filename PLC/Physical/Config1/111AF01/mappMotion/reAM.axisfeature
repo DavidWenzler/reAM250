@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Configuration>
+  <Element ID="Feature_CamAutomat" Type="axisfeature">
+    <Selector ID="Type" Value="CamAutomat">
+      <Selector ID="CamAutomatType" Value="ACOPOS">
+        <Group ID="CommonParameters">
+          <Group ID="Master">
+            <Selector ID="ValueSource" Value="SetPosition">
+              <Property ID="AxisReference" Value="axRecoater" />
+              <Property ID="MaxVelocity" Value="1.0" />
+            </Selector>
+            <Property ID="StartPosition" Value="0.0" />
+            <Selector ID="StartInterval" Value="MasterAxisPeriod" />
+          </Group>
+          <Group ID="AdvancedParameters">
+            <Group ID="StartStateParameters">
+              <Property ID="StartState" Value="0" />
+              <Property ID="RelMasterStartPos" Value="0.0" />
+            </Group>
+            <Group ID="AdditiveAxes">
+              <Selector ID="AdditiveMasterValueSource" Value="NotUsed" />
+              <Selector ID="AdditiveSlaveValueSource" Value="NotUsed" />
+            </Group>
+            <Property ID="MasterStartPositionMode" Value="NotEvaluatedAnew" />
+            <Group ID="ControlSettings">
+              <Property ID="CrossLeftBoundary" Value="PositionLimitedHorizontal" />
+              <Property ID="CamChangeImmediately" Value="CurrentMasterMoveDir" />
+            </Group>
+            <Group ID="MessageSettings">
+              <Property ID="ErrorsInStandby" Value="NoErrorMessages" />
+            </Group>
+            <Group ID="TriggerAndLatch">
+              <Property ID="Trigger1Delay" Value="0.0" />
+              <Property ID="Trigger2Delay" Value="0.0" />
+              <Property ID="SlaveLatchParID" Value="0" />
+            </Group>
+            <Group ID="EventParIDs" />
+            <Group ID="StartIntervals" />
+            <Group ID="Factors">
+              <Property ID="SlaveFactorParID" Value="0" />
+            </Group>
+          </Group>
+        </Group>
+        <Group ID="States">
+          <Selector ID="State0" Value="Used" />
+          <Group ID="State[1]">
+            <Selector ID="Cam" Value="Predefined">
+              <Property ID="PredefinedCam" Value="OneToOne" />
+            </Selector>
+            <Property ID="MasterFactor" Value="1" />
+            <Property ID="SlaveFactor" Value="1" />
+            <Selector ID="CompensationMode" Value="NoCompensation" />
+            <Group ID="AdvancedParameters">
+              <Property ID="RepeatCounterInit" Value="0" />
+              <Selector ID="MasterValueSource" Value="CommonMaster" />
+            </Group>
+          </Group>
+        </Group>
+      </Selector>
+    </Selector>
+  </Element>
+  <Element ID="Feature_CamAutomat_1" Type="axisfeature">
+    <Selector ID="Type" Value="ParTab">
+      <Property ID="ParTabRef" />
+    </Selector>
+  </Element>
+</Configuration>

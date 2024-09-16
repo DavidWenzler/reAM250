@@ -1,0 +1,33 @@
+                                                                      
+VAR CONSTANT
+
+   asdiagERR_NOMEM  	: UINT := 30801; 		(*not enough memory to process the information*)
+   asdiagERR_IDENT 	    : UINT := 30802; 		(*invalid ID*)
+   asdiagERR_INDEX 	    : UINT := 30803; 		(*index out of range [0..nrEntries-1]*)
+   asdiagERR_INFOCODE   : UINT := 30804; 		(*unknown infoCode parameter*)
+   asdiagERR_INFOKIND   : UINT := 30805; 		(*unknown infoKind parameter*)
+
+(* infoCode GetNumInfo *)
+   asdiagMODUL_STATE  	: UDINT :=  1;			(*module state: 0x01 Module configured only, 0x02 Module inserted only, ..*)
+   asdiagPLUGGED_MODNO 	: UDINT :=  2;			(*module code of inserted module*)
+   asdiagCONFIG_MODNO 	: UDINT :=  3;			(*module code of configured module*)
+   asdiagPLUGGED_FAMILY : UDINT :=	4;			(*family code of the inserted module*)
+   asdiagCONFIG_FAMILY 	: UDINT :=  5;			(*family code of the configured module*)
+   asdiagPLUGGED_USETYPE: UDINT := 	6;			(*use type of the inserted module*)
+   asdiagCONFIG_USETYPE : UDINT :=	7; 			(*use type of the configured module*)
+   asdiagSERIAL_NUMBER  : UDINT :=  8;          (*serial number of inserted module*)
+
+(* infoCode GetStrInfo *)
+   asdiagPATH  	        : UDINT :=	1001;		(*path of the module (e.g. "SL6.IF2.ST3.SL6.SS4"); the CPU path is "$root"*)
+   asdiagPLUGGED_MODULE : UDINT :=	1002;		(*model number of the inserted module*)
+   asdiagCONFIG_MODULE 	: UDINT :=	1003;		(*model number of the configured module*)
+   asdiagPLUGGED_BUS 	: UDINT :=	1004;		(*bus system of the inserted module*)
+   asdiagCONFIG_BUS 	: UDINT :=	1005;		(*bus system of the configured module*)
+   asdiagHARDWARE_MODULE_NAME : UDINT := 1006;  (*hardware module name*)
+   asdiagHARDWARE_DEVICE_TAG : UDINT := 1007;   (*hardware device tag*)
+
+(* infoKind *)
+   asdiagPLUGGED  	: UDINT :=	1;				(*information about inserted modules*)
+   asdiagCONFIGURED : UDINT :=	2;				(*information about configured modules*)
+   asdiagALL 	    : UDINT :=	3;				(*information about inserted and configured modules*)
+END_VAR

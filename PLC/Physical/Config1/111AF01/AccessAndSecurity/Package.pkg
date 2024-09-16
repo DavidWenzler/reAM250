@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package SubType="AccessAndSecurity" PackageType="AccessAndSecurity" xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package">UserRoleSystem</Object>
+    <Object Type="Package">CertificateStore</Object>
+    <Object Type="Package">TransportLayerSecurity</Object>
+    <Object Type="Package">Firewall</Object>
+  </Objects>
+</Package>

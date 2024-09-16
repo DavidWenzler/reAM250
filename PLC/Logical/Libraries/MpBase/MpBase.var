@@ -1,0 +1,6 @@
+VAR CONSTANT
+	mpCOM_MAIN_INT : UDINT := 1;
+	mpCOM_STANDALONE_INT : UDINT := 2;
+	mpCOM_MAIN : MpComIdentType := (Internal:=[mpCOM_MAIN_INT,0]);
+	mpCOM_STANDALONE : MpComIdentType := (Internal:=[mpCOM_STANDALONE_INT,0]);
+END_VAR

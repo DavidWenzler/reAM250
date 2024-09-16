@@ -1,0 +1,13 @@
+(*
+T: FUNCTION GET_LSB
+FW: YES
+CI#: 61
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 0
+*)
+		LD	@FUV 1
+		AND	@TYP:18# 00#00FF
+		WORD_TO_BYTE
+		ST	@FUV 2

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Configuration>
+  <Element ID="safeDomain" Type="sfdomain">
+    <Group ID="DefaultSettings">
+      <Property ID="SafeDomain" Value="1" />
+      <Property ID="SafeLOGICName" Value="X20SL8101" />
+      <Property ID="SafeLOGICProductId" Value="X20SL8101" />
+      <Property ID="SafeLOGICModulePath" Value="SL1.IF1.ST2" />
+      <Property ID="Password" Value="f257455c15594d283ab59b1680438779" Description="Hash for the SafeKEY password / reAMsafe" />
+      <Property ID="SafeProject" Value="reAMsafe" />
+    </Group>
+    <Group ID="DefaultFiles">
+      <Property ID="TargetApplication" Value="reAMsafe.sfapp" />
+    </Group>
+  </Element>
+</Configuration>

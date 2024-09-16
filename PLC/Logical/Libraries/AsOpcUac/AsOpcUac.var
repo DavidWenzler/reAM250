@@ -1,0 +1,24 @@
+                                                                      
+VAR CONSTANT
+	MAX_LENGTH_VARIABLE					: UINT := 255;
+	MAX_LENGTH_BYTESTRING				: UINT := 1024;
+	
+	MAX_ELEMENTS_ARRAYDIMENSION 		: UINT := 7;	(* B&R supports arrays with 7 dimensions											*)
+	MAX_ELEMENTS_INDEXRANGE 			: UINT := 8;	(* Index range addresses max number of dimensions +1 for string/bytestring index	*)
+	MAX_ELEMENTS_NODELIST 				: UINT := 64;	(* Maximum number of items the node list functions can handle						*)
+	MAX_ELEMENTS_MONITORLIST			: UINT := 64;	(* Maximum number of elements the monitored item list functions can handle			*)
+	MAX_ELEMENTS_ARGUMENTS 				: UINT := 10;	(* Maximum number of input and output arguments for method call						*)
+	MAX_ELEMENTS_EVENTFIELDSELECTION	: UINT := 64;
+	MAX_ELEMENTS_RELATIVEPATH			: UINT := 16;
+	
+	(* B&R requires zero based arrays in .typ and .fun files, calculations like "const - 1" are not allowed
+	   for declarations in those files, so other constants denoting the array upper limit are declared *)
+	MAX_INDEX_ARRAYDIMENSION 			: UINT := MAX_ELEMENTS_ARRAYDIMENSION - 1;
+	MAX_INDEX_INDEXRANGE 				: UINT := MAX_ELEMENTS_INDEXRANGE - 1;
+	MAX_INDEX_NODELIST 					: UINT := MAX_ELEMENTS_NODELIST - 1;
+	MAX_INDEX_MONITORLIST 				: UINT := MAX_ELEMENTS_MONITORLIST - 1;
+	MAX_INDEX_ARGUMENTS 				: UINT := MAX_ELEMENTS_ARGUMENTS - 1;
+	MAX_INDEX_EVENTFIELDSELECTION		: UINT := MAX_ELEMENTS_EVENTFIELDSELECTION - 1;
+	MAX_INDEX_RELATIVEPATH				: UINT := MAX_ELEMENTS_RELATIVEPATH - 1;
+	MAX_INDEX_BYTESTRING				: UINT := MAX_LENGTH_BYTESTRING - 1;
+END_VAR

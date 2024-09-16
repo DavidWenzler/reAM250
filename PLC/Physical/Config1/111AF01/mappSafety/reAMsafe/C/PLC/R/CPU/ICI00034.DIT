@@ -1,0 +1,27 @@
+(*
+T: FUNCTION LE_S
+FW: YES	INL_PN LE_S SKIP_IMAGE
+CI#: 34
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN1	1	VAR_INPUT	@TYP:53	
+	
+
+;
+PFW:
+
+IN2	2	VAR_INPUT	@TYP:53	
+	
+
+;
+PFW: CF#1
+
+LE_S	3	VAR_OUTPUT	@TYP:43	
+	
+
+;
+PFW:

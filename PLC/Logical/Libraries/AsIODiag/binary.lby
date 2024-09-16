@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="The AsIODiag library provides functions for creating and evaluating I/O module information." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>AsIODiag.fun</File>
+    <File>AsIODiag.typ</File>
+    <File>AsIODiag.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="runtime" />
+  </Dependencies>
+</Library>

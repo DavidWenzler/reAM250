@@ -1,0 +1,35 @@
+                                                                      
+ (*Common Functionblock Status*)
+VAR CONSTANT
+	ERR_OK                : UINT := 0;			(*no error*)
+	ERR_NOTIMPLEMENTED    : UINT := 9999;       (*function or function block not implemented*)
+	ERR_FUB_ENABLE_FALSE  : UINT := 16#FFFE;	(*function block parameter "enable" is FALSE*)
+	ERR_FUB_BUSY          : UINT := 16#FFFF;	(*function block still working*)
+	ERR_FUB_REDUNDANT     :	UINT := 35688;		(*This FUB can not be used on the standby CPU*)
+	ERR_FB_NOT_IMPLEMENTED: DINT := -1070585592;(*function or function block not implemented for the target system*)
+END_VAR
+
+(*IEC 61131-3 Datatypes*)
+VAR CONSTANT	
+	IEC_DATATYPE_BOOL		: UINT := 1;		(*8 Bit containing a boolean value FALSE=0 or TRUE=1*)
+	IEC_DATATYPE_SINT		: UINT := 2;		(*8 Bit signed integer*)
+	IEC_DATATYPE_INT		: UINT := 3;		(*16 Bit signed integer*) 
+	IEC_DATATYPE_DINT		: UINT := 4;		(*32 Bit signed integer*) 
+	IEC_DATATYPE_USINT		: UINT := 5;		(*8 Bit unsigned integer*)
+	IEC_DATATYPE_UINT		: UINT := 6;		(*16 Bit unsigned integer*)
+	IEC_DATATYPE_UDINT		: UINT := 7;		(*32 Bit unsigned integer*)
+	IEC_DATATYPE_REAL		: UINT := 8;		(*32 Bit floating point number*)
+	IEC_DATATYPE_STRING		: UINT := 9;		(*Variable-length single-byte character string*)
+	IEC_DATATYPE_ULINT		: UINT := 10;		(*64 Bit unsigned integer*)
+	IEC_DATATYPE_DATE_AND_TIME	: UINT := 11;	(*32 Bit of Date in Seconds since 01.01.1970 00:00:00*)
+	IEC_DATATYPE_TIME		: UINT := 12;		(*32 Bit of Time in ms*)
+	IEC_DATATYPE_DATE		: UINT := 13;		(*32 Bit of Date (only)*)
+	IEC_DATATYPE_LREAL		: UINT := 14;		(*64 Bit floating point number*)
+	IEC_DATATYPE_TIME_OF_DAY: UINT := 16;		(*32 Bit Time of day (only)*)
+	IEC_DATATYPE_BYTE		: UINT := 17;		(*Bit string of length 8*)
+	IEC_DATATYPE_WORD		: UINT := 18;		(*Bit string of length 16*)
+	IEC_DATATYPE_DWORD		: UINT := 19;		(*Bit string of length 32*)
+	IEC_DATATYPE_LWORD		: UINT := 20;		(*Bit string of length 64*)
+	IEC_DATATYPE_WSTRING	: UINT := 21;		(*Variable-length double-byte character string*)
+	IEC_DATATYPE_LINT		: UINT := 23;		(*64 Bit signed integer*)
+END_VAR

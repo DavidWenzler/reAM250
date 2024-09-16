@@ -1,0 +1,27 @@
+(*
+T: FUNCTION GT
+FW: YES	INL_PN GT SKIP_IMAGE
+CI#: 10
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN1	1	VAR_INPUT	@TYP:30	
+	
+
+;
+PFW:
+
+IN2	2	VAR_INPUT	@TYP:30	
+	
+
+;
+PFW: CF#1
+
+GT	3	VAR_OUTPUT	@TYP:1	
+	
+
+;
+PFW: 

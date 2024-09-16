@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="This library contains function interfaces for IEC 61131-3 operator functions. For the most part, these are mathematical and logical functions." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>operator.fun</File>
+    <File>operator.typ</File>
+    <File>operator.var</File>
+  </Files>
+</Library>

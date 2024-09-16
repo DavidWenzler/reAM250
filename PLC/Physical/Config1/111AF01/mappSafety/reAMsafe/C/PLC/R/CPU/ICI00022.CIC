@@ -1,0 +1,22 @@
+(*
+T: FUNCTION_BLOCK TP
+FW: YES
+CI#: 22
+QSL: 0
+QJM: 0
+QJ: 0
+*)
+
+		LD	@IV 1
+		BOOL_TO_BYTE
+		ST	@IV 7
+		PARA	@IV 5
+		PARV	@IV 2
+		PARV	@TYP:3# 3
+		CAL	@SFB 7
+		LD	@IV 6
+		ST	@IV 3
+		LD	@IV 9
+		BYTE_TO_BOOL
+		ST	@IV 4
+

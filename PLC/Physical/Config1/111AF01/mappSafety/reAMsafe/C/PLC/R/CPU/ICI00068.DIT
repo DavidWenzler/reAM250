@@ -1,0 +1,27 @@
+(*
+T: FUNCTION S_BIT_IN_BYTE
+FW: YES	INLINE S_BIT_IN_BYTE SKIP_IMAGE
+CI#: 68
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+BIT_NO	2	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+S_BIT_IN_BYTE	3	VAR_OUTPUT	@TYP:17
+		    
+
+;
+

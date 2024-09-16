@@ -1,0 +1,64 @@
+(*
+T: PROGRAM Main
+FW: NO
+CI#: 80
+QSL: 9
+QVE: 9
+QVPC: 9
+QPar: 0
+QFBI: 4
+*)
+@V 1 2 0
+SF_EmergencyStop	1	VAR	@FB:81
+		     
+
+;
+
+@V 1 3 0
+SF_LaserCover	2	VAR	@FB:81
+		     
+
+;
+
+@V 1 4 0
+LaserCoverOutput	3	VAR	@TYP:43
+		     
+
+;
+
+@V 1 5 0
+LaserCellOutput	4	VAR	@TYP:43
+		     
+
+;
+
+@V 1 6 0
+SG_BuildChamberDoor	5	VAR	@FB:81
+		     
+
+;
+
+@V 1 7 0
+ChamberDoorOutput	6	VAR	@TYP:43
+		     
+
+;
+
+@V 1 8 0
+EstopOutput	7	VAR	@TYP:43
+		     
+
+;
+
+@V 1 9 0
+EnableAcpDrive	8	VAR	@TYP:43
+		     
+
+;
+
+@V 1 10 0
+SF_LacerCell	9	VAR	@FB:81
+		     
+
+;
+

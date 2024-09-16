@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">IOModule_PLC.hpp</Object>
+    <Object Type="File">IOModule_PLC.cpp</Object>
+    <Object Type="File">IOModule_X20AI4622.hpp</Object>
+    <Object Type="File">IOModule_X20AI4622.cpp</Object>
+    <Object Type="File">IOModule_X20DI6371.hpp</Object>
+    <Object Type="File">IOModule_X20DI6371.cpp</Object>
+    <Object Type="File">IOModule_X20DI9371.hpp</Object>
+    <Object Type="File">IOModule_X20DI9371.cpp</Object>
+    <Object Type="File">IOModule_X20SI8110.cpp</Object>
+    <Object Type="File">IOModule_X20SI8110.hpp</Object>
+    <Object Type="File">IOModule_X20SO6300.cpp</Object>
+    <Object Type="File">IOModule_X20SO6300.hpp</Object>
+    <Object Type="File">IOModule_X20SC0842.cpp</Object>
+    <Object Type="File">IOModule_X20SC0842.hpp</Object>
+    <Object Type="File">IOModule_X20DO6322.hpp</Object>
+    <Object Type="File">IOModule_X20DO6322.cpp</Object>
+    <Object Type="File">IOModule_X20AO4622.hpp</Object>
+    <Object Type="File">IOModule_X20AO4622.cpp</Object>
+    <Object Type="File">IOModule_X20AT6402.hpp</Object>
+    <Object Type="File">IOModule_X20AT6402.cpp</Object>
+    <Object Type="File">IOModule_X20BC0083.hpp</Object>
+    <Object Type="File">IOModule_X20BC0083.cpp</Object>
+    <Object Type="File">MappMotion_SingleAxis.hpp</Object>
+    <Object Type="File">MappMotion_SingleAxis.cpp</Object>
+  </Objects>
+</Package>

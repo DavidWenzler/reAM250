@@ -1,0 +1,27 @@
+(*
+T: FUNCTION GE
+FW: YES	INL_PN GE SKIP_IMAGE
+CI#: 9
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN1	1	VAR_INPUT	@TYP:30
+	
+
+;
+PFW:
+
+IN2	2	VAR_INPUT	@TYP:30
+	
+
+;
+PFW: CF#1
+
+GE	3	VAR_OUTPUT	@TYP:1	
+	
+
+;
+PFW:

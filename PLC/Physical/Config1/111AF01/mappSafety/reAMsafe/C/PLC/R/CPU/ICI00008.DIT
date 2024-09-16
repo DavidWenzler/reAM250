@@ -1,0 +1,27 @@
+(*
+T: FUNCTION_BLOCK F_TRIG
+FW: YES	INLINE F_TRIG SKIP_IMAGE	
+CI#: 8
+QSL: 0
+QVE: 3
+QPar: 2
+QFBI: 0
+*)
+
+CLK	1	VAR_INPUT	@TYP:1	
+	
+
+;
+PFW:
+
+Q	2	VAR_OUTPUT	@TYP:1	
+	
+
+;
+PFW:
+
+M	3	VAR	@TYP:1	
+	
+
+;
+PFW:

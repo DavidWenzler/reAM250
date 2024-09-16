@@ -1,0 +1,70 @@
+(*
+T: FUNCTION_BLOCK TP
+FW: YES	INLINE TP SKIP_IMAGE
+CI#: 22
+QSL: 0
+QVE: 10
+QPar: 4
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:1	
+	
+
+;
+PFW:
+
+PT	2	VAR_INPUT	@TYP:12	
+	
+
+;
+PFW:
+
+ET	3	VAR_OUTPUT	@TYP:12	
+	
+
+;
+PFW:
+
+Q	4	VAR_OUTPUT	@TYP:1	
+	
+
+;
+PFW:
+
+PARA_T0	5	VAR	@TYP:12	
+	
+
+;
+PFW:
+
+PARA_ET	6	VAR	@TYP:12	
+	
+
+;
+PFW:
+
+IN_TMP	7	VAR	@TYP:17	
+	
+
+;
+PFW:
+
+IN1	8	VAR	@TYP:17	
+	
+
+;
+PFW:
+
+OUT_TMP	9	VAR	@TYP:17	
+	
+
+;
+PFW:
+
+PADDING	10	VAR	@TYP:17	
+	
+
+;
+PFW:
+

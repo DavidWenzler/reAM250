@@ -1,0 +1,28 @@
+(*
+T: FUNCTION MUL
+FW: YES	INL_PN MUL SKIP_IMAGE
+CI#: 76
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN1	1	VAR_INPUT	@TYP:25	
+	
+
+;
+PFW:
+
+IN2	2	VAR_INPUT	@TYP:25	
+	
+
+;
+PFW: CF#1 EXT
+
+MUL	3	VAR_OUTPUT	@TYP:25	
+	
+
+;
+PFW: CF#1
+

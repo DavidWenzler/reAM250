@@ -1,0 +1,5 @@
+                                                                      
+VAR CONSTANT
+	MAX_LENGTH_EVENTFIELDPATH			: UINT := 255;
+	MAX_LENGTH_NAMESPACEURI				: UINT := 255;
+END_VAR

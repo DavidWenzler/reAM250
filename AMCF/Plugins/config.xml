@@ -1,0 +1,2279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<machinedefinition xmlns="http://schemas.autodesk.com/amc/machinedefinitions/2020/02" xmlns:sync="http://schemas.autodesk.com/amc/synchronization/2020/02">
+
+  <internationalization default="en">
+    <language identifier="en" name="English" resource="language_english" />
+    <language identifier="de" name="Deutsch" resource="language_german" />
+  </internationalization>
+
+  <accesscontrol>
+
+    <defaultusers>
+      <defaultuser name="test" salt="f735faa2ac49ac0a68dbf41d9cd57cfb426ef91eb19726afd8f075ac625cccb2" passwordhash="556080937385d8eb21ea0e8707d7cf3e94b79ed234596ba8a2ac98da1ff4fee3" description="This is a test user." />
+    </defaultusers>
+
+    <permissions>
+      <permission identifier="permission_view_builds" displayname="View Builds" description="Can view build files on machine." />
+      <permission identifier="permission_start_build" displayname="Start Build" description="Can start a new build on machine." />
+      <permission identifier="permission_user_management" displayname="User Management" description="Can create/edit local users." />
+      <permission identifier="permission_acknowledgealerts" displayname="Permission that nobody has" description="." />
+    </permissions>
+
+
+    <roles default="operator">
+
+      <role identifier="observer" displayname="Observer" description="Machine Observer - can not change anything">
+        <permission identifier="permission_view_builds" />
+      </role>
+
+      <role identifier="operator" displayname="Operator" description="Machine Operator Access">
+        <permission identifier="permission_view_builds" />
+        <permission identifier="permission_start_build" />
+      </role>
+
+      <role identifier="administrator" displayname="Administrator" description="Machine Administration Access">
+        <permission identifier="permission_view_builds" />
+        <permission identifier="permission_start_build" />
+        <permission identifier="permission_user_management" />
+      </role>
+
+    </roles>
+
+
+  </accesscontrol>
+
+  <alerts>
+    <alert identifier="safetynotclosed" level="warning" description="Safety Circuit is not closed." />
+  </alerts>
+
+  <driver name="bur" library="driver_bur" type="bur-1.0" configurationschema="http://schemas.autodesk.com/amc/burprotocol/2023/06">
+    <version major="2" minor="0" patch="0" />
+
+    <protocol packetsignature="171" />
+
+    <queue size="2048" />
+
+    <machinestatus>
+
+      <integer name="o2_chamber_ppm" group="O2Sensor" value="o2chamberinppm" description="O2 Content in the Chamber in ppm"/>
+      <integer name="o2_filter_ppm" group="O2Sensor" value="o2filterinppm" description="O2 Content in the Filter in ppm"/>
+
+	  <integer name="oxygencontrol_PID_setvalue" group="oxygen" value="oxygencontrol_PID_setvalue" description="Oxygen setpoint in ppm"/>
+	  <integer name="heater_PID_setvalue" group="heater" value="heater_PID_setvalue" description="Setpoint build plate heater in degree celcius"/>
+	  <bool name="oxygencontrol_PID_isenabled" group="oxygen" value="oxygencontrol_PID_isenabled" description="Oxygen controller enabled flag"/>
+	  <bool name="heater_PID_isenabled" group="heater" value="heater_PID_isenabled" description="Heater controller enabled flag"/>
+
+	  <integer name="pressure_in_mbar" group="vacuumsystem" value="pressureinmbar" description="Absolute pressure in mbar"/>
+	  <integer name="pressure_threshold_vacuum_off_in_mbar" group="vacuumsystem" value="pressurethresholdvacuumoffinmbar" description="Absolute pressure threshold in mbar"/>
+
+	  <integer name="o2_threshold_circulation_on_in_ppm" group="gascirculation" value="o2thresholdcirculationoninppm" description="Below this threshold the circulation pump can be switched on"/>
+	  <integer name="pump_setpoint_in_percent" group="gascirculation" value="pumpsetpointinpercent" description="Setpoint of the circulation pump"/>
+		
+		
+      <bool name="112kf11_moduleok" group="112KF11" value="ModuleOk" description="112KF11 Module OK"/>
+      <integer name="112kf11_serial" group="112KF11" value="SerialNumber" description="112KF11 Serial"/>
+      <integer name="112kf11_moduleID" group="112KF11" value="ModuleID" description="112KF11 Module ID"/>
+      <integer name="112kf11_variant" group="112KF11" value="HardwareVariant" description="112KF11 Hardware Variant"/>
+      <integer name="112kf11_firmware" group="112KF11" value="FirmwareVersion" description="112KF11 Firmware Version"/>
+      <integer name="112kf11_temperature01" group="112KF11" value="Temperature01" description="112KF11 Thermocouple Temperature 01 In °C"/>
+      <integer name="112kf11_temperature02" group="112KF11" value="Temperature02" description="112KF11 Thermocouple Temperature 02 In °C"/>
+      <integer name="112kf11_temperature03" group="112KF11" value="Temperature03" description="112KF11 Thermocouple Temperature 03 In °C"/>
+      <integer name="112kf11_temperature04" group="112KF11" value="Temperature04" description="112KF11 Thermocouple Temperature 04 In °C"/>
+      <integer name="112kf11_temperature05" group="112KF11" value="Temperature05" description="112KF11 Thermocouple Temperature 05 In °C"/>
+      <integer name="112kf11_temperature06" group="112KF11" value="Temperature06" description="112KF11 Thermocouple Temperature 06 In °C"/>
+      <integer name="112kf11_status01" group="112KF11" value="StatusInput01" description="112KF11 Status Inputs 01 to 04"/>
+      <integer name="112kf11_status02" group="112KF11" value="StatusInput02" description="112KF11 Status Inputs 05 to 06"/>
+
+      <bool name="112kf12_moduleok" group="112KF12" value="ModuleOk" description="112KF12 Module OK"/>
+      <integer name="112kf12_serial" group="112KF12" value="SerialNumber" description="112KF12 Serial"/>
+      <integer name="112kf12_moduleID" group="112KF12" value="ModuleID" description="112KF12 Module ID"/>
+      <integer name="112kf12_variant" group="112KF12" value="HardwareVariant" description="112KF12 Hardware Variant"/>
+      <integer name="112kf12_firmware" group="112KF12" value="FirmwareVersion" description="112KF12 Firmware Version"/>
+      <integer name="112kf12_raw01" group="112KF12" value="AnalogOutput01" description="112KF12 Analog Output Raw Value 01 In Bit"/>
+      <integer name="112kf12_raw02" group="112KF12" value="AnalogOutput02" description="112KF12 Analog Output Raw Value 02 In Bit"/>
+      <integer name="112kf12_raw03" group="112KF12" value="AnalogOutput03" description="112KF12 Analog Output Raw Value 03 In Bit"/>
+      <integer name="112kf12_raw04" group="112KF12" value="AnalogOutput04" description="112KF12 Analog Output Raw Value 04 In Bit"/>
+      <double name="112kf12_voltage01" group="112KF12" value="OutputVoltage01" description="112KF12 Analog Output Voltage 01 In V"/>
+      <double name="112kf12_voltage02" group="112KF12" value="OutputVoltage02" description="112KF12 Analog Output Voltage 02 In V"/>
+      <double name="112kf12_voltage03" group="112KF12" value="OutputVoltage03" description="112KF12 Analog Output Voltage 03 In V"/>
+      <double name="112kf12_voltage04" group="112KF12" value="OutputVoltage04" description="112KF12 Analog Output Voltage 04 In V"/>
+
+      <bool name="112kf13_moduleok" group="112KF13" value="ModuleOk" description="112KF13 Module OK"/>
+      <integer name="112kf13_serial" group="112KF13" value="SerialNumber" description="112KF13 Serial"/>
+      <integer name="112kf13_moduleID" group="112KF13" value="ModuleID" description="112KF13 Module ID"/>
+      <integer name="112kf13_variant" group="112KF13" value="HardwareVariant" description="112KF13 Hardware Variant"/>
+      <integer name="112kf13_firmware" group="112KF13" value="FirmwareVersion" description="112KF13 Firmware Version"/>
+      <integer name="112kf13_raw01" group="112KF13" value="AnalogOutput01" description="112KF13 Analog Output Raw Value 01 In Bit"/>
+      <integer name="112kf13_raw02" group="112KF13" value="AnalogOutput02" description="112KF13 Analog Output Raw Value 02 In Bit"/>
+      <integer name="112kf13_raw03" group="112KF13" value="AnalogOutput03" description="112KF13 Analog Output Raw Value 03 In Bit"/>
+      <integer name="112kf13_raw04" group="112KF13" value="AnalogOutput04" description="112KF13 Analog Output Raw Value 04 In Bit"/>
+      <double name="112kf13_voltage01" group="112KF13" value="OutputVoltage01" description="112KF13 Analog Output Voltage 01 In V "/>
+      <double name="112kf13_voltage02" group="112KF13" value="OutputVoltage02" description="112KF13 Analog Output Voltage 02 In V"/>
+      <double name="112kf13_voltage03" group="112KF13" value="OutputVoltage03" description="112KF13 Analog Output Voltage 03 In V"/>
+      <double name="112kf13_voltage04" group="112KF13" value="OutputVoltage04" description="112KF13 Analog Output Voltage 04 In V"/>
+
+      <bool name="112kf14_moduleok" group="112KF14" value="ModuleOk" description="112KF14 Module OK"/>
+      <integer name="112kf14_serial" group="112KF14" value="SerialNumber" description="112KF14 Serial"/>
+      <integer name="112kf14_moduleID" group="112KF14" value="ModuleID" description="112KF14 Module ID"/>
+      <integer name="112kf14_variant" group="112KF14" value="HardwareVariant" description="112KF14 Hardware Variant"/>
+      <integer name="112kf14_firmware" group="112KF14" value="FirmwareVersion" description="112KF14 Firmware Version"/>
+      <integer name="112kf14_raw01" group="112KF14" value="AnalogInput01" description="112KF14 Analog Input Raw Value 01 In Bit"/>
+      <integer name="112kf14_raw02" group="112KF14" value="AnalogInput02" description="112KF14 Analog Input Raw Value 02 In Bit"/>
+      <integer name="112kf14_raw03" group="112KF14" value="AnalogInput03" description="112KF14 Analog Input Raw Value 03 In Bit"/>
+      <integer name="112kf14_raw04" group="112KF14" value="AnalogInput04" description="112KF14 Analog Input Raw Value 04 In Bit"/>
+      <double name="112kf14_current01" group="112KF14" value="InputCurrentInAmpere01" description="112KF14 Analog Input Current 01 In A"/>
+      <double name="112kf14_current02" group="112KF14" value="InputCurrentInAmpere02" description="112KF14 Analog Input Current 02 In A"/>
+      <double name="112kf14_voltage03" group="112KF14" value="InputVoltage03" description="112KF14 Analog Input Voltage 03 In V"/>
+      <double name="112kf14_voltage04" group="112KF14" value="InputVoltage04" description="112KF14 Analog Input Voltage 04 In V"/>
+      <integer name="112kf14_status01" group="112KF14" value="StatusInput01" description="112KF14 Status Inputs 01 to 04"/>
+
+      <bool name="112kf15_moduleok" group="112KF15" value="ModuleOk" description="112KF15 Module OK"/>
+      <integer name="112kf15_serial" group="112KF15" value="SerialNumber" description="112KF15 Serial"/>
+      <integer name="112kf15_moduleID" group="112KF15" value="ModuleID" description="112KF15 Module ID"/>
+      <integer name="112kf15_variant" group="112KF15" value="HardwareVariant" description="112KF15 Hardware Variant"/>
+      <integer name="112kf15_firmware" group="112KF15" value="FirmwareVersion" description="112KF15 Firmware Version"/>
+      <integer name="112kf15_raw01" group="112KF15" value="AnalogInput01" description="112KF15 Analog Input Raw Value 01 In Bit"/>
+      <integer name="112kf15_raw02" group="112KF15" value="AnalogInput02" description="112KF15 Analog Input Raw Value 02 In Bit"/>
+      <integer name="112kf15_raw03" group="112KF15" value="AnalogInput03" description="112KF15 Analog Input Raw Value 03 In Bit"/>
+      <integer name="112kf15_raw04" group="112KF15" value="AnalogInput04" description="112KF15 Analog Input Raw Value 04 In Bit"/>
+      <double name="112kf15_voltage01" group="112KF15" value="InputVoltage01" description="112KF15 Analog Input Voltage 01 In V"/>
+      <double name="112kf15_voltage02" group="112KF15" value="InputVoltage02" description="112KF15 Analog Input Voltage 02 In V"/>
+      <double name="112kf15_voltage03" group="112KF15" value="InputVoltage03" description="112KF15 Analog Input Voltage 03 In V"/>
+      <double name="112kf15_voltage04" group="112KF15" value="InputVoltage04" description="112KF15 Analog Input Voltage 04 In V"/>
+      <integer name="112kf15_status01" group="112KF15" value="StatusInput01" description="112KF15 Status Inputs 01 to 04"/>
+
+      <bool name="113kf16_moduleok" group="113KF16" value="ModuleOk" description="113KF16 Module OK"/>
+      <integer name="113kf16_serial" group="113KF16" value="SerialNumber" description="113KF16 Serial"/>
+      <integer name="113kf16_moduleID" group="113KF16" value="ModuleID" description="113KF16 Module ID"/>
+      <integer name="113kf16_variant" group="113KF16" value="HardwareVariant" description="113KF16 Hardware Variant"/>
+      <integer name="113kf16_firmware" group="113KF16" value="FirmwareVersion" description="113KF16 Firmware Version"/>
+      <bool name="113kf16_input01" group="113KF16" value="DigitalInput01" description="113KF16 Digital Input 01"/>
+      <bool name="113kf16_input02" group="113KF16" value="DigitalInput02" description="113KF16 Digital Input 02"/>
+      <bool name="113kf16_input03" group="113KF16" value="DigitalInput03" description="113KF16 Digital Input 03"/>
+      <bool name="113kf16_input04" group="113KF16" value="DigitalInput04" description="113KF16 Digital Input 04"/>
+      <bool name="113kf16_input05" group="113KF16" value="DigitalInput05" description="113KF16 Digital Input 05"/>
+      <bool name="113kf16_input06" group="113KF16" value="DigitalInput06" description="113KF16 Digital Input 06"/>
+
+      <bool name="113kf17_moduleok" group="113KF17" value="ModuleOk" description="113KF17 Module OK"/>
+      <integer name="113kf17_serial" group="113KF17" value="SerialNumber" description="113KF17 Serial"/>
+      <integer name="113kf17_moduleID" group="113KF17" value="ModuleID" description="113KF17 Module ID"/>
+      <integer name="113kf17_variant" group="113KF17" value="HardwareVariant" description="113KF17 Hardware Variant"/>
+      <integer name="113kf17_firmware" group="113KF17" value="FirmwareVersion" description="113KF17 Firmware Version"/>
+      <bool name="113kf17_input01" group="113KF17" value="DigitalInput01" description="113KF17 Digital Input 01"/>
+      <bool name="113kf17_input02" group="113KF17" value="DigitalInput02" description="113KF17 Digital Input 02"/>
+      <bool name="113kf17_input03" group="113KF17" value="DigitalInput03" description="113KF17 Digital Input 03"/>
+      <bool name="113kf17_input04" group="113KF17" value="DigitalInput04" description="113KF17 Digital Input 04"/>
+      <bool name="113kf17_input05" group="113KF17" value="DigitalInput05" description="113KF17 Digital Input 05"/>
+      <bool name="113kf17_input06" group="113KF17" value="DigitalInput06" description="113KF17 Digital Input 06"/>
+
+      <bool name="113kf18_moduleok" group="113KF18" value="ModuleOk" description="113KF18 Module OK"/>
+      <integer name="113kf18_serial" group="113KF18" value="SerialNumber" description="113KF18 Serial"/>
+      <integer name="113kf18_moduleID" group="113KF18" value="ModuleID" description="113KF18 Module ID"/>
+      <integer name="113kf18_variant" group="113KF18" value="HardwareVariant" description="113KF18 Hardware Variant"/>
+      <integer name="113kf18_firmware" group="113KF18" value="FirmwareVersion" description="113KF18 Firmware Version"/>
+      <bool name="113kf18_input01" group="113KF18" value="DigitalInput01" description="113KF18 Digital Input 01"/>
+      <bool name="113kf18_input02" group="113KF18" value="DigitalInput02" description="113KF18 Digital Input 02"/>
+      <bool name="113kf18_input03" group="113KF18" value="DigitalInput03" description="113KF18 Digital Input 03"/>
+      <bool name="113kf18_input04" group="113KF18" value="DigitalInput04" description="113KF18 Digital Input 04"/>
+      <bool name="113kf18_input05" group="113KF18" value="DigitalInput05" description="113KF18 Digital Input 05"/>
+      <bool name="113kf18_input06" group="113KF18" value="DigitalInput06" description="113KF18 Digital Input 06"/>
+
+      <bool name="113kf19_moduleok" group="113KF19" value="ModuleOk" description="113KF19 Module OK"/>
+      <integer name="113kf19_serial" group="113KF19" value="SerialNumber" description="113KF19 Serial"/>
+      <integer name="113kf19_moduleID" group="113KF19" value="ModuleID" description="113KF19 Module ID"/>
+      <integer name="113kf19_variant" group="113KF19" value="HardwareVariant" description="113KF19 Hardware Variant"/>
+      <integer name="113kf19_firmware" group="113KF19" value="FirmwareVersion" description="113KF19 Firmware Version"/>
+      <bool name="113kf19_input01" group="113KF19" value="DigitalInput01" description="113KF19 Digital Input 01"/>
+      <bool name="113kf19_input02" group="113KF19" value="DigitalInput02" description="113KF19 Digital Input 02"/>
+      <bool name="113kf19_input03" group="113KF19" value="DigitalInput03" description="113KF19 Digital Input 03"/>
+      <bool name="113kf19_input04" group="113KF19" value="DigitalInput04" description="113KF19 Digital Input 04"/>
+      <bool name="113kf19_input05" group="113KF19" value="DigitalInput05" description="113KF19 Digital Input 05"/>
+      <bool name="113kf19_input06" group="113KF19" value="DigitalInput06" description="113KF19 Digital Input 06"/>
+
+      <bool name="113kf120_moduleok" group="113KF20" value="ModuleOk" description="113KF20 Module OK"/>
+      <integer name="113kf20_serial" group="113KF20" value="SerialNumber" description="113KF20 Serial"/>
+      <integer name="113kf20_moduleID" group="113KF20" value="ModuleID" description="113KF20 Module ID"/>
+      <integer name="113kf20_variant" group="113KF20" value="HardwareVariant" description="113KF20 Hardware Variant"/>
+      <integer name="113kf20_firmware" group="113KF20" value="FirmwareVersion" description="113KF20 Firmware Version"/>
+      <bool name="113kf20_input01" group="113KF20" value="DigitalInput01" description="113KF20 Digital Input 01"/>
+      <bool name="113kf20_input02" group="113KF20" value="DigitalInput02" description="113KF20 Digital Input 02"/>
+      <bool name="113kf20_input03" group="113KF20" value="DigitalInput03" description="113KF20 Digital Input 03"/>
+      <bool name="113kf20_input04" group="113KF20" value="DigitalInput04" description="113KF20 Digital Input 04"/>
+      <bool name="113kf20_input05" group="113KF20" value="DigitalInput05" description="113KF20 Digital Input 05"/>
+      <bool name="113kf20_input06" group="113KF20" value="DigitalInput06" description="113KF20 Digital Input 06"/>
+
+      <bool name="113kf121_moduleok" group="113KF21" value="ModuleOk" description="113KF21 Module OK"/>
+      <integer name="113kf21_serial" group="113KF21" value="SerialNumber" description="113KF21 Serial"/>
+      <integer name="113kf21_moduleID" group="113KF21" value="ModuleID" description="113KF21 Module ID"/>
+      <integer name="113kf21_variant" group="113KF21" value="HardwareVariant" description="113KF21 Hardware Variant"/>
+      <integer name="113kf21_firmware" group="113KF21" value="FirmwareVersion" description="113KF21 Firmware Version"/>
+      <bool name="113kf21_input01" group="113KF21" value="DigitalInput01" description="113KF21 Digital Input 01"/>
+      <bool name="113kf21_input02" group="113KF21" value="DigitalInput02" description="113KF21 Digital Input 02"/>
+      <bool name="113kf21_input03" group="113KF21" value="DigitalInput03" description="113KF21 Digital Input 03"/>
+      <bool name="113kf21_input04" group="113KF21" value="DigitalInput04" description="113KF21 Digital Input 04"/>
+      <bool name="113kf21_input05" group="113KF21" value="DigitalInput05" description="113KF21 Digital Input 05"/>
+      <bool name="113kf21_input06" group="113KF21" value="DigitalInput06" description="113KF21 Digital Input 06"/>
+
+      <bool name="113kf122_moduleok" group="113KF22" value="ModuleOk" description="113KF22 Module OK"/>
+      <integer name="113kf22_serial" group="113KF22" value="SerialNumber" description="113KF22 Serial"/>
+      <integer name="113kf22_moduleID" group="113KF22" value="ModuleID" description="113KF22 Module ID"/>
+      <integer name="113kf22_variant" group="113KF22" value="HardwareVariant" description="113KF22 Hardware Variant"/>
+      <integer name="113kf22_firmware" group="113KF22" value="FirmwareVersion" description="113KF22 Firmware Version"/>
+      <bool name="113kf22_iput01" group="113KF22" value="DigitalInput01" description="113KF22 Digital Input 01"/>
+      <bool name="113kf22_input02" group="113KF22" value="DigitalInput02" description="113KF22 Digital Input 02"/>
+      <bool name="113kf22_input03" group="113KF22" value="DigitalInput03" description="113KF22 Digital Input 03"/>
+      <bool name="113kf22_input04" group="113KF22" value="DigitalInput04" description="113KF22 Digital Input 04"/>
+      <bool name="113kf22_input05" group="113KF22" value="DigitalInput05" description="113KF22 Digital Input 05"/>
+      <bool name="113kf22_input06" group="113KF22" value="DigitalInput06" description="113KF22 Digital Input 06"/>
+
+      <bool name="113kf123_moduleok" group="113KF23" value="ModuleOk" description="113KF23 Module OK"/>
+      <integer name="113kf23_serial" group="113KF23" value="SerialNumber" description="113KF23 Serial"/>
+      <integer name="113kf23_moduleID" group="113KF23" value="ModuleID" description="113KF23 Module ID"/>
+      <integer name="113kf23_variant" group="113KF23" value="HardwareVariant" description="113KF23 Hardware Variant"/>
+      <integer name="113kf23_firmware" group="113KF23" value="FirmwareVersion" description="113KF23 Firmware Version"/>
+      <bool name="113kf23_input01" group="113KF23" value="DigitalInput01" description="113KF23 Digital Input 01"/>
+      <bool name="113kf23_input02" group="113KF23" value="DigitalInput02" description="113KF23 Digital Input 02"/>
+      <bool name="113kf23_input03" group="113KF23" value="DigitalInput03" description="113KF23 Digital Input 03"/>
+      <bool name="113kf23_input04" group="113KF23" value="DigitalInput04" description="113KF23 Digital Input 04"/>
+      <bool name="113kf23_input05" group="113KF23" value="DigitalInput05" description="113KF23 Digital Input 05"/>
+      <bool name="113kf23_input06" group="113KF23" value="DigitalInput06" description="113KF23 Digital Input 06"/>
+
+      <bool name="114kf124_moduleok" group="114KF24" value="ModuleOk" description="114KF24 Module OK"/>
+      <integer name="114kf24_serial" group="114KF24" value="SerialNumber" description="114KF24 Serial"/>
+      <integer name="114kf24_moduleID" group="114KF24" value="ModuleID" description="114KF24 Module ID"/>
+      <integer name="114kf24_variant" group="114KF24" value="HardwareVariant" description="114KF24 Hardware Variant"/>
+      <integer name="114kf24_firmware" group="114KF24" value="FirmwareVersion" description="114KF24 Firmware Version"/>
+      <bool name="114kf24_output01" group="114KF24" value="DigitalOutput01" description="114KF24 Digital Output 01"/>
+      <bool name="114kf24_output02" group="114KF24" value="DigitalOutput02" description="114KF24 Digital Output 02"/>
+      <bool name="114kf24_output03" group="114KF24" value="DigitalOutput03" description="114KF24 Digital Output 03"/>
+      <bool name="114kf24_output04" group="114KF24" value="DigitalOutput04" description="114KF24 Digital Output 04"/>
+      <bool name="114kf24_output05" group="114KF24" value="DigitalOutput05" description="114KF24 Digital Output 05"/>
+      <bool name="114kf24_output06" group="114KF24" value="DigitalOutput06" description="114KF24 Digital Output 06"/>
+      <bool name="114kf24_status01" group="114KF24" value="StatusDigitalOutput01" description="114KF24 Status Digital Output 01"/>
+      <bool name="114kf24_status02" group="114KF24" value="StatusDigitalOutput02" description="114KF24 Status Digital Output 02"/>
+      <bool name="114kf24_status03" group="114KF24" value="StatusDigitalOutput03" description="114KF24 Status Digital Output 03"/>
+      <bool name="114kf24_status04" group="114KF24" value="StatusDigitalOutput04" description="114KF24 Status Digital Output 04"/>
+      <bool name="114kf24_status05" group="114KF24" value="StatusDigitalOutput05" description="114KF24 Status Digital Output 05"/>
+      <bool name="114kf24_status06" group="114KF24" value="StatusDigitalOutput06" description="114KF24 Status Digital Output 06"/>
+
+      <bool name="114kf25_moduleok" group="114KF25" value="ModuleOk" description="114KF25 Module OK"/>
+      <integer name="114kf25_serial" group="114KF25" value="SerialNumber" description="114KF25 Serial"/>
+      <integer name="114kf25_moduleID" group="114KF25" value="ModuleID" description="114KF25 Module ID"/>
+      <integer name="114kf25_variant" group="114KF25" value="HardwareVariant" description="114KF25 Hardware Variant"/>
+      <integer name="114kf25_firmware" group="114KF25" value="FirmwareVersion" description="114KF25 Firmware Version"/>
+      <bool name="114kf25_output01" group="114KF25" value="DigitalOutput01" description="114KF25 Digital Output 01"/>
+      <bool name="114kf25_output02" group="114KF25" value="DigitalOutput02" description="114KF25 Digital Output 02"/>
+      <bool name="114kf25_output03" group="114KF25" value="DigitalOutput03" description="114KF25 Digital Output 03"/>
+      <bool name="114kf25_output04" group="114KF25" value="DigitalOutput04" description="114KF25 Digital Output 04"/>
+      <bool name="114kf25_output05" group="114KF25" value="DigitalOutput05" description="114KF25 Digital Output 05"/>
+      <bool name="114kf25_output06" group="114KF25" value="DigitalOutput06" description="114KF25 Digital Output 06"/>
+      <bool name="114kf25_status01" group="114KF25" value="StatusDigitalOutput01" description="114KF25 Status Digital Output 01"/>
+      <bool name="114kf25_status02" group="114KF25" value="StatusDigitalOutput02" description="114KF25 Status Digital Output 02"/>
+      <bool name="114kf25_status03" group="114KF25" value="StatusDigitalOutput03" description="114KF25 Status Digital Output 03"/>
+      <bool name="114kf25_status04" group="114KF25" value="StatusDigitalOutput04" description="114KF25 Status Digital Output 04"/>
+      <bool name="114kf25_status05" group="114KF25" value="StatusDigitalOutput05" description="114KF25 Status Digital Output 05"/>
+      <bool name="114kf25_status06" group="114KF25" value="StatusDigitalOutput06" description="114KF25 Status Digital Output 06"/>
+
+      <bool name="114kf26_moduleok" group="114KF26" value="ModuleOk" description="114KF26 Module OK"/>
+      <integer name="114kf26_serial" group="114KF26" value="SerialNumber" description="114KF26 Serial"/>
+      <integer name="114kf26_moduleID" group="114KF26" value="ModuleID" description="114KF26 Module ID"/>
+      <integer name="114kf26_variant" group="114KF26" value="HardwareVariant" description="114KF26 Hardware Variant"/>
+      <integer name="114kf26_firmware" group="114KF26" value="FirmwareVersion" description="114KF26 Firmware Version"/>
+      <bool name="114kf26_output01" group="114KF26" value="DigitalOutput01" description="114KF26 Digital Output 01"/>
+      <bool name="114kf26_output02" group="114KF26" value="DigitalOutput02" description="114KF26 Digital Output 02"/>
+      <bool name="114kf26_output03" group="114KF26" value="DigitalOutput03" description="114KF26 Digital Output 03"/>
+      <bool name="114kf26_output04" group="114KF26" value="DigitalOutput04" description="114KF26 Digital Output 04"/>
+      <bool name="114kf26_output05" group="114KF26" value="DigitalOutput05" description="114KF26 Digital Output 05"/>
+      <bool name="114kf26_output06" group="114KF26" value="DigitalOutput06" description="114KF26 Digital Output 06"/>
+      <bool name="114kf26_status01" group="114KF26" value="StatusDigitalOutput01" description="114KF26 Status Digital Output 01"/>
+      <bool name="114kf26_status02" group="114KF26" value="StatusDigitalOutput02" description="114KF26 Status Digital Output 02"/>
+      <bool name="114kf26_status03" group="114KF26" value="StatusDigitalOutput03" description="114KF26 Status Digital Output 03"/>
+      <bool name="114kf26_status04" group="114KF26" value="StatusDigitalOutput04" description="114KF26 Status Digital Output 04"/>
+      <bool name="114kf26_status05" group="114KF26" value="StatusDigitalOutput05" description="114KF26 Status Digital Output 05"/>
+      <bool name="114kf26_status06" group="114KF26" value="StatusDigitalOutput06" description="114KF26 Status Digital Output 06"/>
+
+      <bool name="114kf27_moduleok" group="114KF27" value="ModuleOk" description="114KF27 Module OK"/>
+      <integer name="114kf27_serial" group="114KF27" value="SerialNumber" description="114KF27 Serial"/>
+      <integer name="114kf27_moduleID" group="114KF27" value="ModuleID" description="114KF27 Module ID"/>
+      <integer name="114kf27_variant" group="114KF27" value="HardwareVariant" description="114KF27 Hardware Variant"/>
+      <integer name="114kf27_firmware" group="114KF27" value="FirmwareVersion" description="114KF27 Firmware Version"/>
+      <bool name="114kf27_output01" group="114KF27" value="DigitalOutput01" description="114KF27 Digital Output 01"/>
+      <bool name="114kf27_output02" group="114KF27" value="DigitalOutput02" description="114KF27 Digital Output 02"/>
+      <bool name="114kf27_output03" group="114KF27" value="DigitalOutput03" description="114KF27 Digital Output 03"/>
+      <bool name="114kf27_output04" group="114KF27" value="DigitalOutput04" description="114KF27 Digital Output 04"/>
+      <bool name="114kf27_output05" group="114KF27" value="DigitalOutput05" description="114KF27 Digital Output 05"/>
+      <bool name="114kf27_output06" group="114KF27" value="DigitalOutput06" description="114KF27 Digital Output 06"/>
+      <bool name="114kf27_status01" group="114KF27" value="StatusDigitalOutput01" description="114KF27 Status Digital Output 01"/>
+      <bool name="114kf27_status02" group="114KF27" value="StatusDigitalOutput02" description="114KF27 Status Digital Output 02"/>
+      <bool name="114kf27_status03" group="114KF27" value="StatusDigitalOutput03" description="114KF27 Status Digital Output 03"/>
+      <bool name="114kf27_status04" group="114KF27" value="StatusDigitalOutput04" description="114KF27 Status Digital Output 04"/>
+      <bool name="114kf27_status05" group="114KF27" value="StatusDigitalOutput05" description="114KF27 Status Digital Output 05"/>
+      <bool name="114kf27_status06" group="114KF27" value="StatusDigitalOutput06" description="114KF27 Status Digital Output 06"/>
+
+      <bool name="114kf28_moduleok" group="114KF28" value="ModuleOk" description="114KF28 Module OK"/>
+      <integer name="114kf28_serial" group="114KF28" value="SerialNumber" description="114KF28 Serial"/>
+      <integer name="114kf28_moduleID" group="114KF28" value="ModuleID" description="114KF28 Module ID"/>
+      <integer name="114kf28_variant" group="114KF28" value="HardwareVariant" description="114KF28 Hardware Variant"/>
+      <integer name="114kf28_firmware" group="114KF28" value="FirmwareVersion" description="114KF28 Firmware Version"/>
+      <bool name="114kf28_output01" group="114KF28" value="DigitalOutput01" description="114KF28 Digital Output 01"/>
+      <bool name="114kf28_output02" group="114KF28" value="DigitalOutput02" description="114KF28 Digital Output 02"/>
+      <bool name="114kf28_output03" group="114KF28" value="DigitalOutput03" description="114KF28 Digital Output 03"/>
+      <bool name="114kf28_output04" group="114KF28" value="DigitalOutput04" description="114KF28 Digital Output 04"/>
+      <bool name="114kf28_output05" group="114KF28" value="DigitalOutput05" description="114KF28 Digital Output 05"/>
+      <bool name="114kf28_output06" group="114KF28" value="DigitalOutput06" description="114KF28 Digital Output 06"/>
+      <bool name="114kf28_status01" group="114KF28" value="StatusDigitalOutput01" description="114KF28 Status Digital Output 01"/>
+      <bool name="114kf28_status02" group="114KF28" value="StatusDigitalOutput02" description="114KF28 Status Digital Output 02"/>
+      <bool name="114kf28_status03" group="114KF28" value="StatusDigitalOutput03" description="114KF28 Status Digital Output 03"/>
+      <bool name="114kf28_status04" group="114KF28" value="StatusDigitalOutput04" description="114KF28 Status Digital Output 04"/>
+      <bool name="114kf28_status05" group="114KF28" value="StatusDigitalOutput05" description="114KF28 Status Digital Output 05"/>
+      <bool name="114kf28_status06" group="114KF28" value="StatusDigitalOutput06" description="114KF28 Status Digital Output 06"/>
+
+      <bool name="114kf29_moduleok" group="114KF29" value="ModuleOk" description="114KF29 Module OK"/>
+      <integer name="114kf29_serial" group="114KF29" value="SerialNumber" description="114KF29 Serial"/>
+      <integer name="114kf29_moduleID" group="114KF29" value="ModuleID" description="114KF29 Module ID"/>
+      <integer name="114kf29_variant" group="114KF29" value="HardwareVariant" description="114KF29 Hardware Variant"/>
+      <integer name="114kf29_firmware" group="114KF29" value="FirmwareVersion" description="114KF29 Firmware Version"/>
+      <bool name="114kf29_output01" group="114KF29" value="DigitalOutput01" description="114KF29 Digital Output 01"/>
+      <bool name="114kf29_output02" group="114KF29" value="DigitalOutput02" description="114KF29 Digital Output 02"/>
+      <bool name="114kf29_output03" group="114KF29" value="DigitalOutput03" description="114KF29 Digital Output 03"/>
+      <bool name="114kf29_output04" group="114KF29" value="DigitalOutput04" description="114KF29 Digital Output 04"/>
+      <bool name="114kf29_output05" group="114KF29" value="DigitalOutput05" description="114KF29 Digital Output 05"/>
+      <bool name="114kf29_output06" group="114KF29" value="DigitalOutput06" description="114KF29 Digital Output 06"/>
+      <bool name="114kf29_status01" group="114KF29" value="StatusDigitalOutput01" description="114KF29 Status Digital Output 01"/>
+      <bool name="114kf29_status02" group="114KF29" value="StatusDigitalOutput02" description="114KF29 Status Digital Output 02"/>
+      <bool name="114kf29_status03" group="114KF29" value="StatusDigitalOutput03" description="114KF29 Status Digital Output 03"/>
+      <bool name="114kf29_status04" group="114KF29" value="StatusDigitalOutput04" description="114KF29 Status Digital Output 04"/>
+      <bool name="114kf29_status05" group="114KF29" value="StatusDigitalOutput05" description="114KF29 Status Digital Output 05"/>
+      <bool name="114kf29_status06" group="114KF29" value="StatusDigitalOutput06" description="114KF29 Status Digital Output 06"/>
+
+      <bool name="114kf30_moduleok" group="114KF30" value="ModuleOk" description="114KF30 Module OK"/>
+      <integer name="114kf30_serial" group="114KF30" value="SerialNumber" description="114KF30 Serial"/>
+      <integer name="114kf30_moduleID" group="114KF30" value="ModuleID" description="114KF30 Module ID"/>
+      <integer name="114kf30_variant" group="114KF30" value="HardwareVariant" description="114KF30 Hardware Variant"/>
+      <integer name="114kf30_firmware" group="114KF30" value="FirmwareVersion" description="114KF30 Firmware Version"/>
+      <bool name="114kf30_output01" group="114KF30" value="DigitalOutput01" description="114KF30 Digital Output 01"/>
+      <bool name="114kf30_output02" group="114KF30" value="DigitalOutput02" description="114KF30 Digital Output 02"/>
+      <bool name="114kf30_output03" group="114KF30" value="DigitalOutput03" description="114KF30 Digital Output 03"/>
+      <bool name="114kf30_output04" group="114KF30" value="DigitalOutput04" description="114KF30 Digital Output 04"/>
+      <bool name="114kf30_output05" group="114KF30" value="DigitalOutput05" description="114KF30 Digital Output 05"/>
+      <bool name="114kf30_output06" group="114KF30" value="DigitalOutput06" description="114KF30 Digital Output 06"/>
+      <bool name="114kf30_status01" group="114KF30" value="StatusDigitalOutput01" description="114KF30 Status Digital Output 01"/>
+      <bool name="114kf30_status02" group="114KF30" value="StatusDigitalOutput02" description="114KF30 Status Digital Output 02"/>
+      <bool name="114kf30_status03" group="114KF30" value="StatusDigitalOutput03" description="114KF30 Status Digital Output 03"/>
+      <bool name="114kf30_status04" group="114KF30" value="StatusDigitalOutput04" description="114KF30 Status Digital Output 04"/>
+      <bool name="114kf30_status05" group="114KF30" value="StatusDigitalOutput05" description="114KF30 Status Digital Output 05"/>
+      <bool name="114kf30_status06" group="114KF30" value="StatusDigitalOutput06" description="114KF30 Status Digital Output 06"/>
+
+      <bool name="114kf31_moduleok" group="114KF31" value="ModuleOk" description="114KF31 Module OK"/>
+      <integer name="114kf31_serial" group="114KF31" value="SerialNumber" description="114KF31 Serial"/>
+      <integer name="114kf31_moduleID" group="114KF31" value="ModuleID" description="114KF31 Module ID"/>
+      <integer name="114kf31_variant" group="114KF31" value="HardwareVariant" description="114KF31 Hardware Variant"/>
+      <integer name="114kf31_firmware" group="114KF31" value="FirmwareVersion" description="114KF31 Firmware Version"/>
+      <bool name="114kf31_output01" group="114KF31" value="DigitalOutput01" description="114KF31 Digital Output 01"/>
+      <bool name="114kf31_output02" group="114KF31" value="DigitalOutput02" description="114KF31 Digital Output 02"/>
+      <bool name="114kf31_output03" group="114KF31" value="DigitalOutput03" description="114KF31 Digital Output 03"/>
+      <bool name="114kf31_output04" group="114KF31" value="DigitalOutput04" description="114KF31 Digital Output 04"/>
+      <bool name="114kf31_output05" group="114KF31" value="DigitalOutput05" description="114KF31 Digital Output 05"/>
+      <bool name="114kf31_output06" group="114KF31" value="DigitalOutput06" description="114KF31 Digital Output 06"/>
+      <bool name="114kf31_status01" group="114KF31" value="StatusDigitalOutput01" description="114KF31 Status Digital Output 01"/>
+      <bool name="114kf31_status02" group="114KF31" value="StatusDigitalOutput02" description="114KF31 Status Digital Output 02"/>
+      <bool name="114kf31_status03" group="114KF31" value="StatusDigitalOutput03" description="114KF31 Status Digital Output 03"/>
+      <bool name="114kf31_status04" group="114KF31" value="StatusDigitalOutput04" description="114KF31 Status Digital Output 04"/>
+      <bool name="114kf31_status05" group="114KF31" value="StatusDigitalOutput05" description="114KF31 Status Digital Output 05"/>
+      <bool name="114kf31_status06" group="114KF31" value="StatusDigitalOutput06" description="114KF31 Status Digital Output 06"/>
+
+    <bool name="115kf51_moduleok" group="115KF51" value="ModuleOk" description="115KF51 Module OK"/>
+    <integer name="115kf51_serial" group="115KF51" value="SerialNumber" description="115KF51 Serial"/>
+    <integer name="115kf51_moduleID" group="115KF51" value="ModuleID" description="115KF51 Module ID"/>
+    <integer name="115kf51_variant" group="115KF51" value="HardwareVariant" description="115KF51 Hardware Variant"/>
+    <integer name="115kf51_firmware" group="115KF51" value="FirmwareVersion" description="115KF51 Firmware Version"/>
+    <bool name="115kf51_safemoduleok" group="115KF51" value="ModuleOk" description="115KF51 Safe Connection Acknowledged"/>
+    <bool name="115kf51_safeinput01" group="115KF51" value="SafeDigitalInput01" description="115KF51 Safe Digital Input 01"/>
+    <bool name="115kf51_safeinput02" group="115KF51" value="SafeDigitalInput02" description="115KF51 Safe Digital Input 02"/>
+    <bool name="115kf51_safeinput03" group="115KF51" value="SafeDigitalInput03" description="115KF51 Safe Digital Input 03"/>
+    <bool name="115kf51_safeinput04" group="115KF51" value="SafeDigitalInput04" description="115KF51 Safe Digital Input 04"/>
+    <bool name="115kf51_safeinput05" group="115KF51" value="SafeDigitalInput05" description="115KF51 Safe Digital Input 05"/>
+    <bool name="115kf51_safeinput06" group="115KF51" value="SafeDigitalInput06" description="115KF51 Safe Digital Input 06"/>
+    <bool name="115kf51_safeinput07" group="115KF51" value="SafeDigitalInput07" description="115KF51 Safe Digital Input 07"/>
+    <bool name="115kf51_safeinput08" group="115KF51" value="SafeDigitalInput08" description="115KF51 Safe Digital Input 08"/>
+    <bool name="115kf51_safedualinput0102" group="115KF51" value="SafeTwoChannelInput0102" description="115KF51 Safe Two Channel Input 0102"/>
+    <bool name="115kf51_safedualinput0304" group="115KF51" value="SafeTwoChannelInput0304" description="115KF51 Safe Two Channel Input 0304"/>
+    <bool name="115kf51_safedualinput0506" group="115KF51" value="SafeTwoChannelInput0506" description="115KF51 Safe Two Channel Input 0506"/>
+    <bool name="115kf51_safedualinput0708" group="115KF51" value="SafeTwoChannelInput0708" description="115KF51 Safe Two Channel Input 0708"/>
+    <bool name="115kf51_safeinputok01" group="115KF51" value="SafeInputOK01" description="115KF51 Safe Input OK 01"/>
+    <bool name="115kf51_safeinputok02" group="115KF51" value="SafeInputOK02" description="115KF51 Safe Input OK 02"/>
+    <bool name="115kf51_safeinputok03" group="115KF51" value="SafeInputOK03" description="115KF51 Safe Input OK 03"/>
+    <bool name="115kf51_safeinputok04" group="115KF51" value="SafeInputOK04" description="115KF51 Safe Input OK 04"/>
+    <bool name="115kf51_safeinputok05" group="115KF51" value="SafeInputOK05" description="115KF51 Safe Input OK 05"/>
+    <bool name="115kf51_safeinputok06" group="115KF51" value="SafeInputOK06" description="115KF51 Safe Input OK 06"/>
+    <bool name="115kf51_safeinputok07" group="115KF51" value="SafeInputOK07" description="115KF51 Safe Input OK 07"/>
+    <bool name="115kf51_safeinputok08" group="115KF51" value="SafeInputOK08" description="115KF51 Safe Input OK 08"/>
+    <bool name="115kf51_safedualinputok0102" group="115KF51" value="SafeTwoChannelOK0102" description="115KF51 Safe Two Channel Ok 0102"/>
+    <bool name="115kf51_safedualinputok0304" group="115KF51" value="SafeTwoChannelOK0304" description="115KF51 Safe Two Channel Ok 0304"/>
+    <bool name="115kf51_safedualinputok0506" group="115KF51" value="SafeTwoChannelOK0506" description="115KF51 Safe Two Channel Ok 0506"/>
+    <bool name="115kf51_safedualinputok0708" group="115KF51" value="SafeTwoChannelOK0708" description="115KF51 Safe Two Channel Ok 0708"/>
+
+    <bool name="115kf52_moduleok" group="115KF52" value="ModuleOk" description="115KF52 Module OK"/>
+    <integer name="115kf52_serial" group="115KF52" value="SerialNumber" description="115KF52 Serial"/>
+    <integer name="115kf52_moduleID" group="115KF52" value="ModuleID" description="115KF52 Module ID"/>
+    <integer name="115kf52_variant" group="115KF52" value="HardwareVariant" description="115KF52 Hardware Variant"/>
+    <integer name="115kf52_firmware" group="115KF52" value="FirmwareVersion" description="115KF52 Firmware Version"/>
+    <bool name="115kf52_safemoduleok" group="115KF52" value="ModuleOk" description="115KF52 Safe Connection Acknowledged"/>
+    <bool name="115kf52_safeoutput01" group="115KF52" value="SafeDigitalOutput01" description="115KF52 Safe Digital Output 01"/>
+    <bool name="115kf52_safeoutput02" group="115KF52" value="SafeDigitalOutput02" description="115KF52 Safe Digital Output 02"/>
+    <bool name="115kf52_safeoutput03" group="115KF52" value="SafeDigitalOutput03" description="115KF52 Safe Digital Output 03"/>
+    <bool name="115kf52_safeoutput04" group="115KF52" value="SafeDigitalOutput04" description="115KF52 Safe Digital Output 04"/>
+    <bool name="115kf52_safeoutput05" group="115KF52" value="SafeDigitalOutput05" description="115KF52 Safe Digital Output 05"/>
+    <bool name="115kf52_safeoutput06" group="115KF52" value="SafeDigitalOutput06" description="115KF52 Safe Digital Output 06"/>
+    <bool name="115kf52_safeoutputok01" group="115KF52" value="SafeOutputOK01" description="115KF52 Safe Output OK 01"/>
+    <bool name="115kf52_safeoutputok02" group="115KF52" value="SafeOutputOK02" description="115KF52 Safe Output OK 02"/>
+    <bool name="115kf52_safeoutputok03" group="115KF52" value="SafeOutputOK03" description="115KF52 Safe Output OK 03"/>
+    <bool name="115kf52_safeoutputok04" group="115KF52" value="SafeOutputOK04" description="115KF52 Safe Output OK 04"/>
+    <bool name="115kf52_safeoutputok05" group="115KF52" value="SafeOutputOK05" description="115KF52 Safe Output OK 05"/>
+    <bool name="115kf52_safeoutputok06" group="115KF52" value="SafeOutputOK06" description="115KF52 Safe Output OK 06"/>
+
+
+    <bool name="115kf53_moduleok" group="115KF53" value="ModuleOk" description="115KF53 Module OK"/>
+    <integer name="115kf53_serial" group="115KF53" value="SerialNumber" description="115KF53 Serial"/>
+    <integer name="115kf53_moduleID" group="115KF53" value="ModuleID" description="115KF53 Module ID"/>
+    <integer name="115kf53_variant" group="115KF53" value="HardwareVariant" description="115KF53 Hardware Variant"/>
+    <integer name="115kf53_firmware" group="115KF53" value="FirmwareVersion" description="115KF53 Firmware Version"/>
+    <bool name="115kf53_safemoduleok" group="115KF53" value="ModuleOk" description="115KF53 Safe Connection Acknowledged"/>
+    <bool name="115kf53_safeinput01" group="115KF53" value="SafeDigitalInput01" description="115KF53 Safe Digital Input 01"/>
+    <bool name="115kf53_safeinput02" group="115KF53" value="SafeDigitalInput02" description="115KF53 Safe Digital Input 02"/>
+    <bool name="115kf53_safeinput03" group="115KF53" value="SafeDigitalInput03" description="115KF53 Safe Digital Input 03"/>
+    <bool name="115kf53_safeinput04" group="115KF53" value="SafeDigitalInput04" description="115KF53 Safe Digital Input 04"/>
+    <bool name="115kf53_safeinput05" group="115KF53" value="SafeDigitalInput05" description="115KF53 Safe Digital Input 05"/>
+    <bool name="115kf53_safeinput06" group="115KF53" value="SafeDigitalInput06" description="115KF53 Safe Digital Input 06"/>
+    <bool name="115kf53_safeinput07" group="115KF53" value="SafeDigitalInput07" description="115KF53 Safe Digital Input 07"/>
+    <bool name="115kf53_safeinput08" group="115KF53" value="SafeDigitalInput08" description="115KF53 Safe Digital Input 08"/>
+    <bool name="115kf53_safedualinput0102" group="115KF53" value="SafeTwoChannelInput0102" description="115KF53 Safe Two Channel Input 0102"/>
+    <bool name="115kf53_safedualinput0304" group="115KF53" value="SafeTwoChannelInput0304" description="115KF53 Safe Two Channel Input 0304"/>
+    <bool name="115kf53_safedualinput0506" group="115KF53" value="SafeTwoChannelInput0506" description="115KF53 Safe Two Channel Input 0506"/>
+    <bool name="115kf53_safedualinput0708" group="115KF53" value="SafeTwoChannelInput0708" description="115KF53 Safe Two Channel Input 0708"/>
+    <bool name="115kf53_safeinputok01" group="115KF53" value="SafeInputOK01" description="115KF53 Safe Input OK 01"/>
+    <bool name="115kf53_safeinputok02" group="115KF53" value="SafeInputOK02" description="115KF53 Safe Input OK 02"/>
+    <bool name="115kf53_safeinputok03" group="115KF53" value="SafeInputOK03" description="115KF53 Safe Input OK 03"/>
+    <bool name="115kf53_safeinputok04" group="115KF53" value="SafeInputOK04" description="115KF53 Safe Input OK 04"/>
+    <bool name="115kf53_safeinputok05" group="115KF53" value="SafeInputOK05" description="115KF53 Safe Input OK 05"/>
+    <bool name="115kf53_safeinputok06" group="115KF53" value="SafeInputOK06" description="115KF53 Safe Input OK 06"/>
+    <bool name="115kf53_safeinputok07" group="115KF53" value="SafeInputOK07" description="115KF53 Safe Input OK 07"/>
+    <bool name="115kf53_safeinputok08" group="115KF53" value="SafeInputOK08" description="115KF53 Safe Input OK 08"/>
+    <bool name="115kf53_safedualinputok0102" group="115KF53" value="SafeTwoChannelOK0102" description="115KF53 Safe Two Channel Ok 0102"/>
+    <bool name="115kf53_safedualinputok0304" group="115KF53" value="SafeTwoChannelOK0304" description="115KF53 Safe Two Channel Ok 0304"/>
+    <bool name="115kf53_safedualinputok0506" group="115KF53" value="SafeTwoChannelOK0506" description="115KF53 Safe Two Channel Ok 0506"/>
+    <bool name="115kf53_safedualinputok0708" group="115KF53" value="SafeTwoChannelOK0708" description="115KF53 Safe Two Channel Ok 0708"/>
+    <bool name="115kf53_safeoutput01" group="115KF53" value="SafeDigitalOutput01" description="115KF53 Safe Digital Output 01"/>
+    <bool name="115kf53_safeoutput02" group="115KF53" value="SafeDigitalOutput02" description="115KF53 Safe Digital Output 02"/>
+    <bool name="115kf53_safeoutput03" group="115KF53" value="SafeDigitalOutput03" description="115KF53 Safe Digital Output 03"/>
+    <bool name="115kf53_safeoutput04" group="115KF53" value="SafeDigitalOutput04" description="115KF53 Safe Digital Output 04"/>
+    <bool name="115kf53_safeoutput05" group="115KF53" value="SafeDigitalOutput05" description="115KF53 Safe Digital Output 05"/>
+    <bool name="115kf53_safeoutput06" group="115KF53" value="SafeDigitalOutput06" description="115KF53 Safe Digital Output 06"/>
+    <bool name="115kf53_safeoutputok01" group="115KF53" value="SafeOutputOK01" description="115KF53 Safe Output OK 01"/>
+    <bool name="115kf53_safeoutputok02" group="115KF53" value="SafeOutputOK02" description="115KF53 Safe Output OK 02"/>
+    <bool name="115kf53_safeoutputok03" group="115KF53" value="SafeOutputOK03" description="115KF53 Safe Output OK 03"/>
+    <bool name="115kf53_safeoutputok04" group="115KF53" value="SafeOutputOK04" description="115KF53 Safe Output OK 04"/>
+    <bool name="115kf53_safeoutputok05" group="115KF53" value="SafeOutputOK05" description="115KF53 Safe Output OK 05"/>
+    <bool name="115kf53_safeoutputok06" group="115KF53" value="SafeOutputOK06" description="115KF53 Safe Output OK 06"/>
+		
+      <integer name="axBuildPlatform_plcopenstate" group="BuildPlatformAxis" value="PlcOpenState" description="Build Platform Axis PLC Open State"/>
+      <bool name="axBuildPlatform_cansetpower" group="BuildPlatformAxis" value="CanSetPower" description="Build Platform Axis Can Set Power Flag"/>
+      <bool name="axBuildPlatform_ispowered" group="BuildPlatformAxis" value="IsPowered" description="Build Platform Axis Is Powered Flag"/>
+      <bool name="axBuildPlatform_isreferenced" group="BuildPlatformAxis" value="IsReferenced" description="Build Platform Axis Is Referenced Flag"/>
+      <bool name="axBuildPlatform_ismoving" group="BuildPlatformAxis" value="IsMoving" description="Build Platform Axis Is Moving Flag"/>
+      <bool name="axBuildPlatform_isinposition" group="BuildPlatformAxis" value="IsInPosition" description="Build Platform Axis Is In Position"/>
+      <double name="axBuildPlatform_actualposition" group="BuildPlatformAxis" value="ActualPosition" description="Build Platform Axis Actual Position in mm"/>
+      <double name="axBuildPlatform_actualvelocity" group="BuildPlatformAxis" value="ActualVelocity" description="Build Platform Axis Actual Velocity in mm per s"/>
+
+      <integer name="axPowderReservoir_plcopenstate" group="PowderReservoirAxis" value="PlcOpenState" description="Powder Reservoir Axis PLC Open State"/>
+      <bool name="axPowderReservoir_cansetpower" group="PowderReservoirAxis" value="CanSetPower" description="Powder Reservoir Axis Can Set Power Flag"/>
+      <bool name="axPowderReservoir_ispowered" group="PowderReservoirAxis" value="IsPowered" description="Powder Reservoir Axis Is Powered Flag"/>
+      <bool name="axPowderReservoir_isreferenced" group="PowderReservoirAxis" value="IsReferenced" description="Powder Reservoir Axis Is Referenced Flag"/>
+      <bool name="axPowderReservoir_ismoving" group="PowderReservoirAxis" value="IsMoving" description="Powder Reservoir Axis Is Moving Flag"/>
+      <bool name="axPowderReservoir_isinposition" group="PowderReservoirAxis" value="IsInPosition" description="Powder Reservoir Axis Is In Position"/>
+      <double name="axPowderReservoir_actualposition" group="PowderReservoirAxis" value="ActualPosition" description="Powder Reservoir Axis Actual Position in degree"/>
+      <double name="axPowderReservoir_actualvelocity" group="PowderReservoirAxis" value="ActualVelocity" description="Powder Reservoir Axis Actual Velocity in degree per s"/>
+
+      <integer name="axRecoaterPowderBelt_plcopenstate" group="RecoaterAxisPowderbelt" value="PlcOpenState" description="Recoater Axis Powderbelt PLC Open State"/>
+      <bool name="axRecoaterPowderBelt_cansetpower" group="RecoaterAxisPowderbelt" value="CanSetPower" description="Recoater Axis Powderbelt Can Set Power Flag"/>
+      <bool name="axRecoaterPowderBelt_ispowered" group="RecoaterAxisPowderbelt" value="IsPowered" description="Recoater Axis Powderbelt Is Powered Flag"/>
+      <bool name="axRecoaterPowderBelt_isreferenced" group="RecoaterAxisPowderbelt" value="IsReferenced" description="Recoater Axis Powderbelt Is Referenced Flag"/>
+      <bool name="axRecoaterPowderBelt_ismoving" group="RecoaterAxisPowderbelt" value="IsMoving" description="Recoater Axis Powderbelt Is Moving Flag"/>
+      <bool name="axRecoaterPowderBelt_isinposition" group="RecoaterAxisPowderbelt" value="IsInPosition" description="Recoater Axis Powderbelt Is In Position"/>
+      <double name="axRecoaterPowderBelt_actualposition" group="RecoaterAxisPowderbelt" value="ActualPosition" description="Recoater Axis Powderbelt Actual Position in mm"/>
+      <double name="axRecoaterPowderBelt_actualvelocity" group="RecoaterAxisPowderbelt" value="ActualVelocity" description="Recoater Axis Powderbelt Actual Velocity in mm per s"/>
+
+      <integer name="axRecoater_plcopenstate" group="RecoaterLinear" value="PlcOpenState" description="Recoater LinearAxis PLC Open State"/>
+      <bool name="axRecoater_cansetpower" group="RecoaterLinear" value="CanSetPower" description="Recoater LinearAxis Can Set Power Flag"/>
+      <bool name="axRecoater_ispowered" group="RecoaterLinear" value="IsPowered" description="Recoater LinearAxis Is Powered Flag"/>
+      <bool name="axRecoater_isreferenced" group="RecoaterLinear" value="IsReferenced" description="Recoater LinearAxis Is Referenced Flag"/>
+      <bool name="axRecoater_ismoving" group="RecoaterLinear" value="IsMoving" description="Recoater LinearAxis Is Moving Flag"/>
+      <bool name="axRecoater_isinposition" group="RecoaterLinear" value="IsInPosition" description="Recoater LinearAxis Is In Position"/>
+      <double name="axRecoater_actualposition" group="RecoaterLinear" value="ActualPosition" description="Recoater LinearAxis Actual Position in mm"/>
+      <double name="axRecoater_actualvelocity" group="RecoaterLinear" value="ActualVelocity" description="Recoater LinearAxis Actual Velocity in mm per s"/>
+
+    </machinestatus>
+
+
+
+    <commands>
+
+      <command name="home" id="1025">
+      </command>
+
+      <command name="testmove" id="1034">
+        <dint name="target" address="0" description="Target Position in micron"/>
+        <dint name="speed" address="4" description="Speed in micron per second"/>
+        <dint name="acceleration" address="8" description="Acceleration in micron per second squared"/>
+      </command>
+
+      <command name="releasedoor" id="5001">
+      </command>
+		
+	  <command name="lockunlockdoor" id="5002">
+		  <bool name="lockdoor" address="0" description="1 = look door, 0 = unlock door"/>
+      </command>
+
+		<command name="initaxes" id="1999">
+			<int name="axis_ID" address="0" description="ID of the axis to move 1 =Build platform, 2 = Powder reservoir, 3 = Recoater powder belt, 4 = Recoater linear axis)"/>
+		</command>
+		
+      <command name="triggersingleaxismovement" id="2000">
+        <int name="axis_ID" address="0" description="ID of the axis to move 1 =Build platform, 2 = Powder reservoir, 3 = Recoater powder belt, 4 = Recoater linear axis)"/>
+        <int name="absoluterelative" address="2" description="Is movement absolute (1) or relative (2)."/>
+        <dint name="target" address="4" description="Target Position in micro m oder micro degree"/>
+        <dint name="speed" address="8" description="Speed in micro m per second or micro degree per second"/>
+        <dint name="acceleration" address="12" description="Acceleration in micro m per second squared or micro degree per second squared"/>
+      </command>
+
+      <command name="referenceaxes" id="2001">
+        <bool name="reference_platform" address="0" description="Reference build platform"/>
+        <bool name="reference_powderreservoir" address="1" description="Reference powder reservoir"/>
+        <bool name="reference_recoateraxis_powder" address="2" description="Reference recoater powder feeder"/>
+        <bool name="reference_recoateraxis_linear" address="3" description="Reference linear recoateraxis"/>
+      </command>
+
+	  <command name="absoluteswitchreferencing" id="2002">
+	  </command>
+
+      <command name="recoaterdualaxismovement" id="2003">
+        <dint name="recoateraxis_linear_start_position" address="0" description="Recoating start position in micro meter oder micro degree"/>
+        <dint name="recoateraxis_linear_target_position" address="4" description="Target Position in micro meter oder micro degree"/>
+        <dint name="recoateraxis_linear_speed" address="8" description="Recoater linear axis speed in micro meter per second or micro degree per second"/>
+        <dint name="recoateraxis_powder_speed" address="12" description="Recoater powder axis speed in micro meter per second or micro degree per second"/>
+        <dint name="recoater_axes_linear_acceleration" address="16" description="Recoater linear axis acceleration and deceleration in millimeter per second squared"/>
+        <dint name="recoater_axes_powder_acceleration" address="20" description="Recoater powder axis acceleration and deceleration in millimeter per second squared"/>
+      </command>
+
+      <command name="togglevalves" id="2004">
+        <bool name="toggle_lower_gas_flow_circuit_valve" address="0" description="0 = close, 1 = open"/>
+        <bool name="toggle_upper_gas_flow_circuit_valve" address="1" description="0 = close, 1 = open"/>
+        <bool name="toggle_shielding_gas_valve" address="2" description="0 = close, 1 = open"/>
+        <bool name="toggle_chamber_vacuum_valve" address="3" description="0 = close, 1 = open"/>
+        <bool name="toggle_zAxis_vacuum_valve" address="4" description="0 = close, 1 = open"/>
+      </command>
+
+      <command name="initatmospherecontrol" id="2005">
+        <dint name="o2_threshold_circulation_on_in_ppm" address="0" description="Below this threshold the circulation pump can be switched on"/>
+        <dint name="o2_threshold_circulation_off_in_ppm" address="4" description="Above this threshold the circulation pump is switched off"/>
+      </command>
+
+      <command name="startgasflow" id="2006">
+        <dint name="setpoint_in_percent" address="0" description="Setpoint of the circulation pump"/>
+      </command>
+
+      <command name="updategasflowsetpoint" id="2007">
+        <dint name="setpoint_in_percent" address="0" description="Setpoint of the circulation pump"/>
+      </command>
+
+      <command name="turnoffgasflow" id="2008">
+      </command>
+
+      <command name="initvacuumsystem" id="2009">
+        <dint name="pressure_threshold_vacuum_off_in_mbar" address="0" description="Below this threshold the vacuum pump is switched off"/>
+      </command>
+
+      <command name="startvacuumpump" id="2010">
+      </command>
+
+      <command name="turnoffvacuumpump" id="2011">
+      </command>
+
+      <command name="enablecontroller" id="2300">
+        <int name="controller_ID" address="0" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      </command>
+
+      <command name="updatecontrollerPIDparameters" id="2301">
+        <bool name="isinit" address="0" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+        <int name="controller_ID" address="1" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+        <dint name="derivativetime" address="3" description="Derivative time of the PID controller in milli seconds"/>
+        <dint name="integrationtime" address="7" description="Integration time of the PID controller in milli seconds"/>
+        <dint name="gain" address="11" description="Gain of the PID controller in milli degree celcius of ppm per normalized output"/>
+        <dint name="filtertime" address="15" description="Filter time of the PID controller milli seconds"/>
+        <int name="maxout" address="19" description="Max ouput of the controller in percent"/>
+        <int name="minout" address="21" description="Min ouput of the controller in percent"/>
+      </command>
+
+      <command name="updatecontrollertunerparameters" id="2302">
+        <bool name="isinit" address="0" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+        <int name="controller_ID" address="1" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+        <int name="stepheight" address="3" description="Height of the step to be applied during tuning of the PID controller in percent"/>
+        <dint name="maxactvalue" address="5" description="Max value of the range of the controlled variable during training degree celcius or ppm"/>
+        <int name="minactvalue" address="9" description="Min value of the range of the controlled variable during training degree celcius or ppm"/>
+        <dint name="systemsettlingtime" address="11" description="Time for the system to settle at the start setpoint before the step for tuning is applied in milli seconds"/>
+        <dint name="maxtuningtime" address="15" description="Maximum time for the tuning including the settling time in milli seconds"/>
+      </command>
+
+      <command name="updatecontrollerPWMparameters" id="2303">
+        <bool name="isinit" address="0" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+        <int name="controller_ID" address="1" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+        <int name="dutycycle" address="3" description="Duty cycle of the PWM ouput of the build plate temperature control in percent"/>
+        <dint name="periodTime" address="5" description="Period time of the PWM signal of the build plate temperature control in milli seconds"/>
+        <int name="maxFrequency" address="9" description="Max frequency of the PWM signal in Hz"/>
+        <bool name="mode" address="11" description="Mode of the PWM signal, 1 = pulse in the middle, 0 = pulse in the beginning of the PWM period"/>
+      </command>
+
+      <command name="updatecontrollersetpoint" id="2304">
+		<bool name="isinit" address="0" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+        <int name="controller_ID" address="1" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+        <dint name="setvalue" address="3" description="Set value of the PID controller in degree celcius or ppm"/>
+      </command>
+
+      <command name="autotunecontroller" id="2305">
+        <int name="controller_ID" address="0" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+        <int name="stepheight" address="2" description="Height of the step to be applied during tuning of the PID controller in percent"/>
+        <dint name="maxactvalue" address="4" description="Max value of the range of the controlled variable during training in percent, maximum is 100 percent"/>
+        <int name="minactvalue" address="8" description="Min value of the range of the controlled variable during training in percent, must be positive"/>
+        <dint name="systemsettlingtime" address="10" description="Time for the system to settle at the start setpoint before the step for tuning is applied in milli seconds"/>
+        <dint name="maxtuningtime" address="14" description="Maximum time for the tuning including the settling time in milli seconds"/>
+      </command>
+
+
+      <command name="abortautotuningcontroller" id="2306">
+        <int name="controller_ID" address="0" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      </command>
+
+      <command name="disablecontroller" id="2307">
+        <int name="controller_ID" address="0" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      </command>
+
+    </commands>
+  </driver>
+
+  <driver name="raylase" library="driver_raylase" type="raylase"/>
+  <driver name="scanlab" library="driver_scanlab" type="scanlab-rtc6"/>
+
+  <statemachine name="main" description="Main System" initstate="init" failedstate="fatalerror" library="plugin_main">
+
+    <parametergroup name="jobinfo" description="Job Information">
+      <parameter name="jobname" description="Job Name" default="Job Name" type="string"/>
+      <parameter name="jobuuid" description="Job UUID" default="00000000-0000-0000-0000-000000000000" type="string"/>
+      <parameter name="executionuuid" description="Execution UUID" default="00000000-0000-0000-0000-000000000000" type="string"/>
+      <parameter name="layercount" description="Layer Count" default="0" type="int"/>
+	  <parameter name="startlayer" description="Index of Start Layer" default="0" type="int"/>
+      <parameter name="currentlayer" description="Current Layer" default="0" type="int"/>
+      <parameter name="totalheight" description="Total Height" default="0" type="double" />
+      <parameter name="currentheight" description="Current Height (mm)" default="0" type="double"/>
+      <parameter name="currentthickness" description="Current Layer Thickness (mm)" default="0" type="double"/>
+      <parameter name="autostart" description="Automatically start job after init" default="0" type="bool"/>
+      <parameter name="printinprogress" description="Print is in progress" default="0" type="bool"/>
+
+	  <parameter name="initpowderdosingunits" description="Number of powder dosings at the start of a build job" default="10" type="int"/>
+      <parameter name="overdosefactor" description="Powder Overdose Factor" default="2.5" type="double"/>
+	  <parameter name="currentrecoaterpowdercapacity" description="Current powder volume in the recoater carrier reservoir in cubic millimeters" default="0" type="double"/>
+	| <parameter name="currentreservoirpowdercapacity" description="Current powder volume in the powder reservoir reservoir in cubic millimeters" default="0" type="double"/>
+      <parameter name="platformaxis_clearance" description="Clearance distance of the build platform for recoating in millimeter" default="1.0" type="double"/>
+	  <parameter name="platformaxis_initial_absolute_position" description="Absolute position of the build platform at the start of the process in millimeter" default="10.0" type="double"/>
+	  <parameter name="platformaxis_speed" description="Build platform axis movement speed in millimeter per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="2.0" type="double"/>
+      <parameter name="platformaxis_acceleration" description="Build platform axis acceleration and deceleration in millimeter per second squared. MUST be positive. Ignored if speed is 0." default="20.0" type="double"/>
+      <parameter name="recoater_linear_speed_travel" description="Recoater linear axis movement speed in millimeter per second during traveling. MUST NOT be negative. Axis is not moved at all if speed is 0." default="400.0" type="double"/>
+      <parameter name="recoater_axes_linear_acceleration_travel" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during traveling. MUST be positive. Ignored if speed is 0." default="4000.0" type="double"/>
+      <parameter name="recoater_linear_speed_recoating" description="Recoater linear axis movement speed in millimeter per second during recoating. MUST NOT be negative. Axis is not moved at all if speed is 0." default="80.0" type="double"/>
+      <parameter name="recoater_axes_linear_acceleration_recoating" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during recoating. MUST be positive. Ignored if speed is 0." default="1000.0" type="double"/>
+
+	  <parameter name="powderreservoir_speed" description="Powder reservoir axis movement speed in degrees per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="60.0" type="double"/>
+	  <parameter name="powderreservoir_acceleration" description="Powder reservoir axis acceleration and deceleration in degrees per second squared. MUST be positive. Ignored if speed is 0." default="300.0" type="double"/>
+	  <parameter name="powderreservoir_dosing_units" description="Number of notches on the powder reservoir axis that are released per refilling step" default="1" type="int"/>
+
+	  <parameter name="vacuum_enabled_flag" description="If this flag is true, the vacuum system is used in the automated process flow" default="0" type="bool"/>
+	  <parameter name="pressure_threshold_vacuum_off_in_mbar" description="Below this threshold the vacuum pump is switched off" default="1000" type="int"/>
+
+	  <parameter name="circulation_pump_setpoint_in_percent" description="Setpoint of the circulation pump" default="60" type="int"/>
+	  <parameter name="oxygencontroller_oxygen_setpoint_in_ppm" description="Oxygen setpoint in ppm" default="220000" type="int"/>
+	  <parameter name="oxygencontroller_tolerance_ppm" description="Oxygen setpoint tolerance in ppm" default="30000" type="int"/>
+	  <parameter name="circulation_pump_started_flag" description="If this flag is true, the circulation pump was already started before the build job" default="0" type="bool"/>
+
+	  <parameter name="heatercontroller_temperature_setpoint_in_degree_celsius" description="Setpoint build plate heater in degree celcius" default="20" type="int"/>
+	  <parameter name="heatercontroller_tolerance_degree_celsius" description="Build platform heater setpoint tolerance" default="10" type="int"/>
+    </parametergroup>
+
+    <parametergroup name="ui" description="User interface">
+      <parameter name="currentlayerdisplay" description="Current Layer Display" default="" type="string"/>
+      <parameter name="currentheightdisplay" description="Current Height Display" default="" type="string"/>
+      <parameter name="build_canbepaused" description="Build can be paused" default="0" type="bool"/>
+      <parameter name="build_canbecanceled" description="Build can be paused" default="0" type="bool"/>
+      <parameter name="build_canbestarted" description="Build can be started" default="1" type="bool"/>
+    </parametergroup>
+
+
+    <parametergroup name="hardwareinformation" description="Hardware information">
+      <parameter name="platformarea" description="Platform area (in mm^2)" default="62500" type="double"/>
+      <parameter name="powderreservoirarea" description="Powder Reservoir Area (in mm^2)" default="125660" type="double"/>
+      <parameter name="powderreservoirheight" description="Powder Reservoir Height (in mm)" default="400" type="double"/>
+      <parameter name="recoater_refill_position" description="Recoater linear axis powder refill position in millimeter. MUST be positive." default="5.0" type="double"/>
+      <parameter name="recoating_start_position" description="Recoater linear axis recaoting start position in millimeter. MUST be positive." default="555.0" type="double"/>
+	  <parameter name="recoater_powderbelt_width" description="Width of the Recoater powder belt in millimeters." default="269.0" type="double"/>
+	  <parameter name="recoater_powderbelt_levelingblade_height" description="Height of the leveling blade on the recoater powder belt in millimeter." default="1.0" type="double"/>
+      <parameter name="o2_threshold_circulation_on_in_ppm" description="Below this threshold the circulation pump can be switched on" default="220000" type="int"/>
+      <parameter name="o2_threshold_circulation_off_in_ppm" description="Above this threshold the circulation pump is switched off" default="250000" type="int"/>
+	  <parameter name="powderreservoir_dosing_notch_count" description="Number of notches on the powder reservoir axis." default="6" type="int"/>
+	  <parameter name="powderreservoir_notch_volume_in_cubic_mm" description="Volume per notch of the powder dosing unit in cubic millimeters" default="17260" type="double"/>
+    </parametergroup>
+
+    <parametergroup name="heatercontroller" description="Heater controller">
+      <parameter name="setpoint" description="Setpoint build plate heater in degree celcius" default="80" type="int"/>
+      <parameter name="derivativetime" description="Derivative time in seconds" default="27.946" type="double"/>
+      <parameter name="integrationtime" description="Integration time in seconds" default="115.239" type="double"/>
+      <parameter name="gain" description="Gain in percent per degree celcius" default="1.064" type="double"/>
+      <parameter name="filtertime" description="Filter time in seconds" default="2.795" type="double"/>
+      <parameter name="maxout" description="Max heater control output in percent" default="100" type="int"/>
+      <parameter name="minout" description="Min heater control output in percent" default="0" type="int"/>
+      <parameter name="dutycycle" description="Heater PWM output duty cycle in percent" default="0" type="int"/>
+      <parameter name="periodTime" description="Heater PWM output period time in seconds" default="1.0" type="double"/>
+      <parameter name="maxFrequency" description="Heater PWM output max frequency in Hz" default="2" type="int"/>
+      <parameter name="mode" description="Heater PWM output mode, 0=middle, 1=beginning" default="1" type="bool"/>
+      <parameter name="stepheight" description="Heater auto tuning step height in percent" default="50" type="int"/>
+      <parameter name="maxactvalue" description="Max controlled variable value during training in degree celcius" default="150" type="int"/>
+      <parameter name="minactvalue" description="Min controlled variable value during training in degree celcius" default="15" type="int"/>
+      <parameter name="systemsettlingtime" description="Heater auto tuning settling time prior step in seconds" default="10.0" type="double"/>
+      <parameter name="maxtuningtime" description="Heater auto tuning max time in seconds" default="900.0" type="double"/>
+    </parametergroup>
+
+    <parametergroup name="oxygencontroller" description="Oxygen controller">
+      <parameter name="setpoint" description="Oxygen setpoint in ppm" default="1000" type="int"/>
+      <parameter name="derivativetime" description="Derivative time in seconds" default="184.915" type="double"/>
+      <parameter name="integrationtime" description="Integration time in seconds" default="762.536" type="double"/>
+      <parameter name="gain" description="Gain in percent per ppm" default="0.00516" type="double"/>
+      <parameter name="filtertime" description="Filter time in seconds" default="18.492" type="double"/>
+      <parameter name="maxout" description="Max oxygen control output in percent" default="100" type="int"/>
+      <parameter name="minout" description="Min oxygen control output in percent" default="0" type="int"/>
+      <parameter name="dutycycle" description="Oxygen PWM output duty cycle in percent" default="0" type="int"/>
+      <parameter name="periodTime" description="Oxygen PWM output period time in seconds" default="10.0" type="double"/>
+      <parameter name="maxFrequency" description="Oxygen PWM output max frequency in Hz" default="2" type="int"/>
+      <parameter name="mode" description="Oxygen PWM output mode, 0=middle, 1=beginning" default="1" type="bool"/>
+      <parameter name="stepheight" description="Oxygen auto tuning step height in percent" default="80" type="int"/>
+      <parameter name="maxactvalue" description="Max controlled variable value during training in ppm" default="250000" type="int"/>
+      <parameter name="minactvalue" description="Min controlled variable value during training in ppm" default="0" type="int"/>
+      <parameter name="systemsettlingtime" description="Oxygen auto tuning settling time prior step in seconds" default="10.0" type="double"/>
+      <parameter name="maxtuningtime" description="Oxygen auto tuning max time in seconds" default="7200.0" type="double"/>
+    </parametergroup>
+
+    <parametergroup name="processinitialization" description="Process Initialization Status">
+	  <parameter name="heatercontroller_ready" description="Heater controller is initialized." default="0" type="bool"/>
+	  <parameter name="oxygencontroller_ready" description="Oxygen controller is initialized." default="0" type="bool"/>
+	  <parameter name="vacuumcontroller_ready" description="Vacuum system is initialized." default="0" type="bool"/>
+	  <parameter name="atmospherecontroller_ready" description="Oxygen controller is initialized." default="0" type="bool"/>
+      <parameter name="emergencycircuitclosed" description="Emergency Circuit is Closed" default="0" type="bool"/>
+      <parameter name="sufficientpowderisavailable" description="Sufficient powder is available" default="0" type="bool"/>
+      <parameter name="recoateraxis_linear_ready" description="Recoater linear axis is powered and homed." default="0" type="bool"/>
+      <parameter name="recoateraxis_powder_ready" description="Recoater powder axis is powered and homed." default="0" type="bool"/>
+      <parameter name="powderreservoiraxis_ready" description="Powder reservoir axis is powered and homed." default="0" type="bool"/>
+      <parameter name="platformaxis_ready" description="Platform axis is powered and homed." default="0" type="bool"/>
+	  <parameter name="chamberdoorislocked" description="Chamber door is locked and can not be opened manually." default="0" type="bool"/>
+      <parameter name="initerror" description="Initialization Error Details" default="NOERROR" type="string"/>
+    </parametergroup>
+
+	<parametergroup name="processshutdown" description="Process Shutdown Status">
+	  <parameter name="doorunlocked" description="Is door unlocked flag" default="0" type="bool"/>
+	  <parameter name="vacuumpumpturnedoff" description="Is vacuum pump turned off flag" default="0" type="bool"/>
+	  <parameter name="heaterturnedoff" description="Is heater turned off flag" default="0" type="bool"/>
+	  <parameter name="shieldinggasturnedoff" description="Is shielding gas turned off flag" default="0" type="bool"/>
+	  <parameter name="circulationpumpturnedoff" description="Is circulation pump turned off flag" default="0" type="bool"/>
+	  <parameter name="valvesshut" description="Are valves shut flag" default="0" type="bool"/>
+	  <parameter name="shutdownerror" description="Shutdown Error Details" default="NOERROR" type="string"/>
+    </parametergroup>
+		  
+    <parametergroup name="timeouts" description="Subsystem communication timeouts">
+	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="3000" type="int"/>
+	  <parameter name="heaterinittimeout" description="Heater Controler Initializing Timeout" default="10000" type="int"/>
+	  <parameter name="oxygeninittimeout" description="Oxygen Controler Initializing Timeout" default="10000" type="int"/>
+	  <parameter name="vacuuminittimeout" description="Vacuum Controler Initializing Timeout" default="5000" type="int"/>
+	  <parameter name="atmosphereinittimeout" description="Atmosphere Controler Initializing Timeout" default="5000" type="int"/>
+	  <parameter name="axesinittimeout" description="Axes Init Timeout" default="180000" type="int"/>
+	  <parameter name="emergencycircuittimeout" description="Emergency Circuit Timeout" default="1000" type="int"/>
+      <parameter name="powderavailabilitytimeout" description="Powder Availability Timeout" default="1000" type="int"/>
+      <parameter name="motorenabledchecktimeout" description="Motor Enable Check Timeout" default="1000" type="int"/>
+	  <parameter name="controllersetpointupdatetimeout" description="Controller Setpoint Update Timeout" default="1800000" type="int"/>
+      <parameter name="recoaterpositionchecktimeout" description="Recoater Position Check Timeout" default="1000" type="int"/>
+      <parameter name="recoatingtimeout" description="Recoating Timeout" default="60000" type="int"/>
+      <parameter name="exposuretimeout" description="Exposure Timeout" default="300000" type="int"/>
+	  <parameter name="initialrecoatermovementtimeout" description="Initial Recoater Movement Timeout" default="65000" type="int"/>
+	  <parameter name="powderdosingtimeout" description="Powder Dosing Timeout" default="65000" type="int"/>
+	  <parameter name="initialplatformmovementtimeout" description="Initial Platform Movement Timeout" default="90000" type="int"/>
+	  <parameter name="heatercontroltimeout" description="Heater Control Timeout" default="60000" type="int"/>
+	  <parameter name="vacuumtimeout" description="Vacuum Timeout" default="30000" type="int"/>
+	  <parameter name="atmospherewithoutpumptimeout" description="Atmosphere Timeout before the circulation pump is switched on" default="30000" type="int"/>
+	  <parameter name="atmospherewithpumptimeout" description="Atmosphere Timeout after the circulation pump is switched on" default="30000" type="int"/>
+	  <parameter name="togglevalvestimeout" description="Toggle Valves Timeout" default="6000" type="int"/>
+	  <parameter name="lockdoortimeout" description="Lock Chamber Door Timeout" default="10000" type="int"/>
+	  <parameter name="generalshutdowntimeout" description="General Shut Down Timeout" default="20000" type="int"/>
+    </parametergroup>
+
+
+    <signaldefinition name="signal_startbuild">
+      <parameter name="jobuuid" type="string" description="UUID of the job to start." />
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_changelayer">
+      <parameter name="layer" type="int" description="Layer index." />
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_cancelbuild">
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualmovementcontrol_enter" description="Signal to enter Manual Movement Control mode.">
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualmovementcontrol_leave" description="Signal to leave Manual Movement Control mode into idle.">
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_enter" description="Signal to enter Manual Atmosphere Control mode.">
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_leave" description="Signal to leave Manual Atmosphere Control mode into idle.">
+      <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualheatercontrol_enter" description="Signal to enter Manual Heater Control mode.">
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualheatercontrol_leave" description="Signal to leave Manual Heater Control mode into idle.">
+      <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manual_controllertuning" description="Signal to autotune a PID controller.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_abort_controllertuning" description="Signal to abort the autotuning of a PID controller.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_referenceaxis" description="Signal to put Manual Control into Reference mode. All axes can be referenced independent from each other.">
+      <parameter name="reference_recoateraxis_linear" type="bool" description="Flag if the linear recoater axis should perform a reference movement." />
+      <parameter name="reference_recoateraxis_powder" type="bool" description="Flag if the powder recoater axis should perform a reference movement." />
+      <parameter name="reference_platform" type="bool" description="Flag if the platform axis should perform a reference movement via the restored position."/>
+	  <parameter name="reference_platform_absolute_switch" type="bool" description="Flag if the platform axis should perform an absolute-switch reference movement."/>
+      <parameter name="reference_powderreservoir" type="bool" description="Flag if the powder reservoir axis should perform a reference movement."/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualcontrol_exposure" description="Signal to launch a single layer exposure">
+      <parameter name="jobuuid" type="string" description="UUID of the job that contains the exposure layer." />
+      <parameter name="layerindex" type="int" description="Index of the layer that should be exposed." />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_singleaxismovement" description="Signal to launch the movement of one axes.">
+      <parameter name="axis_ID" type="int" description="ID of the axis to move (1 =Build platform, 2 = Powder reservoir, 3 = Recoater powder belt, 4 = Recoater linear axis)" />
+      <parameter name="absoluterelative" type="int" description="Is movement absolute (1) or relative (2). Ignored if speed is 0." />
+      <parameter name="target" type="double" description="Axis movement target (absolute move) or Delta (relative move) Value of the axis in millimeters or degree. Ignored if speed is 0." />
+      <parameter name="speed" type="double" description="Axis movement speed in millimeter per second or degree per second. MUST NOT be negative. Axis is not moved at all if speed is 0." />
+      <parameter name="acceleration" type="double" description="Axis acceleration and deceleration in millimeter per second squared or degree per second squared. MUST be positive. Ignored if speed is 0." />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_singleaxismovement_change_layer" description="Signal to manually change the layer.">
+      <parameter name="layer_height_manual" type="double" description="Manual movement control Layer Height"/>
+	  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+	  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+	  <signaldefinition name="signal_manual_powder_dosing" description="Signal to manually dose powder.">
+		  <parameter name="dosing_notches" type="int" description="Number of notches on the powder reservoir axis that are released per refilling step"/>
+		  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+		  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+	  </signaldefinition>
+
+    <signaldefinition name="signal_manualmovementcontrol_recoat_layer" description="Signal to launch the movement of one axes.">
+      <parameter name="dosing_factor_manual" type="double" description="Manual movement control Dosing Factor" />
+	  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+	  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualtogglevalves" description="Signal to manually toggle the valves.">
+      <parameter name="valve_ID" type="int" description="ID of the valve to toggle" />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_init" description="Signal to manually ínitialize the atmosphere control.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_update_gas_flow_setpoint" description="Signal to manually update the setpoint of the gas circulation pump in percent.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_start_gas_flow" description="Signal to manually start the circulation gas flow.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_turn_off_gas_flow" description="Signal to manually turn off the circulation gas flow.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualatmospherecontrol_save" description="Signal to save the setpoint value in the UI.">
+      <parameter name="setpointinpercent" type="int" description="Setpoint of the gas circulation pump in percent" />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualvacuumcontrol_init" description="Signal to manually initialize the vacuum system.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualvacuumcontrol_start_vacuum_pump" description="Signal to manually start the vacuum pump.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_manualvacuumcontrol_turn_off_vacuum_pump" description="Signal to manually turn off the vacuum pump.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+
+
+    <signaldefinition name="signal_enableheater" description="Signal to enable the build plate heater controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_controllerparameters_save" description="Signal to save controller parameters.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="derivativetime" type="double" description="Derivative time in seconds"/>
+      <parameter name="integrationtime" type="double" description="Integration time in seconds"/>
+      <parameter name="gain" type="double" description="Gain in percent per degree celcius or ppm"/>
+      <parameter name="filtertime" type="double" description="Filter time in seconds"/>
+      <parameter name="maxout" type="int" description="Max heater control output in percent"/>
+      <parameter name="minout" type="int" description="Min heater control output in percent"/>
+      <parameter name="dutycycle" type="int" description="Heater PWM output duty cycle in percent"/>
+      <parameter name="periodTime" type="double" description="Heater PWM output period time in seconds"/>
+      <parameter name="maxFrequency" type="int" description="Heater PWM output max frequency in Hz"/>
+      <parameter name="mode" type="bool" description="Heater PWM output mode, 0=middle, 1=beginning"/>
+      <parameter name="stepheight" type="int" description="Heater auto tuning step height in percent"/>
+      <parameter name="maxactvalue" type="int" description="Max controlled variable during training degree celcius of ppm"/>
+      <parameter name="minactvalue" type="int" description="Max controlled variable during training degree celcius ppm"/>
+      <parameter name="systemsettlingtime" type="double" description="Heater auto tuning settling time prior step in seconds"/>
+      <parameter name="maxtuningtime" type="double" description="Heater auto tuning max time in seconds"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_heatercontrolsetpoint_save" description="Signal to save the heater controller setpoint.">
+      <parameter name="setpoint" type="int" description="Setpoint build plate heater in degree celcius"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatePIDheater" description="Signal to update the build plate heater controller PID parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatePWMheater" description="Signal to update the build plate heater controller PWM parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatetunerheater" description="Signal to update the build plate heater controller tuner parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_initheater" description="Signal to initialize the build plate heater controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_disableheater" description="Signal to disable the build plate heater controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updateheatersetpoint" description="Signal to update the build plate heater setpoint.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_initoxygen" description="Signal to initialize the oxygen controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_enableoxygencontroller" description="Signal to enable the oxygen controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_disableoxygencontroller" description="Signal to disable the oxygen controller.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatePIDoxygencontroller" description="Signal to update the oxygen controller PID parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatePWMoxygencontroller" description="Signal to update the oxygen controller PWM parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatetuneroxygencontroller" description="Signal to update the oxygen controller tuner parameters.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updateoxygensetpoint" description="Signal to update the oxygen setpoint.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <state name="init" repeatdelay="100">
+      <outstate target="idle"/>
+	  <outstate target="initerror"/>
+    </state>
+
+    <state name="idle" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="startprocess"/>
+      <outstate target="manualmovementcontrol"/>
+      <outstate target="manualatmospherecontrol"/>
+      <outstate target="manuallasercontrol"/>
+      <outstate target="manualheatercontrol"/>
+    </state>
+
+    <state name="startprocess" repeatdelay="1000">
+      <outstate target="processpreparation"/>
+      <outstate target="cancelprocess"/>
+      <outstate target="initerror"/>
+    </state>
+
+    <state name="processpreparation" repeatdelay="1000">
+      <outstate target="waitforheater"/>
+	  <outstate target="cancelprocess"/>
+      <outstate target="initerror"/>
+    </state>
+
+	 <state name="waitforheater" repeatdelay="1000">
+		 <outstate target="waitforvacuum"/>
+		 <outstate target="waitforatmospherewithoutpump"/>
+		 <outstate target="initerror"/>
+	 </state>
+
+    <state name="waitforvacuum" repeatdelay="1000">
+	    <outstate target="waitforatmospherewithoutpump"/>
+	    <outstate target="initerror"/>
+    </state>
+
+    <state name="waitforatmospherewithoutpump" repeatdelay="1000">
+	    <outstate target="waitforatmospherewithpump"/>
+	    <outstate target="initerror"/>
+    </state>
+
+    <state name="waitforatmospherewithpump" repeatdelay="1000">
+	    <outstate target="beginlayer"/>
+	    <outstate target="initerror"/>
+    </state>
+
+    <state name="beginlayer" repeatdelay="1000">
+      <outstate target="exposelayer"/>
+      <outstate target="powdererror"/>
+    </state>
+
+    <state name="exposelayer" repeatdelay="1000">
+      <outstate target="recoatlayer"/>
+      <outstate target="atmosphereerror"/>
+      <outstate target="gasflowerror"/>
+	  <outstate target="heatererror"/>
+	  <outstate target="waitforshutdown"/>
+    </state>
+
+    <state name="recoatlayer" repeatdelay="1000">
+      <outstate target="finishlayer"/>
+      <outstate target="recoatingerror"/>
+    </state>
+
+    <state name="finishlayer" repeatdelay="1000">
+      <outstate target="beginlayer"/>
+      <outstate target="finishprocess"/>
+      <outstate target="cancelprocess"/>
+      <outstate target="pauseprocess"/>
+    </state>
+
+    <state name="finishprocess" repeatdelay="1000">
+      <outstate target="waitforshutdown"/>
+    </state>
+
+    <state name="pauseprocess" repeatdelay="1000">
+      <outstate target="beginlayer"/>
+      <outstate target="cancelprocess"/>
+    </state>
+
+    <state name="cancelprocess" repeatdelay="1000">
+      <outstate target="waitforshutdown"/>
+    </state>
+
+    <state name="waitforshutdown" repeatdelay="1000">
+	  <outstate target="waitforshutdown"/>
+      <outstate target="idle"/>
+    </state>
+
+    <state name="initerror" repeatdelay="1000">
+      <outstate target="waitforshutdown"/>
+    </state>
+
+    <state name="powdererror" repeatdelay="1000">
+      <outstate target="pauseprocess"/>
+    </state>
+
+    <state name="atmosphereerror" repeatdelay="1000">
+      <outstate target="pauseprocess"/>
+    </state>
+	  
+    <state name="gasflowerror" repeatdelay="1000">
+      <outstate target="pauseprocess"/>
+    </state>
+	  
+	 <state name="heatererror" repeatdelay="1000">
+		 <outstate target="pauseprocess"/>
+	 </state>
+
+    <state name="recoatingerror" repeatdelay="1000">
+      <outstate target="pauseprocess"/>
+    </state>
+
+
+    <state name="manualmovementcontrol" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="manualmovementcontrol"/>
+      <outstate target="manualreferencing"/>
+      <outstate target="manualmovement"/>
+      <outstate target="manualrecoating"/>
+	  <outstate target="manualpowderdosing"/>
+	</state>
+
+    <state name="manualreferencing" repeatdelay="1000">
+      <outstate target="manualmovementcontrol"/>
+    </state>
+
+    <state name="manualmovement" repeatdelay="1000">
+      <outstate target="manualmovementcontrol"/>
+    </state>
+
+    <state name="manualrecoating" repeatdelay="1000">
+      <outstate target="manualmovementcontrol"/>
+    </state>
+
+	<state name="manualpowderdosing" repeatdelay="1000">
+		<outstate target="manualpowderdosing"/>
+		<outstate target="manualmovementcontrol"/>
+	</state>
+	  
+    <state name="manuallasercontrol" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="manuallasercontrol"/>
+      <outstate target="manualexposure"/>
+    </state>
+
+    <state name="manualexposure" repeatdelay="1000">
+      <outstate target="manuallasercontrol"/>
+    </state>
+
+    <state name="manualatmospherecontrol" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="manualatmospherecontrol"/>
+      <outstate target="waitforcontrollertuning"/>
+    </state>
+
+    <state name="manualheatercontrol" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="manualheatercontrol"/>
+      <outstate target="waitforcontrollertuning"/>
+    </state>
+
+    <state name="waitforcontrollertuning" repeatdelay="1000">
+      <outstate target="manualheatercontrol"/>
+      <outstate target="manualatmospherecontrol"/>
+      <outstate target="waitforcontrollertuning"/>
+    </state>
+
+
+    <state name="fatalerror" repeatdelay="5000">
+      <outstate target="init"/>
+      <outstate target="fatalerror"/>
+    </state>
+
+  </statemachine>
+
+
+
+  <statemachine name="scanner" description="Scanner System" initstate="init" failedstate="fatalerror" library="plugin_scanner">
+
+    <parametergroup name="cardconfig" description="Scanner Card Config">
+      <parameter name="cardtype" description="Scanner Card Type (scanlab or raylase)" default="raylase" type="string"/>
+      <parameter name="serial" description="Serial" default="332663" type="int"/>
+      <parameter name="ipaddress" description="Scanner Ethernet Address" default="169.254.174.78" type="string"/>
+      <parameter name="netmask" description="Scanner Netmask" default="255.255.255.0" type="string"/>
+      <parameter name="port" description="Port" default="49374" type="int"/>
+      <parameter name="timeout" description="Connection timeout" default="1000" type="int"/>
+      <parameter name="maxlaserpower" description="Max. laser power (W)" default="1000" type="double"/>
+      <parameter name="laserondelay" description="Laser On Delay in microseconds" default="100" type="double"/>
+      <parameter name="laseroffdelay" description="Laser Off Delay in microseconds" default="100" type="double"/>
+      <parameter name="markdelay" description="Mark Delay in microseconds" default="570" type="double"/>
+      <parameter name="jumpdelay" description="Jump Delay in microseconds" default="1400" type="double"/>
+      <parameter name="polygondelay" description="Polygon Delay in microseconds" default="280" type="double"/>
+      <parameter name="simulatelaser" description="Simulate the laser control" default="1" type="bool"/>
+	  <parameter name="pilotprofile" description="Excecute build job using the pilot laser" default="1" type="bool"/>
+    </parametergroup>
+
+	 <signaldefinition name="signal_exposure" description="Signal to launch a single layer exposure">
+		  <parameter name="jobuuid" type="string" description="UUID of the job that contains the exposure layer." />
+		  <parameter name="layerindex" type="int" description="Index of the layer that should be exposed." />
+		  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+		  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+	</signaldefinition>
+	  
+    <state name="init" repeatdelay="100">
+      <outstate target="updatescannerparameters"/>
+    </state>
+
+    <state name="updatescannerparameters" repeatdelay="1000">
+      <outstate target="idle"/>
+    </state>
+
+    <state name="idle" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="updatescannerparameters"/>
+      <outstate target="exposelayer"/>
+    </state>
+
+    <state name="exposelayer" repeatdelay="1000">
+      <outstate target="idle"/>
+    </state>
+
+    <state name="fatalerror" repeatdelay="5000">
+      <outstate target="init"/>
+      <outstate target="fatalerror"/>
+    </state>
+
+  </statemachine>
+
+
+
+  <statemachine name="plc" description="PLC System" initstate="init" failedstate="fatalerror" library="plugin_plc">
+
+    <parametergroup name="configuration" description="PLC Configuration">
+      <parameter name="ipaddress" description="IP Address" default="127.0.0.1" type="string"/>
+      <parameter name="port" description="Port" default="12200" type="int"/>
+      <parameter name="connectiontimeout" description="Connection Timeout" default="3000" type="int"/>
+    </parametergroup>
+
+    <parametergroup name="timeouts" description="PLC Timeouts">
+	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="2000" type="int"/>
+      <parameter name="responsetimeout" description="PLC Response Timeout (ms)" default="300" type="int"/>
+	  <parameter name="vacuuminittimeout" description="PLC Vacuum Init Timeout (ms)" default="1000" type="int"/>
+	  <parameter name="atmosphereinittimeout" description="Atmosphere Controler Initializing Timeout" default="1000" type="int"/>
+	  <parameter name="axesinittimeout" description="Axes Init Timeout" default="5000" type="int"/>
+	  <parameter name="controllerupdatetimeout" description="PLC Controller Parameter Update Timeout (ms)" default="1000" type="int"/>
+	  <parameter name="togglevalvestimeout" description="Toggle Valves Timeout" default="4000" type="int"/>
+	  <parameter name="startstoppumptimeout" description="Start or Stop Pump Timeout" default="5000" type="int"/>
+    </parametergroup>
+
+    <parametergroup name="simulation" description="Simulation Mode Configuration">
+      <parameter name="plc_is_simulated" description="PLC is simulated" default="0" type="bool"/>
+      <parameter name="plcsimulation_circuitisclosed" description="PLC simulated circuit is closed" default="1" type="bool"/>
+      <parameter name="plcsimulation_filllevel" description="PLC simulated fill level" default="0.5" type="double"/>
+      <parameter name="plcsimulation_recoateraxis_linear_ready" description="PLC simulated linear recoater axis state" default="1" type="bool"/>
+      <parameter name="plcsimulation_recoateraxis_powder_ready" description="PLC simulated powder recoater axis state" default="1" type="bool"/>
+      <parameter name="plcsimulation_powderreservoiraxis_ready" description="PLC simulated powderreservoir axis state" default="0" type="bool"/>
+      <parameter name="plcsimulation_platformaxis_ready" description="PLC simulated platform axis state" default="1" type="bool"/>
+      <parameter name="plcsimulation_recoaterisinfillposition" description="PLC simulated recoater axis state" default="1" type="bool"/>
+    </parametergroup>
+
+    <parametergroup name="cacheplcstate" description="Cach to store BuR States">
+      <parameter name="cache_position_platform" description="Build Platform Axis Cache Position in mm" default="0.0" type="double"/>
+	<parameter name="cache_position_powderreservoir" description="Powder Reservoir Axis Cache Position in mm" default="0.0" type="double"/>
+	  <parameter name="cache_position_recoateraxis_powder" description="Recoater Powder Axis Cache Position in mm" default="0.0" type="double"/>
+	  <parameter name="cache_position_recoateraxis_linear" description="Recoater Linear Axis Cache Position in mm" default="0.0" type="double"/>
+    </parametergroup>
+
+    <driverparametergroup name="plcstate" description="BuR State" driver="bur"/>
+
+    <signaldefinition name="signal_checkemergencycircuit" description="Performs a check if the emergency circuit of the PLC is closed.">
+      <result name="circuitisclosed" type="bool" description="Returns true if the emergency circuit is closed."/>
+		<result name="success" type="bool" description="Flag if the operation succeeded."/>
+		<result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_checkpowderavailability" description="Performs a check if powder is available.">
+      <result name="filllevel" type="double" description="Returns the fill level of the powder. 0.0 means no powder left, 1.0 means powder stock is at maximum height." />
+		<result name="success" type="bool" description="Flag if the operation succeeded."/>
+		<result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_releasedoor" description="Releases the door.">
+		<result name="success" type="bool" description="Flag if the operation succeeded."/>
+		<result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_singleaxismovement" description="Signal to launch the movement of one axes.">
+      <parameter name="axis_ID" type="int" description="ID of the axis to move (1 =Build platform, 2 = Powder reservoir, 3 = Recoater powder belt, 4 = Recoater linear axis)" />
+      <parameter name="absoluterelative" type="int" description="Is movement absolute (1) or relative (2). Ignored if speed is 0." />
+      <parameter name="target" type="double" description="Axis movement target (absolute move) or Delta (relative move) Value of the axis in millimeters or degree. Ignored if speed is 0." />
+      <parameter name="speed" type="double" description="Axis movement speed in millimeter per second or degree per second. MUST NOT be negative. Axis is not moved at all if speed is 0." />
+      <parameter name="acceleration" type="double" description="Axis acceleration and deceleration in millimeter per second squared degree per socond squared. MUST be positive. Ignored if speed is 0." />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+	  <signaldefinition name="signal_initaxes" description="Initializes all axes.">
+		  <result name="platformaxis_initialized" type="bool" description="Platform axis is initialized."/>
+		  <result name="powderreservoiraxis_initialized" type="bool" description="Powder reservoir axis is initialized."/>
+		  <result name="recoateraxis_powder_initialized" type="bool" description="Recoater powder axis is initialized."/>
+		  <result name="recoateraxis_linear_initialized" type="bool" description="Recoater linear axis is initialized."/>
+	  </signaldefinition>
+	  
+	  <signaldefinition name="signal_leavewaitforreferencing" description="Leave the waitforreferencing state in the plc state machine.">
+      </signaldefinition>
+	  
+    <signaldefinition name="signal_checkaxisstate" description="Performs a check if axes are all powered and homed.">
+      <result name="platformaxis_ready" type="bool" description="Platform axis is powered and homed."/>
+      <result name="powderreservoiraxis_ready" type="bool" description="Powder reservoir axis is powered and homed."/>
+      <result name="recoateraxis_powder_ready" type="bool" description="Recoater powder axis is powered and homed."/>
+      <result name="recoateraxis_linear_ready" type="bool" description="Recoater linear axis is powered and homed."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_checkrecoaterfillposition" description="Performs a check if recoater is in fill position.">
+      <result name="recoaterisinfillposition" type="bool" description="Returns true if recoater is in fill position."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_reference" description="Signal to reference the PLC Axes">
+      <parameter name="reference_recoateraxis_linear" type="bool"/>
+      <parameter name="reference_recoateraxis_powder" type="bool"/>
+      <parameter name="reference_platform" type="bool"/>
+	  <parameter name="reference_platform_absolute_switch" type="bool"/>
+      <parameter name="reference_powderreservoir" type="bool"/>
+      <result name="success" type="bool"/>
+      <result name="errorcode" type="int"/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_recoatlayer" description="Starts the recoating of one layer.">
+      <parameter name="platformaxis_clearance" description="Clearance distance of the build platform in millimeter" default="1.0" type="double"/>
+      <parameter name="platformaxis_speed" description="Build Platform axis movement speed in millimeter per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="2.0" type="double"/>
+      <parameter name="platformaxis_acceleration" description="Build platform axis acceleration and deceleration in millimeter per second squared. MUST be positive. Ignored if speed is 0." default="10.0" type="double"/>
+      <parameter name="layer_height" description="Current job layer height" default="0.04" type="double"/>
+      <parameter name="recoater_refill_position" description="Recoater linear axis powder refill position in millimeter. MUST be positive." default="100.0" type="double"/>
+      <parameter name="recoating_start_position" description="Recoater linear axis recaoting start position in millimeter. MUST be positive." default="300.0" type="double"/>
+      <parameter name="recoater_linear_speed_travel" description="Recoater linear axis movement speed in millimeter per second during traveling. MUST NOT be negative. Axis is not moved at all if speed is 0." default="250.0" type="double"/>
+      <parameter name="recoater_axes_linear_acceleration_travel" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during traveling. MUST be positive. Ignored if speed is 0." default="2500.0" type="double"/>
+      <parameter name="recoater_linear_speed_recoating" description="Recoater linear axis movement speed in millimeter per second during recoating. MUST NOT be negative. Axis is not moved at all if speed is 0." default="80.0" type="double"/>
+      <parameter name="recoater_axes_linear_acceleration_recoating" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during recoating. MUST be positive. Ignored if speed is 0." default="25000.0" type="double"/>
+      <parameter name="recoater_axes_dosing_factor" description="Ratio between the acceleration/speed of the recoater powder belt axis and the acceleration/speed of the recoater linear axis" default="1.0" type="double"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+	  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_togglevalve" description="Signal to toggle a single valve.">
+		<parameter name="valve_ID" type="int" description="ID of the valve to toggle" />
+		<result name="success" type="bool" description="Flag if the operation succeeded."/>
+		<result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_switchvalves" description="Signal to switch multiple valves on and off.">
+	  <parameter name="toggle_lower_gas_flow_circuit_valve" type="bool" description="Toggle lower gas flow circuit valve (ID = 1), 0 = close, 1 = open" />
+	  <parameter name="toggle_upper_gas_flow_circuit_valve" type="bool" description="Toggle upper gas flow circuit valve (ID = 2), 0 = close, 1 = open" />
+	  <parameter name="toggle_shielding_gas_valve" type="bool" description="Toggle shielding gas valve (ID = 3), 0 = close, 1 = open" />
+	  <parameter name="toggle_chamber_vacuum_valve" type="bool" description="Toggle chamber vaccuum valve (ID = 4), 0 = close, 1 = open" />
+	  <parameter name="toggle_zAxis_vacuum_valve" type="bool" description="Toggle z-axis vaccuum valve (ID = 5), 0 = close, 1 = open" />
+	  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+	  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+	  
+
+    <signaldefinition name="signal_atmospherecontrol_init" description="Signal to initialize atmosphere control.">
+      <parameter name="o2_threshold_circulation_on_in_ppm" type="int" description="Below this threshold the circulation pump can be switched on" />
+      <parameter name="o2_threshold_circulation_off_in_ppm" type="int" description="Above this threshold the circulation pump is switched off" />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_atmospherecontrol_update_gas_flow_setpoint" description="Signal to update the gasflow setpoint for the atmosphere control.">
+      <parameter name="setpoint_in_percent" type="int" description="Setpoint of the circulation pump" />
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_atmospherecontrol_start_gas_flow" description="Signal to start the gasflow for the atmosphere control.">
+      <parameter name="setpoint_in_percent" type="int" description="Setpoint of the circulation pump"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_atmospherecontrol_turn_off_gas_flow" description="Signal to turn off the gasflow for the atmosphere control.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_vacuumcontrol_init" description="Signal to initialize the vacuum system.">
+      <parameter name="pressure_threshold_vacuum_off_in_mbar" type="int" description="Below this threshold the vacuum pump is switched off"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_vacuumcontrol_start_vacuum_pump" description="Signal to start the vacuum pump.">
+	  <parameter name="pressure_threshold_vacuum_off_in_mbar" type="int" description="Below this threshold the vacuum pump is switched off"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_vacuumcontrol_turn_off_vacuum_pump" description="Signal to turn off the vacuum pump.">
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+	<signaldefinition name="signal_check_gas_flow" description="Check the gas flow during the process.">
+	  <parameter name="atmosphere_controller_tolerance_ppm" type="int" description="Oxygen setpoint tolerance"/>
+	  <result name="circulation_pump_started_setpoint_reached" type="bool" description="Circulation pump is started and oxygen setpoint is reached."/>
+	</signaldefinition>
+
+    <signaldefinition name="signal_enablecontroller" description="Signal to enable the build plate heater controller.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+	 <signaldefinition name="signal_check_heater" description="Check the build platform heater during the process.">
+	   <parameter name="heater_controller_tolerance_degree_celsius" type="int" description="Build platform heater setpoint tolerance"/>
+	   <result name="heater_controller_enabled_setpoint_reached" type="bool" description="Build platform heater controller is enabled and build platform heater setpoint is reached."/>
+	 </signaldefinition>
+
+	 <signaldefinition name="signal_check_atmosphere" description="Check the atmosphere during the process.">
+	   <parameter name="atmosphere_controller_tolerance_ppm" type="int" description="Oxygen setpoint tolerance"/>
+	   <result name="atmosphere_controller_enabled_setpoint_reached" type="bool" description="Shielding gas controller is enabled and oxygen setpoint is reached."/>
+	 </signaldefinition>
+
+    <signaldefinition name="signal_updatecontrollerPID" description="Signal to save the controller parameters.">
+      <parameter name="isinit" type="bool" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="setpoint" type="int" description="Setpoint in degree celcius or ppm"/>
+      <parameter name="derivativetime" type="double" description="Derivative time in seconds"/>
+      <parameter name="integrationtime" type="double" description="Integration time in seconds"/>
+      <parameter name="gain" type="double" description="Gain in percent per degree celcius or ppm"/>
+      <parameter name="filtertime" type="double" description="Filter time in seconds"/>
+      <parameter name="maxout" type="int" description="Max heater control output in percent"/>
+      <parameter name="minout" type="int" description="Min heater control output in percent"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatecontrollerPWM" description="Signal to update the controller PWM parameters.">
+      <parameter name="isinit" type="bool" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="dutycycle" type="int" description="PWM output duty cycle in percent"/>
+      <parameter name="periodTime" type="double" description="PWM output period time in seconds"/>
+      <parameter name="maxFrequency" type="int" description="PWM output max frequency in Hz"/>
+      <parameter name="mode" type="bool" description="PWM output mode, 0=middle, 1=beginning"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatecontrollertuner" description="Signal to update the controller tuner parameters.">
+      <parameter name="isinit" type="bool" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="stepheight" type="int" description="Auto tuning step height in percent"/>
+      <parameter name="maxactvalue" type="int" description="Max controller output during training in percent"/>
+      <parameter name="minactvalue" type="int" description="Min controller output during training in percent"/>
+      <parameter name="systemsettlingtime" type="double" description="Auto tuning settling time prior step in seconds"/>
+      <parameter name="maxtuningtime" type="double" description="Auto tuning max time in seconds"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_controllertuning" description="Signal to start the tuning of the controller.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="stepheight" type="int" description="Auto tuning step height in percent"/>
+      <parameter name="maxactvalue" type="int" description="Max controller output during training in percent"/>
+      <parameter name="minactvalue" type="int" description="Min controller output during training in percent"/>
+      <parameter name="systemsettlingtime" type="double" description="Auto tuning settling time prior step in seconds"/>
+      <parameter name="maxtuningtime" type="double" description="Auto tuning max time in seconds"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_disablecontroller" description="Signal to disable the build plate heater controller.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_updatecontrollersetpoint" description="Signal to update the controller setpoint.">
+      <parameter name="isinit" type="bool" description="Flag if this is an init command or an update command, 1 = init, 0 = update"/>
+	  <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <parameter name="setpoint" type="int" description="Setpoint build plate heater in degree celcius or ppm"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+
+    <signaldefinition name="signal_abortcontrollertuning" description="Signal to abort a PID controller tuning.">
+      <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_lockdoor" description="Signal to lock the chamber door.">
+      <parameter name="lockdoor" type="bool" description="1 = look door, 0 = unlock door"/>
+	  <result name="doorlockstate" type="bool" description="State of the door, 1 = looked, 0 = unlocked."/>
+      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <result name="errorcode" type="int" description="Optional error code in case of failure."/>
+    </signaldefinition>
+	  
+	  
+
+
+    <state name="init" repeatdelay="100">
+      <outstate target="idle"/>
+      <outstate target="connectionerror"/>
+    </state>
+
+    <state name="idle" repeatdelay="1000">
+      <outstate target="connectionlost"/>
+      <outstate target="idle"/>
+      <outstate target="emergencyofferror"/>
+      <outstate target="shieldinggasflooding"/>
+      <outstate target="startgasflow"/>
+      <outstate target="updatebuildplatetemperature"/>
+	  <outstate target="evacuatebuildchamber"/>
+      <outstate target="moveplatformclear"/>
+      <outstate target="moveplatform"/>
+      <outstate target="movepowderreservoir"/>
+	  <outstate target="moverecoaterlinear"/>
+	  <outstate target="moverecoaterpowderbelt"/>
+	  <outstate target="waitforreferencing"/>
+    </state>
+	  
+	<state name="waitforreferencing" repeatdelay="1000">
+      <outstate target="waitforreferencing"/>
+      <outstate target="idle"/>
+    </state>
+
+    <state name="moveplatformclear" repeatdelay="1000">
+      <outstate target="waitforclearplatform"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="waitforclearplatform" repeatdelay="1000">
+      <outstate target="waitforclearplatform"/>
+      <outstate target="recoatertostartposition"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="recoatertostartposition" repeatdelay="1000">
+      <outstate target="waitforrecoaterinstartposition"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="waitforrecoaterinstartposition" repeatdelay="1000">
+      <outstate target="waitforrecoaterinstartposition"/>
+      <outstate target="platformtolayer"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="platformtolayer" repeatdelay="1000">
+      <outstate target="waitforplatformtolayer"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="waitforplatformtolayer" repeatdelay="1000">
+      <outstate target="waitforplatformtolayer"/>
+      <outstate target="recoatlayer"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="recoatlayer" repeatdelay="1000">
+      <outstate target="waitforrecoatlayer"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="waitforrecoatlayer" repeatdelay="1000">
+      <outstate target="waitforrecoatlayer"/>
+      <outstate target="idle"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+
+    <state name="moverecoaterlinear" repeatdelay="1000">
+      <outstate target="waitforaxismovement"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="moverecoaterpowderbelt" repeatdelay="1000">
+      <outstate target="waitforaxismovement"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="movepowderreservoir" repeatdelay="1000">
+      <outstate target="waitforaxismovement"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="moveplatform" repeatdelay="1000">
+      <outstate target="waitforaxismovement"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="waitforaxismovement" repeatdelay="1000">
+      <outstate target="waitforaxismovement"/>
+      <outstate target="idle"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="connectionerror" repeatdelay="1000">
+      <outstate target="init"/>
+      <outstate target="connectionerror"/>
+    </state>
+
+    <state name="connectionlost" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="connectionlost"/>
+    </state>
+
+    <state name="emergencyofferror" repeatdelay="1000">
+      <outstate target="idle"/>
+      <outstate target="emergencyofferror"/>
+    </state>
+
+    <state name="shieldinggasflooding" repeatdelay="1000">
+      <outstate target="waitforoxygen"/>
+	  <outstate target="idle"/>
+    </state>
+
+	<state name="waitforoxygen" repeatdelay="1000">
+		<outstate target="waitforoxygen"/>
+		<outstate target="idle"/>
+	</state>
+
+    <state name="startgasflow" repeatdelay="1000">
+      <outstate target="waitforgasflow"/>
+	  <outstate target="idle"/>
+    </state>
+
+	<state name="waitforgasflow" repeatdelay="1000">
+		<outstate target="idle"/>
+	    <outstate target="waitforgasflow"/>
+	    <outstate target="connectionlost"/>
+	</state>
+
+    <state name="updatebuildplatetemperature" repeatdelay="1000">
+      <outstate target="waitforbuildplatetemperature"/>
+	  <outstate target="idle"/>
+    </state>
+
+	<state name="waitforbuildplatetemperature" repeatdelay="1000">
+		<outstate target="waitforbuildplatetemperature"/>
+		<outstate target="idle"/>
+	</state>
+
+	<state name="evacuatebuildchamber" repeatdelay="1000">
+		<outstate target="waitforvaccuum"/>
+	    <outstate target="idle"/>
+	</state>
+
+	<state name="waitforvaccuum" repeatdelay="1000">
+		<outstate target="waitforvaccuum"/>
+		<outstate target="idle"/>
+	</state>
+
+    <state name="fatalerror" repeatdelay="5000">
+      <outstate target="init"/>
+      <outstate target="fatalerror"/>
+    </state>
+
+  </statemachine>
+
+  <userinterface appname="iwb reAM250" copyright="2024 Technical University of Munich, iwb" mainpage="main" library="plugin_userinterface">
+
+
+    <logo resource="tum_logo" aspectratio="3.0" />
+
+    <login
+		backgroundresource="login_background"
+		welcomemessage="Welcome to reAM250"
+	/>
+
+    <colors>
+      <color name="primary" red="0.000" green="0.395" blue="0.738"/>
+      <color name="secondary" red="0.000" green="0.199" blue="0.348"/>
+      <color name="accent" red="0.000" green="0.000" blue="0.000"/>
+      <color name="error" red="0.867" green="0.133" blue="0.133"/>
+    </colors>
+
+    <dialog name="dialog_manualmovement">
+      <grid name="grid_manualmovement">
+        <column width="250" unit="pt"/>
+        <column width="250" unit="pt"/>
+        <column width="250" unit="pt"/>
+        <column width="250" unit="pt"/>
+
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+        <row height="1" unit="free"/>
+
+        <content name="manual_movement_platform" columnstart="1" rowstart="1" columnend="1" rowend="9" rowposition="centered">
+          <parameterlist loadingtext="Loading parameters">
+            <entry parameter="axBuildPlatform_plcopenstate" statemachine="plc" group="plcstate"/>
+            <entry parameter="axBuildPlatform_actualposition" statemachine="plc" group="plcstate"/>
+          </parameterlist>
+          <form name="form_manual_movement_platform">
+            <edit name="position_or_distance_platform" caption="Position/Distance Platform in mm" value="0"/>
+            <edit name="velocity_platform" caption="Velocity Platform in mm/s" value="0"/>
+            <edit name="acceleration_platform" caption="Acceleration Platform in mm/s^2" value="0"/>
+          </form>
+          <buttongroup name="buttongroup_manual_movement_platform" distribution="equal">
+            <button name="reference_axis" caption="Home Platform" event="event_manualcontrol_referenceaxis"/>
+			<button name="reference_axis_absolute_switch" caption="Home Platform with Switch" event="event_manualcontrol_referenceaxis"/>
+            <button name="move_absolute" caption="Move Absolute Platform" event="event_singleaxismovement" formvalues="form_manual_movement_platform"/>
+            <button name="move_relative" caption="Move Relative Platform" event="event_singleaxismovement" formvalues="form_manual_movement_platform"/>
+          </buttongroup>
+          <form name="form_change_layer">
+            <edit name="layer_height" caption="Layer height in mm" value="0.1"/>
+          </form>
+          <buttongroup name="buttongroup_change_layer" distribution="equal">
+            <button name="button_change_layer" caption="Change Layer" event="event_singleaxismovement" formvalues="form_change_layer"/>
+          </buttongroup>
+        </content>
+        <content name="manual_movement_powderreservoir" columnstart="2" rowstart="1" columnend="2" rowend="9" rowposition="centered">
+          <parameterlist loadingtext="Loading parameters">
+            <entry parameter="axPowderReservoir_plcopenstate" statemachine="plc" group="plcstate"/>
+            <entry parameter="axPowderReservoir_actualposition" statemachine="plc" group="plcstate"/>
+          </parameterlist>
+          <form name="form_manual_movement_powderreservoir">
+            <edit name="position_or_distance_powderreservoir" caption="Position/Distance Powder Reservoir in degree" value="0"/>
+            <edit name="velocity_powderreservoir" caption="Velocity Powder Reservoir in degree/s" value="0"/>
+            <edit name="acceleration_powderreservoir" caption="Acceleration Powder Reservoir in degree/s^2" value="0"/>
+          </form>
+          <buttongroup name="buttongroup_manual_movement_powderreservoir" distribution="equal">
+            <button name="reference_axis" caption="Home Powder Reservoir" event="event_manualcontrol_referenceaxis"/>
+            <button name="move_absolute" caption="Move Absolute Powder Reservoir" event="event_singleaxismovement" formvalues="form_manual_movement_powderreservoir"/>
+            <button name="move_relative" caption="Move Relative Powder Reservoir" event="event_singleaxismovement" formvalues="form_manual_movement_powderreservoir"/>
+          </buttongroup>
+          <form name="form_powder_dosing">
+            <edit name="dosing_units" caption="Dosing units" value="1"/>
+          </form>
+          <buttongroup name="buttongroup_powder_dosing" distribution="equal">
+            <button name="button_powder_dosing" caption="Powder dosing" event="event_singleaxismovement" formvalues="form_powder_dosing"/>
+          </buttongroup>
+        </content>
+        <content name="manual_movement_recoater_powder" columnstart="3" rowstart="1" columnend="3" rowend="7" rowposition="centered">
+          <parameterlist loadingtext="Loading parameters">
+            <entry parameter="axRecoaterPowderBelt_plcopenstate" statemachine="plc" group="plcstate"/>
+            <entry parameter="axRecoaterPowderBelt_actualposition" statemachine="plc" group="plcstate"/>
+          </parameterlist>
+          <form name="form_manual_movement_recoater_powder">
+            <edit name="position_or_distance_recoater_powder" caption="Position/Distance Recoater Powder in mm" value="0"/>
+            <edit name="velocity_recoater_powder" caption="Velocity Recoater Powder in mm/s" value="0"/>
+            <edit name="acceleration_recoater_powder" caption="Acceleration Recoater Powder in mm/s^2" value="0"/>
+          </form>
+          <buttongroup name="buttongroup_manual_movement_recoater_powder" distribution="equal">
+            <button name="reference_axis" caption="Home Recoater Powder" event="event_manualcontrol_referenceaxis"/>
+            <button name="move_absolute" caption="Move Absolute Recoater Powder" event="event_singleaxismovement" formvalues="form_manual_movement_recoater_powder"/>
+            <button name="move_relative" caption="Move Relative Recoater Powder" event="event_singleaxismovement" formvalues="form_manual_movement_recoater_powder"/>
+          </buttongroup>
+        </content>
+        <content name="manual_movement_recoater_linear" columnstart="4" rowstart="1" columnend="4" rowend="7" rowposition="centered">
+          <parameterlist loadingtext="Loading parameters">
+            <entry parameter="axRecoater_plcopenstate" statemachine="plc" group="plcstate"/>
+            <entry parameter="axRecoater_actualposition" statemachine="plc" group="plcstate"/>
+          </parameterlist>
+          <form name="form_manual_movement_recoater_linear">
+            <edit name="position_or_distance_recoater_linear" caption="Position/Distance Recoater Linear in mm" value="0"/>
+            <edit name="velocity_recoater_linear" caption="Velocity Recoater Linear in mm/s" value="0"/>
+            <edit name="acceleration_recoater_linear" caption="Acceleration Recoater Linear in mm/s^2" value="0"/>
+          </form>
+          <buttongroup name="buttongroup_manual_movement_recoater_linear" distribution="equal">
+            <button name="reference_axis" caption="Home Recoater Linear" event="event_manualcontrol_referenceaxis"/>
+            <button name="move_absolute" caption="Move Absolute Recoater Linear" event="event_singleaxismovement" formvalues="form_manual_movement_recoater_linear"/>
+            <button name="move_relative" caption="Move Relative Recoater Linear" event="event_singleaxismovement" formvalues="form_manual_movement_recoater_linear"/>
+          </buttongroup>
+        </content>
+        <content name="manual_movement_recoat_layer_form" columnstart="3" rowstart="8" columnend="4" rowend="8" rowposition="centered">
+          <form name="form_recoat_layer">
+            <edit name="recoat_layer_dosing_factor" caption="Dosing factor" value="1"/>
+          </form>
+        </content>
+        <content name="manual_movement_recoat_layer_button" columnstart="3" rowstart="9" columnend="4" rowend="9" rowposition="centered">
+          <buttongroup name="buttongroup_recoat_layer" distribution="equal">
+            <button name="button_recoat_layer" caption="Recoat layer" event="event_manualmovementcontrol_recoat_layer" formvalues="form_recoat_layer"/>
+          </buttongroup>
+        </content>
+        <content name="manual_movement_navigation" columnstart="1" rowstart="10" columnend="2" rowend="10" rowposition="centered">
+          <buttongroup name="buttongroup_manual_movement_navigation" distribution="equal">
+            <button name="cancel" caption="Cancel" event="event_manualmovementcontrol_leave"/>
+          </buttongroup>
+        </content>
+      </grid>
+    </dialog>
+
+    <dialog name="dialog_manualatmospherecontrol">
+      <content name="infobox_manualatmospherecontrol" title="Manual Atmosphere Control">
+
+        <image resource="login_background" aspectratio="2.5" maxheight="400"/>
+
+        <buttongroup name="buttongroup_valves" distribution="equal">
+          <button name="button_toggle_lower_gas_flow_circuit_valve" caption="Gas Flow Valve Heat Exchanger" event="event_togglevalves"/>
+          <button name="button_toggle_upper_gas_flow_circuit_valve" caption="Gas Flow Valve Chamber" event="event_togglevalves"/>
+          <button name="button_toggle_shielding_gas_valve" caption="Shielding Gas Valve" event="event_togglevalves"/>
+          <button name="button_toggle_chamber_vacuum_valve" caption="Vacuum Valve Chamber" event="event_togglevalves"/>
+          <button name="button_toggle_zAxis_vacuum_valve" caption="Vacuum Valve z-Axis" event="event_togglevalves"/>
+        </buttongroup>
+
+        <form name="form_gas_flow_control">
+          <edit name="setpoint" caption="Setpoint gas flow in %" value="0"/>
+        </form>
+
+        <buttongroup name="buttongroup_circulation" distribution="equal">
+          <button name="button_init_atmosphere_control" caption="Init atmosphere control" event="event_manualatmospherecontrol_init"/>
+          <button name="button_update_gas_flow_setpoint" caption="Update pump setpoint" event="event_manualatmospherecontrol_update_gas_flow_setpoint"/>
+          <button name="button_start_gas_flow" caption="Start gas flow" event="event_manualatmospherecontrol_start_gas_flow"/>
+          <button name="button_turn_off_gas_flow" caption="Turn off gas flow" event="event_manualatmospherecontrol_turn_off_gas_flow"/>
+        </buttongroup>
+
+        <buttongroup name="buttongroup_vacuum_system" distribution="equal">
+          <button name="button_init_vacuum_control" caption="Init vacuum control" event="event_manualvacuumcontrol_init"/>
+          <button name="button_start_vacuum_pump" caption="Start vacuum pump" event="event_manualvacuumcontrol_start_vacuum_pump"/>
+          <button name="button_turn_off_vacuum_pump" caption="Turn off vacuum pump" event="event_manualvacuumcontrol_turn_off_vacuum_pump"/>
+        </buttongroup>
+
+
+
+        <buttongroup name="buttongroup_oxygen_controller" distribution="equal">
+          <button name="button_init_oxygencontrol" caption="Init Oxygen Control" event="event_initcontroller"/>
+          <button name="button_enable_oxygencontrol" caption="Enable Oxygen Control" event="event_enablecontroller"/>
+          <button name="button_update_PID_parameters" caption="Update PID parameters" event="event_updatecontrollerPID"/>
+          <button name="button_update_PWM_parameters" caption="Update PWM parameters" event="event_updatecontrollerPWM"/>
+          <button name="button_update_tuner_parameters" caption="Update Autotuner parameters" event="event_updatecontrollertuner"/>
+          <button name="button_start_autotune" caption="Start Autotuning" event="event_startautotunecontroller"/>
+          <button name="button_disable_oxygencontrol" caption="Disable Oxygen Control" event="event_disablecontroller"/>
+          <button name="button_update_oxygensetpoint" caption="Update the Oxygen Setpoint" event="event_updatecontrollersetpoint"/>
+          <button name="button_change_controller_parameters" caption="Change Controller Parameters" event="event_controllerparameterlist_enter"/>
+        </buttongroup>
+
+
+        <form name="form_oxygen_setpoint">
+          <edit name="setpoint" caption="Oxygen Setpoint in ppm" value="20"/>
+        </form>
+
+        <parameterlist loadingtext="Loading oxygen setpoint">
+          <entry statemachine="main" group="jobinfo" parameter="circulation_pump_setpoint_in_percent"/>
+          <entry statemachine="main" group="oxygencontroller" parameter="setpoint"/>
+        </parameterlist>
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_save" caption="Save" event="event_manualatmospherecontrol_save" formvalues="form_gas_flow_control"/>
+          <button name="button_cancel" caption="Cancel" event="event_manualatmospherecontrol_leave"/>
+        </buttongroup>
+
+
+      </content>
+
+    </dialog>
+
+    <dialog name="dialog_oxygenparameterlist">
+      <content name="infobox" title="Oxygen Controller Parameters">
+
+        <form name="form_oxygen_controller_parameters">
+          <edit name="derivativetime" caption="Derivative Time in Seconds" value="0.0"/>
+          <edit name="integrationtime" caption="Integration Time in Seconds" value="0.0"/>
+          <edit name="gain" caption="Gain in Percent per ppm" value="1000.0"/>
+          <edit name="filtertime" caption="Filter Time in Seconds" value="0.0"/>
+          <edit name="maxout" caption="Max Output in Percent" value="100"/>
+          <edit name="minout" caption="Min Output in Percent" value="0"/>
+          <edit name="dutycycle" caption="Duty Cycle in Percent" value="0"/>
+          <edit name="periodTime" caption="Period time in Seconds" value="1.0"/>
+          <edit name="maxFrequency" caption="Max frequency in Herz" value="2"/>
+          <edit name="mode" caption="PWM mode, 0=middle, 1=beginning" value="1"/>
+          <edit name="stepheight" caption="Step Height in Percent " value="80"/>
+          <edit name="maxactvalue" caption="Max Controlled Variable during Training in ppm" value="250000"/>
+          <edit name="minactvalue" caption="Min Controlled Variable during Training in ppm" value="100"/>
+          <edit name="systemsettlingtime" caption="Settling Time prior Step in Seconds" value="10.0"/>
+          <edit name="maxtuningtime" caption="Max Tuning Time in Seconds" value="900.0"/>
+        </form>
+
+        <parameterlist loadingtext="Loading oxygen controller parameters">
+          <entry statemachine="main" group="oxygencontroller"/>
+        </parameterlist>
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_save" caption="Save" event="event_controllerparameterlist_save" formvalues="form_oxygen_controller_parameters"/>
+          <button name="button_cancel" caption="Cancel" event="event_controllerparameterlist_leave"/>
+        </buttongroup>
+
+      </content>
+    </dialog>
+
+    <dialog name="dialog_oxygenautotuning">
+      <content name="infobox" title="Oxygen Controller Tuning in Progress">
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_cancel" caption="Cancel" event="event_aborttuning"/>
+        </buttongroup>
+
+      </content>
+    </dialog>
+
+    <dialog name="dialog_manualheatercontrol">
+      <content name="infobox_manualheatercontrol" title="Manual Heater Control">
+
+        <image resource="login_background" aspectratio="2.5" maxheight="400"/>
+
+        <buttongroup name="buttongroup_controller" distribution="equal">
+          <button name="button_init_heatercontrol" caption="Init Build Plate Heater Control" event="event_initcontroller"/>
+          <button name="button_enable_heatercontrol" caption="Enable Build Plate Heater Control" event="event_enablecontroller"/>
+          <button name="button_update_PID_parameters" caption="Update PID parameters" event="event_updatecontrollerPID"/>
+          <button name="button_update_PWM_parameters" caption="Update PWM parameters" event="event_updatecontrollerPWM"/>
+          <button name="button_update_tuner_parameters" caption="Update Autotuner parameters" event="event_updatecontrollertuner"/>
+          <button name="button_start_autotune" caption="Start Autotuning" event="event_startautotunecontroller"/>
+          <button name="button_disable_heatercontrol" caption="Disable Build Plate Heater Control" event="event_disablecontroller"/>
+          <button name="button_update_heatersetpoint" caption="Update the Build Plate Heater Setpoint" event="event_updatecontrollersetpoint"/>
+          <button name="button_change_controller_parameters" caption="Change Controller Parameters" event="event_controllerparameterlist_enter"/>
+        </buttongroup>
+
+        <form name="form_heater_setpoint">
+          <edit name="setpoint" caption="Heater Setpoint in Degree Celcius" value="20"/>
+        </form>
+
+        <parameterlist loadingtext="Loading heater setpoint">
+          <entry statemachine="main" group="heatercontroller" parameter="setpoint"/>
+        </parameterlist>
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_save" caption="Save" event="event_heatersetpoint_save" formvalues="form_heater_setpoint"/>
+          <button name="button_cancel" caption="Cancel" event="event_manualheatercontrol_leave"/>
+        </buttongroup>
+
+      </content>
+    </dialog>
+
+    <dialog name="dialog_heaterparameterlist">
+      <content name="infobox" title="Heater Controller Parameters">
+
+        <form name="form_heater_controller_parameters">
+          <edit name="derivativetime" caption="Derivative Time in Seconds" value="27.946"/>
+          <edit name="integrationtime" caption="Integration Time in Seconds" value="115.239"/>
+          <edit name="gain" caption="Gain in Percent per Degree Celcius" value="1.064"/>
+          <edit name="filtertime" caption="Filter Time in Seconds" value="2.795"/>
+          <edit name="maxout" caption="Max Output in Percent" value="100"/>
+          <edit name="minout" caption="Min Output in Percent" value="0"/>
+          <edit name="dutycycle" caption="Duty Cycle in Percent" value="0"/>
+          <edit name="periodTime" caption="Period time in Seconds" value="1.0"/>
+          <edit name="maxFrequency" caption="Max frequency in Herz" value="2"/>
+          <edit name="mode" caption="PWM mode, 0=middle, 1=beginning" value="1"/>
+          <edit name="stepheight" caption="Step Height in Percent " value="50"/>
+          <edit name="maxactvalue" caption="Max Controlled Variable during Training in Degree Celcius" value="150"/>
+          <edit name="minactvalue" caption="Min Controlled Variable during Training in Degree Celcius" value="15"/>
+          <edit name="systemsettlingtime" caption="Settling Time prior Step in Seconds" value="10.0"/>
+          <edit name="maxtuningtime" caption="Max Tuning Time in Seconds" value="900.0"/>
+        </form>
+
+        <parameterlist loadingtext="Loading heater controller parameters">
+          <entry statemachine="main" group="heatercontroller"/>
+        </parameterlist>
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_save" caption="Save" event="event_controllerparameterlist_save" formvalues="form_heater_controller_parameters"/>
+          <button name="button_cancel" caption="Cancel" event="event_controllerparameterlist_leave"/>
+        </buttongroup>
+
+      </content>
+    </dialog>
+
+    <dialog name="dialog_heaterautotuning">
+      <content name="infobox" title="Heater Controller Tuning in Progress">
+
+        <buttongroup name="buttongroup_navigation" distribution="equal">
+          <button name="button_cancel" caption="Cancel" event="event_aborttuning"/>
+        </buttongroup>
+
+      </content>
+    </dialog>
+
+
+
+    <page name="main">
+      <content name="infobox" title="Manual Machine Control">
+
+        <buttongroup name="buttongroup" distribution="equal">
+          <button name="button_manualmovement" caption="Enter manual movement mode" event="event_manualmovementcontrol_enter"/>
+          <button name="button_manualatmospherecontrol" caption="Enter manual atmosphere control" event="event_manualatmospherecontrol_enter"/>
+          <button name="button_manualheatercontrol" caption="Enter manual heater control" event="event_manualheatercontrol_enter"/>
+        </buttongroup>
+
+        <buttongroup name="buttongroup" distribution="equal">
+          <button name="releasedoor" caption="Release door" event="event_releasedoorclick"/>
+        </buttongroup>
+
+      </content>
+
+
+    </page>
+
+    <page name="importbuildjob">
+      <grid name="importgrid">
+        <column width="1" unit="free"/>
+        <column width="200" unit="pt"/>
+
+        <row height="150" unit="pt"/>
+        <row height="1" unit="free"/>
+        <row height="50" unit="pt"/>
+
+        <tabs name="uploadtab" columnstart="1" rowstart="1" columnend="2" rowend="1" rowposition="top">
+          <content name="upload" caption="Upload new build file">
+            <upload class="build" caption="Select 3MF files to upload" successevent="event_onuploadfinished"/>
+          </content>
+          <content name="select" caption="Select build file">
+            <buildlist loadingtext="Loading builds" entriesperpage="20" selectevent="event_onselectbuild"/>
+          </content>
+        </tabs>
+
+        <layerview name="preview" columnstart="1" rowstart="2" columnend="1" rowend="2">
+          <platform sizex="250" sizey="250" originx="125" originy="125" baseimage="buildplate"/>
+        </layerview>
+
+        <content name="UploadButtons" columnstart="1" rowstart="3" columnend="1" rowend="3" rowposition="centered">
+          <buttongroup distribution="equal">
+            <button name="startbuild" caption="Start Build" event="event_startbuild" />
+            <button name="backtomainpage" caption="Return to Home" event="event_cancelpreview"/>
+          </buttongroup>
+        </content>
+
+        <content name="layerinfo" columnstart="2" rowstart="2" columnend="2" rowend="2">
+          <form name="layerinfoform">
+            <edit name="currentlayer" caption="Current Layer" readonly="0" value="1"/>
+          </form>
+          <buttongroup name="buttongroup" distribution="equal">
+            <button name="changelayer" caption="Change Layer" event="event_onimportlayerchange" formvalues="layerinfoform"/>
+          </buttongroup>
+        </content>
+      </grid>
+    </page>
+
+    <page name="buildlist">
+      <content name="buildlibrary" title="Build Library">
+        <upload class="build" caption="Select 3MF files to upload" successevent="event_onuploadfinished"/>
+
+        <buildlist loadingtext="Loading builds" entriesperpage="20" selectevent="event_onselectbuild" thumbnail="thumbnail_default">
+          <button name="selectbuild" caption="Select" event="event_onselectbuild"/>
+          <button name="view3d" caption="View in 3D" event=""/>
+          <button name="viewhistory" caption="Show History" event=""/>
+          <button name="fakejob" caption="Run Fake Job" event="onfakejob"/>
+        </buildlist>
+      </content>
+    </page>
+
+    <page name="buildhistory">
+      <content name="executionlibrary" title="Build History">
+        <executionlist loadingtext="Loading builds" entriesperpage="20" selectevent=""  thumbnail="thumbnail_default">
+          <button name="details" caption="Details" selectevent=""/>
+        </executionlist>
+      </content>
+    </page>
+
+
+
+    <page name="buildstatus">
+
+      <grid name="previewgrid">
+        <column width="180" unit="pt"/>
+        <column width="3" unit="free"/>
+        <column width="3" unit="free"/>
+        <column width="3" unit="free"/>
+        <column width="3" unit="free"/>
+
+        <row height="50" unit="pt"/>
+        <row height="50" unit="pt"/>
+        <row height="1" unit="free"/>
+
+
+        <content name="buildinformation" columnstart="1" rowstart="1" columnend="1" rowend="1" rowposition="centered">
+          <form name="infoform1">
+            <edit name="buildname"
+						caption="Build name"
+						sync:value="main.jobinfo.jobname"
+						readonly="1"/>
+          </form>
+        </content>
+
+        <content name="buildcurrentlayer" columnstart="2" rowstart="1" columnend="2" rowend="1" rowposition="centered">
+          <form name="infoform2">
+            <edit name="buildcurrentlayer"
+						caption="Current layer"
+						sync:value="main.ui.currentlayerdisplay"
+						readonly="1"/>
+          </form>
+        </content>
+
+
+        <content name="buildcurrentheight" columnstart="3" rowstart="1" columnend="3" rowend="1" rowposition="centered">
+          <form name="infoform3">
+            <edit name="buildcurrentheight"
+						caption="Current height"
+						sync:value="main.ui.currentheightdisplay"
+						readonly="1"/>
+          </form>
+        </content>
+
+        <content name="buildmainstate" columnstart="1" rowstart="2" columnend="1" rowend="2" rowposition="centered">
+          <form name="stateform1">
+            <edit name="mainstate"
+						caption="Main System"
+						sync:value="main.$state"
+						readonly="1"/>
+          </form>
+        </content>
+
+        <content name="buildlaserstate" columnstart="2" rowstart="2" columnend="2" rowend="2" rowposition="centered">
+          <form name="stateform2">
+            <edit name="laserstate"
+						caption="Scanner System"
+						sync:value="scanner.$state"
+						readonly="1"/>
+          </form>
+        </content>
+
+
+        <content name="buildplcstate" columnstart="3" rowstart="2" columnend="3" rowend="2" rowposition="centered">
+          <form name="stateform3">
+            <edit name="plcstate"
+						caption="PLC System"
+						sync:value="plc.$state"
+						readonly="1"/>
+          </form>
+        </content>
+
+
+        <content name="actions1" columnstart="4" rowstart="1" columnend="5" rowend="1" rowposition="centered">
+          <buttongroup distribution="equal">
+            <button caption="Pause Build" event="pausebuild" sync:disabled="!main.ui.build_canbepaused"/>
+          </buttongroup>
+        </content>
+
+        <content name="actions2" columnstart="4" rowstart="2" columnend="5" rowend="2" rowposition="centered">
+          <buttongroup distribution="equal">
+            <button caption="Cancel Build" event="event_cancelbuild" sync:disabled="!main.ui.build_canbecanceled"/>
+          </buttongroup>
+        </content>
+
+
+        <layerview name="preview" columnstart="1" rowstart="3" columnend="3" rowend="3">
+          <platform sizex="300" sizey="300" originx="150" originy="150" sync:layerindex="main.jobinfo.currentlayer" baseimage="buildplate"/>
+        </layerview>
+
+
+        <tabs name="buildtabs" columnstart="4" rowstart="3" columnend="5" rowend="3">
+
+          <content name="systemstate" caption="System State">
+
+            <parameterlist loadingtext="Loading parameters">
+              <entry statemachine="main" group="jobinfo"/>
+              <entry statemachine="scanner" group="cardconfig"/>
+              <entry statemachine="plc" group="configuration"/>
+              <entry statemachine="plc" group="timeouts"/>
+              <entry statemachine="plc" group="plcstate"/>
+
+            </parameterlist>
+
+          </content>
+
+          <logs name="systemlog" caption="Log Messages">
+          </logs>
+
+        </tabs>
+
+
+      </grid>
+    </page>
+
+    <page name="systemstatus">
+
+      <content name="currentbuild" title="Current System Status">
+        <parameterlist loadingtext="Loading parameters">
+          <entry statemachine="main" group="jobinfo"/>
+          <entry statemachine="main" group="hardwareinformation"/>
+          <entry statemachine="main" group="processinitialization"/>
+          <entry statemachine="main" group="timeouts"/>
+
+          <entry statemachine="plc" group="configuration"/>
+          <entry statemachine="plc" group="simulation"/>
+          <entry statemachine="plc" group="plcstate"/>
+
+
+        </parameterlist>
+
+      </content>
+    </page>
+
+    <page name="systemlog">
+
+      <logs name="systemlog" caption="Log Messages">
+      </logs>
+
+    </page>
+
+
+    <page name="modelview">
+
+
+    </page>
+
+    <menu>
+      <item id="main" icon="mdi-book-open-variant" caption="Dashboard" description="System Health Information and operator tools." targetpage="main"/>
+      <item id="buildlist" icon="mdi-library" permission="permission_view_builds" description="Upload build files and start build jobs." caption="Build Library" targetpage="buildlist"/>
+      <item id="buildhistory" icon="mdi-library" permission="permission_view_builds" description="Browse past build jobs running on this machine." caption="Build History" targetpage="buildhistory"/>
+      <item id="buildprocess" icon="mdi-printer-3d" caption="Build Process" description="Manage and monitor current build process" targetpage="buildstatus"/>
+      <item id="systemstatus" icon="mdi-factory" caption="Current Status" description="Display current machine status." targetpage="systemstatus"/>
+      <item id="systemlog" icon="mdi-book-open-variant" caption="System Logs" description="Browse and display stored system log files." targetpage="systemlog"/>
+      <item id="modelview" icon="mdi-book-open-variant" caption="3D Model View" description="View Build Job in 3D." targetpage="modelview"/>
+    </menu>
+
+
+    <toolbar logoresource="tum_toolbarlogo">
+      <item id="opendoor" icon="mdi-door" caption="Open Door" event="event_releasedoorclick"/>
+      <item id="home" icon="mdi-apps" caption="Home" targetpage="main"/>
+      <item id="logout" icon="mdi-logout" caption="Log out" event="event_logout"/>
+    </toolbar>
+
+
+  </userinterface>
+</machinedefinition>

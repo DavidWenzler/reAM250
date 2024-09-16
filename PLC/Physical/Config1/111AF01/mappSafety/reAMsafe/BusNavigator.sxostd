@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<osdd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ethernet-powerlink.org/osdd osdd.xsd" xmlns:xlink="http://www.w3.org/1999/xlink" Version="1.6" xmlns="http://www.ethernet-powerlink.org/osdd">
+  <Topology SafetyDomain="1">
+    <GeneratorDescription Name="AutomationStudio" Version="4.12.2.93" LanguageID="1">
+      <Info Name="ARVersion" Value="48304" />
+      <Info Name="SafetyRelease" Value="5.16.0" />
+      <Info Name="Communication" Value="/IF=tcpip /LOPO=11159 /SA=1 /COMT=2500 /RT=1000 /AM=* /SDT=5 /DAIP=192.168.2.100 /REPO=11159 /ANSL=1 /PT=11169 /PORT=50000" />
+      <Info Name="mappSafetyPath" Value="C:\BrAutomation\AS412\AS\TechnologyPackages\mappSafety\5.16.0" />
+    </GeneratorDescription>
+    <SafetyConfigurationManager TransportSAddr="1">
+      <DeviceDescription Module="X20SL81XX_110.SCM" minOpenSafetyRelease="1.5"><![CDATA[C:\BrAutomation\AS412\AS\Hardware\Modules\X20SL8101\2.4.2.0\OSDD\X20SL81XX_SCM_2_4_2_0.xosdd]]></DeviceDescription>
+      <NodeDescription />
+    </SafetyConfigurationManager>
+    <SafetyNode SAddr="1">
+      <DeviceDescription Module="X20SL8101_110.MainSN" minOpenSafetyRelease="1.5"><![CDATA[C:\BrAutomation\AS412\AS\Hardware\Modules\X20SL8101\2.4.2.0\OSDD\\X20SL8101_2_4_2_0.xosdd]]></DeviceDescription>
+      <DesignConfiguration>
+        <ModuleSettings>
+          <SettingsGroup id="DataFromAs">
+            <Setting id="SafeDesigner" Value="" />
+            <Setting id="EPL_PReqDataInPResMN" Value="off" />
+            <Setting id="EPL_Chained" Value="off" />
+            <Setting id="AdditionalNodeResponse1" Value="off" />
+            <Setting id="AdditionalNodeResponse2" Value="off" />
+            <Setting id="AdditionalNodeResponse3" Value="off" />
+          </SettingsGroup>
+        </ModuleSettings>
+      </DesignConfiguration>
+      <NodeDescription>
+        <Classification Type="PLC" />
+        <Classification Type="VendorSpecific">Safe</Classification>
+        <Info Name="Interface" Value="SL1.IF1.ST2" />
+        <Info Name="HWC_Revision" Value="2.4.2.0" />
+        <Info Name="HWC_LastEdit" Value="08.03.2022 17:31:28" />
+        <Info Name="AS_Name" Value="X20SL8101" />
+        <Info Name="FirstPublishedSafetyRelease" Value="1.0" />
+        <Info Name="ProjectSL" Value="1" />
+        <Info Name="ExtendedSourceSL" Value="1" />
+        <Info Name="Description-de" Value="X20 SafeLOGIC, POWERLINK V2, X2X Link, 24V, univ." />
+        <Info Name="Description-en" Value="X20 SafeLOGIC, POWERLINK V2, X2X Link, 24V, univ." />
+        <Info Name="AsVariable" Value="BOOL10001,Main:siUnlockChamberDoor" />
+      </NodeDescription>
+      <ChannelConfiguration>
+        <DataTransport>
+          <GenericTransport Name="DataExFromCpu" Direction="Input" OctetSize="516" IsSafe="false" />
+          <GenericTransport Name="DataExToCpu" Direction="Output" OctetSize="516" IsSafe="false" />
+        </DataTransport>
+        <ChannelGroup id="ToCPU_BOOL">
+          <Channel id="BOOL0">
+            <DataValue Type="Boolean">
+              <Transport Name="DataExToCpu" Index="0x00" />
+              <SODPosition Index="0x0" SubIndex="0x00" />
+            </DataValue>
+            <Repetition RangeMax="8" NrOfDigits="4" />
+          </Channel>
+        </ChannelGroup>
+        <ChannelGroup id="FromCPU_BOOL">
+          <Channel id="BOOL1">
+            <DataValue Type="Boolean">
+              <Transport Name="DataExFromCpu" Index="0x00" />
+              <SODPosition Index="0x0" SubIndex="0x00" />
+            </DataValue>
+            <Repetition RangeMax="8" NrOfDigits="4" />
+          </Channel>
+        </ChannelGroup>
+      </ChannelConfiguration>
+    </SafetyNode>
+    <SafetyNode SAddr="2">
+      <DeviceDescription Module="X20SI8110_110" minOpenSafetyRelease="1.5"><![CDATA[C:\BrAutomation\AS412\AS\Hardware\Modules\X20SI8110\2.4.0.0\OSDD\\X20SI8110_2_4_0_0.xosdd]]></DeviceDescription>
+      <NodeDescription>
+        <Classification Type="Digital" />
+        <Classification Type="Input" />
+        <Classification Type="VendorSpecific">Safe</Classification>
+        <Classification Type="VendorSpecific">IO</Classification>
+        <Info Name="Interface" Value="SL1.IF1.ST2.IF1.ST2" />
+        <Info Name="HWC_Revision" Value="2.4.0.0" />
+        <Info Name="HWC_LastEdit" Value="08.03.2022 17:31:28" />
+        <Info Name="AS_Name" Value="115KF51" />
+        <Info Name="FirstPublishedSafetyRelease" Value="5.4" />
+        <Info Name="Description-de" Value="X20 Safe Digital In, 8xE, 24V" />
+        <Info Name="Description-en" Value="X20 Safe Digital In, 8xI, 24V" />
+        <Info Name="AsVariable" Value="FirmwareVersion,IOMapping_115KF51.FirmwareVersion" />
+        <Info Name="AsVariable" Value="SafeInputOK02,IOMapping_115KF51.SafeInputOK02" />
+        <Info Name="AsVariable" Value="SafeInputOK03,IOMapping_115KF51.SafeInputOK03" />
+        <Info Name="AsVariable" Value="SafeInputOK07,IOMapping_115KF51.SafeInputOK07" />
+        <Info Name="AsVariable" Value="SafeDigitalInput01,IOMapping_115KF51.SafeDigitalInput01" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0304,IOMapping_115KF51.SafeTwoChannelOK0304" />
+        <Info Name="AsVariable" Value="SafeDigitalInput05,IOMapping_115KF51.SafeDigitalInput05" />
+        <Info Name="AsVariable" Value="SafeDigitalInput06,IOMapping_115KF51.SafeDigitalInput06" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0708,IOMapping_115KF51.SafeTwoChannelOK0708" />
+        <Info Name="AsVariable" Value="SafeInputOK01,IOMapping_115KF51.SafeInputOK01" />
+        <Info Name="AsVariable" Value="SafeInputOK06,IOMapping_115KF51.SafeInputOK06" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0304,IOMapping_115KF51.SafeTwoChannelInput0304" />
+        <Info Name="AsVariable" Value="SafeInputOK04,IOMapping_115KF51.SafeInputOK04" />
+        <Info Name="AsVariable" Value="SerialNumber,IOMapping_115KF51.SerialNumber" />
+        <Info Name="AsVariable" Value="SafeDigitalInput03,IOMapping_115KF51.SafeDigitalInput03" />
+        <Info Name="AsVariable" Value="SafeInputOK08,IOMapping_115KF51.SafeInputOK08" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0708,IOMapping_115KF51.SafeTwoChannelInput0708" />
+        <Info Name="AsVariable" Value="SafeModuleOK,IOMapping_115KF51.SafeModuleOK" />
+        <Info Name="AsVariable" Value="SafeDigitalInput08,IOMapping_115KF51.SafeDigitalInput08" />
+        <Info Name="AsVariable" Value="HardwareVariant,IOMapping_115KF51.HardwareVariant" />
+        <Info Name="AsVariable" Value="ModuleOk,IOMapping_115KF51.ModuleOk" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0506,IOMapping_115KF51.SafeTwoChannelOK0506" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0506,IOMapping_115KF51.SafeTwoChannelInput0506" />
+        <Info Name="AsVariable" Value="ModuleID,IOMapping_115KF51.ModuleID" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0102,IOMapping_115KF51.SafeTwoChannelInput0102" />
+        <Info Name="AsVariable" Value="SafeDigitalInput02,IOMapping_115KF51.SafeDigitalInput02" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0102,IOMapping_115KF51.SafeTwoChannelOK0102" />
+        <Info Name="AsVariable" Value="SafeDigitalInput07,IOMapping_115KF51.SafeDigitalInput07" />
+        <Info Name="AsVariable" Value="SafeInputOK05,IOMapping_115KF51.SafeInputOK05" />
+        <Info Name="AsVariable" Value="SafeDigitalInput04,IOMapping_115KF51.SafeDigitalInput04" />
+      </NodeDescription>
+      <ChannelConfiguration />
+    </SafetyNode>
+    <SafetyNode SAddr="3">
+      <DeviceDescription Module="X20SO6300_110" minOpenSafetyRelease="1.5"><![CDATA[C:\BrAutomation\AS412\AS\Hardware\Modules\X20SO6300\2.3.0.0\OSDD\\X20SO6300_2_3_0_0.xosdd]]></DeviceDescription>
+      <NodeDescription>
+        <Classification Type="Digital" />
+        <Classification Type="Output" />
+        <Classification Type="VendorSpecific">Safe</Classification>
+        <Classification Type="VendorSpecific">IO</Classification>
+        <Info Name="Interface" Value="SL1.IF1.ST2.IF1.ST3" />
+        <Info Name="HWC_Revision" Value="2.3.0.0" />
+        <Info Name="HWC_LastEdit" Value="08.03.2022 17:31:28" />
+        <Info Name="AS_Name" Value="115KF52" />
+        <Info Name="FirstPublishedSafetyRelease" Value="5.4" />
+        <Info Name="Description-de" Value="X20 Safe Digital Out, 6xA, 24 V, 0.2 A" />
+        <Info Name="Description-en" Value="X20 Safe Digital Out, 6xO, 24 V, 0.2 A" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput06,IOMapping_115KF52.PhysicalStateOutput06" />
+        <Info Name="AsVariable" Value="SafeOutputOK05,IOMapping_115KF52.SafeOutputOK05" />
+        <Info Name="AsVariable" Value="SafeOutputOK02,IOMapping_115KF52.SafeOutputOK02" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput05,IOMapping_115KF52.PhysicalStateOutput05" />
+        <Info Name="AsVariable" Value="SafeOutputOK03,IOMapping_115KF52.SafeOutputOK03" />
+        <Info Name="AsVariable" Value="SerialNumber,IOMapping_115KF52.SerialNumber" />
+        <Info Name="AsVariable" Value="SafeModuleOK,IOMapping_115KF52.SafeModuleOK" />
+        <Info Name="AsVariable" Value="SafeOutputOK01,IOMapping_115KF52.SafeOutputOK01" />
+        <Info Name="AsVariable" Value="HardwareVariant,IOMapping_115KF52.HardwareVariant" />
+        <Info Name="AsVariable" Value="ModuleID,IOMapping_115KF52.ModuleID" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput01,IOMapping_115KF52.PhysicalStateOutput01" />
+        <Info Name="AsVariable" Value="ModuleOk,IOMapping_115KF52.ModuleOk" />
+        <Info Name="AsVariable" Value="FirmwareVersion,IOMapping_115KF52.FirmwareVersion" />
+        <Info Name="AsVariable" Value="SafeOutputOK06,IOMapping_115KF52.SafeOutputOK06" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput03,IOMapping_115KF52.PhysicalStateOutput03" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput02,IOMapping_115KF52.PhysicalStateOutput02" />
+        <Info Name="AsVariable" Value="SafeOutputOK04,IOMapping_115KF52.SafeOutputOK04" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput04,IOMapping_115KF52.PhysicalStateOutput04" />
+      </NodeDescription>
+      <ChannelConfiguration>
+        <DataTransport>
+          <GenericTransport Name="PDOo" Direction="Output" OctetSize="1" IsSafe="false" />
+          <GenericTransport Name="PDOi" Direction="Input" OctetSize="2" IsSafe="false" />
+        </DataTransport>
+        <ChannelGroup id="Output 01-06">
+          <Channel id="PhysicalStateOutput01">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput02">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput03">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput04">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput05">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput06">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+        </ChannelGroup>
+      </ChannelConfiguration>
+    </SafetyNode>
+    <SafetyNode SAddr="4">
+      <DeviceDescription Module="X20SC0842_110" minOpenSafetyRelease="1.5"><![CDATA[C:\BrAutomation\AS412\AS\Hardware\Modules\X20SC0842\2.4.0.0\OSDD\\X20SC0842_2_4_0_0.xosdd]]></DeviceDescription>
+      <NodeDescription>
+        <Classification Type="Digital" />
+        <Classification Type="Input" />
+        <Classification Type="Output" />
+        <Classification Type="VendorSpecific">Safe</Classification>
+        <Classification Type="VendorSpecific">IO</Classification>
+        <Info Name="Interface" Value="SL1.IF1.ST2.IF1.ST4" />
+        <Info Name="HWC_Revision" Value="2.4.0.0" />
+        <Info Name="HWC_LastEdit" Value="08.03.2022 17:31:28" />
+        <Info Name="AS_Name" Value="115KF53" />
+        <Info Name="FirstPublishedSafetyRelease" Value="5.4" />
+        <Info Name="Description-de" Value="X20 Safe Mischmodul, 8xE 24V, 4xA 24V 3.0A, 2xA 24V 0.05A" />
+        <Info Name="Description-en" Value="X20 Safe Combined Module, 8xI 24V, 4xO 24V 3.0A, 2xO 24V 0.05A" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput03,IOMapping_115KF53.PhysicalStateOutput03" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput01,IOMapping_115KF53.PhysicalStateOutput01" />
+        <Info Name="AsVariable" Value="SafeOutputOK01,IOMapping_115KF53.SafeOutputOK01" />
+        <Info Name="AsVariable" Value="SafeDigitalInput04,IOMapping_115KF53.SafeDigitalInput04" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0102,IOMapping_115KF53.SafeTwoChannelOK0102" />
+        <Info Name="AsVariable" Value="SafeInputOK08,IOMapping_115KF53.SafeInputOK08" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput06,IOMapping_115KF53.PhysicalStateOutput06" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0102,IOMapping_115KF53.SafeTwoChannelInput0102" />
+        <Info Name="AsVariable" Value="ModuleOk,IOMapping_115KF53.ModuleOk" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0708,IOMapping_115KF53.SafeTwoChannelOK0708" />
+        <Info Name="AsVariable" Value="SafeInputOK05,IOMapping_115KF53.SafeInputOK05" />
+        <Info Name="AsVariable" Value="SafeOutputOK06,IOMapping_115KF53.SafeOutputOK06" />
+        <Info Name="AsVariable" Value="SafeOutputOK05,IOMapping_115KF53.SafeOutputOK05" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput04,IOMapping_115KF53.PhysicalStateOutput04" />
+        <Info Name="AsVariable" Value="SafeDigitalInput05,IOMapping_115KF53.SafeDigitalInput05" />
+        <Info Name="AsVariable" Value="SafeOutputOK03,IOMapping_115KF53.SafeOutputOK03" />
+        <Info Name="AsVariable" Value="SafeOutputOK04,IOMapping_115KF53.SafeOutputOK04" />
+        <Info Name="AsVariable" Value="SafeDigitalInput01,IOMapping_115KF53.SafeDigitalInput01" />
+        <Info Name="AsVariable" Value="SafeDigitalInput08,IOMapping_115KF53.SafeDigitalInput08" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput02,IOMapping_115KF53.PhysicalStateOutput02" />
+        <Info Name="AsVariable" Value="ModuleID,IOMapping_115KF53.ModuleID" />
+        <Info Name="AsVariable" Value="SafeInputOK02,IOMapping_115KF53.SafeInputOK02" />
+        <Info Name="AsVariable" Value="SafeModuleOK,IOMapping_115KF53.SafeModuleOK" />
+        <Info Name="AsVariable" Value="SafeOutputOK02,IOMapping_115KF53.SafeOutputOK02" />
+        <Info Name="AsVariable" Value="FirmwareVersion,IOMapping_115KF53.FirmwareVersion" />
+        <Info Name="AsVariable" Value="SafeInputOK06,IOMapping_115KF53.SafeInputOK06" />
+        <Info Name="AsVariable" Value="SafeInputOK07,IOMapping_115KF53.SafeInputOK07" />
+        <Info Name="AsVariable" Value="SafeInputOK04,IOMapping_115KF53.SafeInputOK04" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0708,IOMapping_115KF53.SafeTwoChannelInput0708" />
+        <Info Name="AsVariable" Value="SafeDigitalInput02,IOMapping_115KF53.SafeDigitalInput02" />
+        <Info Name="AsVariable" Value="SafeDigitalInput06,IOMapping_115KF53.SafeDigitalInput06" />
+        <Info Name="AsVariable" Value="SafeInputOK03,IOMapping_115KF53.SafeInputOK03" />
+        <Info Name="AsVariable" Value="SerialNumber,IOMapping_115KF53.SerialNumber" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0304,IOMapping_115KF53.SafeTwoChannelInput0304" />
+        <Info Name="AsVariable" Value="SafeDigitalInput07,IOMapping_115KF53.SafeDigitalInput07" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0304,IOMapping_115KF53.SafeTwoChannelOK0304" />
+        <Info Name="AsVariable" Value="SafeTwoChannelOK0506,IOMapping_115KF53.SafeTwoChannelOK0506" />
+        <Info Name="AsVariable" Value="PhysicalStateOutput05,IOMapping_115KF53.PhysicalStateOutput05" />
+        <Info Name="AsVariable" Value="SafeInputOK01,IOMapping_115KF53.SafeInputOK01" />
+        <Info Name="AsVariable" Value="SafeDigitalInput03,IOMapping_115KF53.SafeDigitalInput03" />
+        <Info Name="AsVariable" Value="SafeTwoChannelInput0506,IOMapping_115KF53.SafeTwoChannelInput0506" />
+        <Info Name="AsVariable" Value="HardwareVariant,IOMapping_115KF53.HardwareVariant" />
+      </NodeDescription>
+      <ChannelConfiguration>
+        <DataTransport>
+          <GenericTransport Name="PDOo" Direction="Output" OctetSize="1" IsSafe="false" />
+          <GenericTransport Name="PDOi" Direction="Input" OctetSize="1" IsSafe="false" />
+        </DataTransport>
+        <ChannelGroup id="Output 01-06">
+          <Channel id="PhysicalStateOutput01">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput02">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput03">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput04">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput05">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+          <Channel id="PhysicalStateOutput06">
+            <DataValue Type="Boolean">
+              <Transport Name="PDOi" Index="0x00" />
+            </DataValue>
+          </Channel>
+        </ChannelGroup>
+      </ChannelConfiguration>
+    </SafetyNode>
+  </Topology>
+</osdd>

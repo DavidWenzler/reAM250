@@ -1,0 +1,4 @@
+﻿{GroupDefinition(0,'NewGroup')}
+
+VAR_GLOBAL {Group(0)}
+END_VAR

@@ -1,0 +1,8 @@
+# Excludes for Automation Studio project
+/Binaries
+/Diagnosis
+/Temp
+/BuROutput*
+/testapp*
+/*.isopen
+/*.set

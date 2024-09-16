@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">Framework.hpp</Object>
+    <Object Type="File">Framework.cpp</Object>
+    <Object Type="File">SystemInfo.hpp</Object>
+    <Object Type="File">SystemInfo.cpp</Object>
+    <Object Type="File">TcpServer.hpp</Object>
+    <Object Type="File">TcpServer.cpp</Object>
+    <Object Type="File">TcpPacketHandler.hpp</Object>
+    <Object Type="File">TcpPacketHandler.cpp</Object>
+    <Object Type="File">TcpListHandler.hpp</Object>
+    <Object Type="File">TcpListHandler.cpp</Object>
+    <Object Type="File">Utils.hpp</Object>
+    <Object Type="File">Utils.cpp</Object>
+    <Object Type="File">SignalHandler.hpp</Object>
+    <Object Type="File">SignalHandler.cpp</Object>
+    <Object Type="File">Journal.hpp</Object>
+    <Object Type="File">Journal.cpp</Object>
+    <Object Type="File">Application.hpp</Object>
+    <Object Type="File">Application.cpp</Object>
+    <Object Type="File" Description="Cyclic code">Cyclic.cpp</Object>
+  </Objects>
+</Package>

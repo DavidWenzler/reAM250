@@ -1,0 +1,27 @@
+(*
+T: FUNCTION SET_MSB
+FW: YES	INLINE SET_MSB SKIP_IMAGE
+CI#: 62
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+MSB	1	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+DATA	2	VAR_INPUT	@TYP:18
+		    
+
+;
+
+
+SET_MSB	3	VAR_OUTPUT	@TYP:18
+		    
+
+;
+
