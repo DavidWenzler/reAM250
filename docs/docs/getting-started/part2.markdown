@@ -9,7 +9,7 @@ next: /docs/getting-started/part3
 
 1. Open a terminal and clone the repository, or download it using the download button
    
-2. Navigate to `AMCF/build/Output` and run the build script:
+2. Navigate to `AMCF/` and run the build script:
 `./build_clean_win64.bat`
 
 
