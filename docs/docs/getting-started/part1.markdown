@@ -11,6 +11,8 @@ In this section, we will cover the prerequisites needed to run the AMCF software
 ## Tools required:
 - Visual Studio
 - B&R Automation Studio
+- [Git](https://github.com/git-guides/install-git) 
+- [cmake](https://cmake.org/download/)
 
 ## B&R Runtime Versions:
 - Automation Runtime (version D4.83)
