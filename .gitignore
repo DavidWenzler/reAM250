@@ -15,3 +15,6 @@ reAM250plc/*.set
 # Excludes for draw IO
 /DrawIO/*.bkp
 /DrawIO/*.dtmp
+
+# Ecludes for docs
+/docs/*.lock
