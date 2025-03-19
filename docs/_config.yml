@@ -7,7 +7,7 @@ baseurl: "/reAM250/" # the subpath of your site, e.g. /blog
 url: "https://davidwenzler.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jekyllrb
 github_username: jekyll
-coowner: Leonhard Kutscherauer
+coowner: LeonhardKutscherauer
 coownerGitHubURL: "https://github.com/Leonhard-Kutscherauer"
 
 # Build settings
