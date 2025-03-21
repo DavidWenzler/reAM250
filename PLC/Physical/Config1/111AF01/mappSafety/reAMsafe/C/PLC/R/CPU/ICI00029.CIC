@@ -1,0 +1,49 @@
+(*
+T: FUNCTION_BLOCK CTUD_S
+FW: YES
+CI#: 29
+QSL: 0
+QJM: 4
+QJ: 7
+*)
+		LD	@IV 3
+		JMPCN_S	@LBL 1
+		LD	@TYP:48# 16#0000
+		ST	@IV 8
+		JMP	@LBL 4
+	@LBL 1		
+		LD	@IV 4
+		JMPCN_S	@LBL 2
+		LD	@IV 5
+		ST	@IV 8		
+		JMP	@LBL 4
+	@LBL 2
+		LD	@IV 8
+		LT_S	@IV 5
+		AND_S	@IV 1
+		ANDN_S	@IV 9
+		JMPCN_S	@LBL 3
+		LD	@IV 8
+		ADD_S	@TYP:48# 16#0001
+		ST	@IV 8
+		JMP	@LBL 4
+	@LBL 3		
+		LD	@IV 8
+		GT_S	@TYP:48# 16#0000
+		AND_S	@IV 2
+		ANDN_S	@IV 10
+		JMPCN_S	@LBL 4
+		LD	@IV 8
+		SUB_S	@TYP:48# 16#0001
+		ST	@IV 8
+	@LBL 4	
+		LD	@IV 8
+		GE_S	@IV 5
+		ST	@IV 6	
+		LD	@IV 8
+		LE_S	@TYP:48# 16#0000
+		ST	@IV 7
+		LD	@IV 1
+		ST	@IV 9
+		LD	@IV 2
+		ST	@IV 10		

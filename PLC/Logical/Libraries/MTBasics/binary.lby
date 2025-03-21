@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.0" SubType="binary" Description="This mechatronics library contains basic control function blocks." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>MTBasics.fun</File>
+    <File>MTBasics.typ</File>
+    <File>MTBasics.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="brsystem" />
+    <Dependency ObjectName="sys_lib" />
+    <Dependency ObjectName="MTTypes" FromVersion="1.03.0" />
+  </Dependencies>
+</Library>

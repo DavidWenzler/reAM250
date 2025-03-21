@@ -1,0 +1,36 @@
+VAR
+	beginListCalled : USINT := 0;
+	bufferedListEntries : USINT := 0;
+	currentQueueBuffer : REFERENCE TO USINT;
+	currentSendBuffer : REFERENCE TO USINT;
+	fbDelayUnlockDoor : TOF;
+	fbOxygenControlPID : MTBasicsPID;
+	fbBuildPlatformTempController : MTBasicsPID;
+	fbOxygenControlPWM : MTBasicsPWM;
+	fbOxygenControlTuner : MTBasicsStepTuning;
+	fbBuildPlatfromTempTuner : MTBasicsStepTuning;
+	fbBuildPlatformTempPWM : MTBasicsPWM;
+	fbRecoaterAxisLinear : REFERENCE TO MpAxisBasic;
+	fbRecoaterAxisPowderbelt : REFERENCE TO MpAxisBasic;
+	fbTcpClose : REFERENCE TO TcpClose;
+	fbTcpOpen : REFERENCE TO TcpOpen;
+	fbTcpRecv : REFERENCE TO TcpRecv;
+	fbTcpSend : REFERENCE TO TcpSend;
+	fbTcpServer : REFERENCE TO TcpServer;
+	finishListCalled : UDINT := 0;
+	LastException : DINT;
+	LastExceptionMessage : STRING[255];
+	parRecoaterAxisLinear : REFERENCE TO MpAxisBasicParType;
+	parRecoaterAxisPowderbelt : REFERENCE TO MpAxisBasicParType;
+	plcOpenState : McAxisPLCopenStateEnum;
+	queueDataBytes : UDINT := 0;
+	queueDataCounter : USINT := 0;
+	parPowderReservoirAxis : REFERENCE TO MpAxisBasicParType;
+	fbPowderReservoirAxis : REFERENCE TO MpAxisBasic;
+	parBuildPlatformAxis : REFERENCE TO MpAxisBasicParType;
+	fbBuildPlatformAxis : REFERENCE TO MpAxisBasic;
+	queueLength : UDINT := 0;
+	sendDataBytes : {REDUND_UNREPLICABLE} UDINT := 0;
+	sendDataCounter : {REDUND_UNREPLICABLE} UDINT := 0;
+	sendLength : USINT;
+END_VAR

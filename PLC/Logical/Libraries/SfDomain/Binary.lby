@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.0" SubType="Binary" Description="[mapp Safety] SafeDOMAIN management library" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>SfDomain.fun</File>
+    <File>SfDomain.var</File>
+    <File>SfDomain.typ</File>
+    <File>SfDomainError.typ</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="MpBase" FromVersion="5.16.0" ToVersion="5.16.9" />
+  </Dependencies>
+</Library>

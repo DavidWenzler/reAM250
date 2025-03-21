@@ -71,7 +71,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **************************************************************************************************************************/
 __NODRIVERIMPORT
 
-
 /*************************************************************************************************************************
   State definitions
 **************************************************************************************************************************/
@@ -431,6 +430,10 @@ __DECLARESTATE(init)
 				pStateEnvironment->LogMessage("Initial platform movement was not successful");
 				pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYMOVEBUILDPLATFORM");
 				pStateEnvironment->SetNextState("initerror");
+				
+				// leave the current waitformovement state to avoid a dead end in the plc state machine 
+				auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+				pLeaveStateForIdleSignal->Trigger();
 				return;
 			}
 		}
@@ -441,6 +444,10 @@ __DECLARESTATE(init)
 			pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYMOVEBUILDPLATFORMDUETOTIMEOUT");
 			pStateEnvironment->SetNextState("initerror");
 			return;
+
+			// leave the current waitformovement state to avoid a dead end in the plc state machine 
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
 		}
 	}
 	else {
@@ -528,6 +535,7 @@ __DECLARESTATE(idle)
 		pStateEnvironment->SetUUIDParameter("jobinfo", "jobuuid", sJobUUID);
 
 		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", true);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", true);
 
 		pStateEnvironment->SetNextState("startprocess");
 
@@ -555,6 +563,15 @@ __DECLARESTATE(idle)
 		pStateEnvironment->SetNextState("manualheatercontrol");
 
 	}
+
+	else if (pStateEnvironment->WaitForSignal("signal_manualcameracontrol_enter", 0, pSignalHandler)) {
+
+		pSignalHandler->SignalHandled();
+
+		pStateEnvironment->SetNextState("manualcameracontrol");
+
+	}
+
 	else if (pStateEnvironment->WaitForSignal("signal_changelayer", 0, pSignalHandler)) {
 		auto nLayer = pSignalHandler->GetInteger("layer");
 		pStateEnvironment->SetIntegerParameter("jobinfo", "startlayer", nLayer);
@@ -573,12 +590,22 @@ __DECLARESTATE(idle)
 
 __DECLARESTATE(startprocess)
 {
-	// check if CancelBuild button was clicked
 	PSignalHandler pSignalHandler;
+
+	// check if CancelBuild button or PauseBuild button was clicked
 	if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) {
 		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
 		pStateEnvironment->SetNextState("cancelprocess");
 		pSignalHandler->SignalHandled();
+		return;
+	}
+	if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) {
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetNextState("pauseprocess");
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
 		return;
 	}
 
@@ -615,6 +642,7 @@ __DECLARESTATE(startprocess)
 	uint32_t nMotorEnabledCheckTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "motorenabledchecktimeout");
 	uint32_t nLockDoorTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "lockdoortimeout");
 	uint32_t nControllerSetpointUpdateTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "controllersetpointupdatetimeout");
+	uint32_t nInitializeFlirTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "flirinitializationtimeout");
 
 	// Check if Emergency Circuit is closed
 	pStateEnvironment->LogMessage("Checking if emergency circuit is closed..");
@@ -817,18 +845,93 @@ __DECLARESTATE(startprocess)
 		return;
 	}
 
+	// Check if the thermal camera should be used from the jobinfo
+	bool bThermalCameraIsActive = pStateEnvironment->GetBoolParameter("jobinfo", "thermal_camera_active_flag");
+	if (bThermalCameraIsActive)
+	{
+		pStateEnvironment->LogMessage("Initializing the FLIR camera ...");
+		// Get the timeouts and waiting time from the jobinfo
+		int nWaitingTime = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_waiting_time_interval_in_ms");
+		int nArmingTime = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_arming_time_in_ms");
+		int nRecordingTime = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_recording_time_in_ms");
+		int nSavingTime = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_saving_time_in_ms");
+		std::string sFilename = pStateEnvironment->GetStringParameter("jobinfo", "thermal_camera_footage_filename");
+		int nFilterChangeTime = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_filter_change_time_in_ms");
+		int nWidth = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_width_in_pixel");
+		int nHeight = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_height_in_pixel");
+		int nOffsetX = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_offset_x_in_pixel");
+		int nOffsetY = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_offset_y_in_pixel");
+		int nNumberOfFrames = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_frames");
+		int nNumberOfPretriggerFrames = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_pretrigger_frames");
+		std::string sCorrectionName = pStateEnvironment->GetStringParameter("jobinfo", "thermal_camera_correction_name");
+		std::string sCalibrationTag = pStateEnvironment->GetStringParameter("jobinfo", "thermal_camera_calibration_tag");
+		int nIntermediateFilterIndex = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_intermediate_filter_index");
+		int nDesiredFilterIndex = pStateEnvironment->GetIntegerParameter("jobinfo", "thermal_camera_desired_filter_index");
+
+		// send signal to scanner state machine to initialize the FLIR camera
+		auto pSignalInitializeFlir = pStateEnvironment->PrepareSignal("scanner", "signal_init_flir");
+		pSignalInitializeFlir->SetInteger("waiting_time_interval_in_ms", nWaitingTime);
+		pSignalInitializeFlir->SetInteger("arming_time_in_ms", nArmingTime);
+		pSignalInitializeFlir->SetInteger("recording_time_in_ms", nRecordingTime);
+		pSignalInitializeFlir->SetInteger("saving_time_in_ms", nSavingTime);
+		pSignalInitializeFlir->SetString("footage_filename", sFilename);
+		pSignalInitializeFlir->SetInteger("filter_change_time_in_ms", nFilterChangeTime);
+		pSignalInitializeFlir->SetInteger("width_in_pixel", nWidth);
+		pSignalInitializeFlir->SetInteger("height_in_pixel", nHeight);
+		pSignalInitializeFlir->SetInteger("offset_x_in_pixel", nOffsetX);
+		pSignalInitializeFlir->SetInteger("offset_y_in_pixel", nOffsetY);
+		pSignalInitializeFlir->SetInteger("frames", nNumberOfFrames);
+		pSignalInitializeFlir->SetInteger("pretrigger_frames", nNumberOfPretriggerFrames);
+		pSignalInitializeFlir->SetString("correction_name", sCorrectionName);
+		pSignalInitializeFlir->SetString("calibration_tag", sCalibrationTag);
+		pSignalInitializeFlir->SetInteger("intermediate_filter_index", nIntermediateFilterIndex);
+		pSignalInitializeFlir->SetInteger("desired_filter_index", nDesiredFilterIndex);
+		pSignalInitializeFlir->Trigger();
+		if (pSignalInitializeFlir->WaitForHandling(nInitializeFlirTimeout))
+		{
+			if (pSignalInitializeFlir->GetBoolResult("success"))
+			{
+				pStateEnvironment->LogMessage("Initializing the FLIR camera was successfull");
+			}
+			else
+			{
+				pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALIZEFLIR");
+				pStateEnvironment->LogMessage("Initializing the FLIR camera was not successful");
+				pStateEnvironment->SetNextState("initerror");
+				return;
+			}
+		}
+		else
+		{
+			// No response from PLC!
+			pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALIZEFLIRDUETOTIMEOUT");
+			pStateEnvironment->LogMessage("Initialize the FLIR camera timeout");
+			pStateEnvironment->SetNextState("initerror");
+			return;
+		}
+	}
 
 	pStateEnvironment->SetNextState("processpreparation");
 }
 
 __DECLARESTATE(processpreparation)
 {
-	// check if CancelBuild button was clicked
 	PSignalHandler pSignalHandler;
+
+	// check if CancelBuild button or PauseBuild button was clicked
 	if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) {
 		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
 		pStateEnvironment->SetNextState("cancelprocess");
 		pSignalHandler->SignalHandled();
+		return;
+	}
+	if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) {
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetNextState("pauseprocess");
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
 		return;
 	}
 
@@ -925,6 +1028,10 @@ __DECLARESTATE(processpreparation)
 					pStateEnvironment->LogMessage("Powder dosing was not successful");
 					pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYDOSEPOWDER");
 					pStateEnvironment->SetNextState("initerror");
+
+					// leave the current waitformovement state to avoid a dead end in the plc state machine 
+					auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+					pLeaveStateForIdleSignal->Trigger();
 				}
 			}
 			else 
@@ -933,6 +1040,10 @@ __DECLARESTATE(processpreparation)
 				pStateEnvironment->LogMessage("Powder dosing timeout");
 				pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYDOSEPOWDERDUETOTIMEOUT");
 				pStateEnvironment->SetNextState("initerror");
+
+				// leave the current waitformovement state to avoid a dead end in the plc state machine 
+				auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+				pLeaveStateForIdleSignal->Trigger();
 			}
 		}
 		else
@@ -940,6 +1051,10 @@ __DECLARESTATE(processpreparation)
 			pStateEnvironment->LogMessage("Initial recoater movement was not successful");
 			pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYMOVERECOATER");
 			pStateEnvironment->SetNextState("initerror");
+
+			// leave the current waitformovement state to avoid a dead end in the plc state machine 
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
 		}
 	}
 	else
@@ -948,6 +1063,10 @@ __DECLARESTATE(processpreparation)
 		pStateEnvironment->LogMessage("Initial recoater movement timeout");
 		pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALLYMOVERECOATERDUETOTIMEOUT");
 		pStateEnvironment->SetNextState("initerror");
+
+		// leave the current waitformovement state to avoid a dead end in the plc state machine 
+		auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+		pLeaveStateForIdleSignal->Trigger();
 	}
 }
 
@@ -1132,8 +1251,12 @@ __DECLARESTATE(waitforatmospherewithoutpump)
 	// Get Timeouts
 	uint32_t nAtmosphereWithoutPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "atmospherewithoutpumptimeout");
 	
+	// Get oxygen threshold tolerance to switch on the circulation pump
+	int nThresholdTolerancePPM = pStateEnvironment->GetIntegerParameter("hardwareinformation", "o2_threshold_tolerance_ppm");
+
 	auto pEnableControllerSignal = pStateEnvironment->PrepareSignal("plc", "signal_enablecontroller");
 	pEnableControllerSignal->SetInteger("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+	pEnableControllerSignal->SetInteger("atmosphere_controller_threshold_tolerance_ppm", nThresholdTolerancePPM);
 	pEnableControllerSignal->Trigger();
 	
 	if (pEnableControllerSignal->WaitForHandling(nAtmosphereWithoutPumpTimeout)) {
@@ -1161,11 +1284,16 @@ __DECLARESTATE(waitforatmospherewithpump)
 	// Get Timeouts
 	uint32_t nAtmosphereWithPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "atmospherewithpumptimeout");
 	
+	// Check if the circulation pump was already started and not yet stopped
+	bool bCirculationPumpStartedFlag = pStateEnvironment->GetBoolParameter("jobinfo", "circulation_pump_started_flag");
+
 	// Get gasflow setpoint
 	int nSetpointInPercent = pStateEnvironment->GetIntegerParameter("jobinfo", "circulation_pump_setpoint_in_percent");
 
 	auto pStartGasFlowSignal = pStateEnvironment->PrepareSignal("plc", "signal_atmospherecontrol_start_gas_flow");
 	pStartGasFlowSignal->SetInteger("setpoint_in_percent", nSetpointInPercent);
+	pStartGasFlowSignal->SetBool("circulation_pump_started_flag", bCirculationPumpStartedFlag);
+	pStartGasFlowSignal->SetBool("is_process_flag", true);
 	pStartGasFlowSignal->Trigger();
 
 	if (pStartGasFlowSignal->WaitForHandling(nAtmosphereWithPumpTimeout)) {
@@ -1226,23 +1354,25 @@ __DECLARESTATE(exposelayer)
 
 	// Get the tolerances from the parameter groups
 	int nHeaterTolerance = pStateEnvironment->GetIntegerParameter("jobinfo", "heatercontroller_tolerance_degree_celsius");
-	int nAtmosphereGasFlowTolerance = pStateEnvironment->GetIntegerParameter("jobinfo", "oxygencontroller_tolerance_ppm");
+	int nAtmosphereTolerance = pStateEnvironment->GetIntegerParameter("hardwareinformation", "o2_threshold_tolerance_ppm");
+	int nGasFlowTolerance = pStateEnvironment->GetIntegerParameter("jobinfo", "oxygencontroller_tolerance_ppm");
 
 	// Check if an atmosphere error, gasflow error or heater error has occured
 	auto pCheckHeaterSignal = pStateEnvironment->PrepareSignal("plc", "signal_check_heater");
 	pCheckHeaterSignal->SetInteger("heater_controller_tolerance_degree_celsius", nHeaterTolerance);
 	pCheckHeaterSignal->Trigger();
-	if (pCheckHeaterSignal->WaitForHandling(nGeneralCommandTimeout)) {
+	if (pCheckHeaterSignal->WaitForHandling(nGeneralCommandTimeout)) 
+	{
 		if (pCheckHeaterSignal->GetBoolResult("heater_controller_enabled_setpoint_reached"))
 		{
 			auto pCheckAtmosphereSignal = pStateEnvironment->PrepareSignal("plc", "signal_check_atmosphere");
-			pCheckAtmosphereSignal->SetInteger("atmosphere_controller_tolerance_ppm", nAtmosphereGasFlowTolerance);
+			pCheckAtmosphereSignal->SetInteger("atmosphere_controller_threshold_tolerance_ppm", nAtmosphereTolerance);
 			pCheckAtmosphereSignal->Trigger();
 			if (pCheckAtmosphereSignal->WaitForHandling(nGeneralCommandTimeout)) {
-				if (pCheckAtmosphereSignal->GetBoolResult("atmosphere_controller_enabled_setpoint_reached"))
+				if (pCheckAtmosphereSignal->GetBoolResult("atmosphere_controller_enabled_threshold_reached"))
 				{
 					auto pCheckGasFlowSignal = pStateEnvironment->PrepareSignal("plc", "signal_check_gas_flow");
-					pCheckGasFlowSignal->SetInteger("atmosphere_controller_tolerance_ppm", nAtmosphereGasFlowTolerance);
+					pCheckGasFlowSignal->SetInteger("atmosphere_controller_setpoint_tolerance_ppm", nGasFlowTolerance);
 					pCheckGasFlowSignal->Trigger();
 					if (pCheckGasFlowSignal->WaitForHandling(nGeneralCommandTimeout)) {
 						if (pCheckGasFlowSignal->GetBoolResult("circulation_pump_started_setpoint_reached"))
@@ -1360,7 +1490,7 @@ __DECLARESTATE(exposelayer)
 		}
 	}
 	
-	pStateEnvironment->LogMessage("Exposing layer " + std::to_string(nLayerCount));
+	pStateEnvironment->LogMessage("Exposing layer ..." + std::to_string(nLayerCount));
 
 	// prepare exopse layer command
 	auto pExposureSignal = pStateEnvironment->PrepareSignal("scanner", "signal_exposure");
@@ -1446,9 +1576,17 @@ __DECLARESTATE(recoatlayer)
 		double dRecoaterDosingFactor = pStateEnvironment->GetDoubleParameter("jobinfo", "overdosefactor");
 		double dRecoaterRefillPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoater_refill_position");
 		double dRecoatingStartPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoating_start_position");
+		double dRecoatingEndPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoating_end_position");
 		double dOldRecoaterPowderVolumeInMMCubed = pStateEnvironment->GetDoubleParameter("jobinfo", "currentrecoaterpowdercapacity");
 		double dRecoaterPowderBeltWidthInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoater_powderbelt_width");
 		double dRecoaterLevelingBladeHeightInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoater_powderbelt_levelingblade_height");
+		bool bIsDualAxisRecoating = pStateEnvironment->GetBoolParameter("jobinfo", "is_dual_axis_recoating");
+
+		//Check if layer 0 or layer 1 was exposed: Then the buildplatform is not lowered during recoating
+		if (layerIndex == 0 || layerIndex == 1)
+		{
+			dLayerHeightInMM = 0;
+		}
 
 		pStateEnvironment->LogMessage("Trigger recoating signal ...");
 		//Prepare the recoat layer signal
@@ -1464,21 +1602,32 @@ __DECLARESTATE(recoatlayer)
 		pRecoatLayer->SetDouble("recoater_axes_dosing_factor", dRecoaterDosingFactor);
 		pRecoatLayer->SetDouble("recoater_refill_position", dRecoaterRefillPositionInMM);
 		pRecoatLayer->SetDouble("recoating_start_position", dRecoatingStartPositionInMM);
+		pRecoatLayer->SetDouble("recoating_end_position", dRecoatingEndPositionInMM);
+		pRecoatLayer->SetBool("is_dual_axis_recoating", bIsDualAxisRecoating);
 		//Send the recoat layer signal to the plc state machine
 		pRecoatLayer->Trigger();
 		pStateEnvironment->LogMessage("Wait for recoating ...");
-		if (pRecoatLayer->WaitForHandling(nRecoatLayerTimeOut)) {
-			pStateEnvironment->LogMessage("Recoating finished");
-			pStateEnvironment->SetNextState("finishlayer");
+		if (pRecoatLayer->WaitForHandling(nRecoatLayerTimeOut)) 
+		{
+			if (pRecoatLayer->GetBoolResult("success"))
+			{
+				pStateEnvironment->LogMessage("Recoating finished");
+				pStateEnvironment->SetNextState("finishlayer");
 
-			double dLayerPowderVolumeInMMCubed = (dRecoatingStartPositionInMM - dRecoaterRefillPositionInMM) * dRecoaterDosingFactor * dRecoaterPowderBeltWidthInMM * dRecoaterLevelingBladeHeightInMM;
-			double dRecoaterFillingVolumeInMMCubed = dOldRecoaterPowderVolumeInMMCubed - dLayerPowderVolumeInMMCubed;
-			pStateEnvironment->SetDoubleParameter("jobinfo", "currentrecoaterpowdercapacity", dRecoaterFillingVolumeInMMCubed);
+				double dLayerPowderVolumeInMMCubed = (dRecoatingStartPositionInMM - dRecoaterRefillPositionInMM) * dRecoaterDosingFactor * dRecoaterPowderBeltWidthInMM * dRecoaterLevelingBladeHeightInMM;
+				double dRecoaterFillingVolumeInMMCubed = dOldRecoaterPowderVolumeInMMCubed - dLayerPowderVolumeInMMCubed;
+				pStateEnvironment->SetDoubleParameter("jobinfo", "currentrecoaterpowdercapacity", dRecoaterFillingVolumeInMMCubed);
 
-			pStateEnvironment->LogMessage("Current recoater powder capacity: " + std::to_string(dRecoaterFillingVolumeInMMCubed) + " cubic mm");
+				pStateEnvironment->LogMessage("Current recoater powder capacity: " + std::to_string(dRecoaterFillingVolumeInMMCubed) + " cubic mm");
+			}
+			else {
+				pStateEnvironment->LogMessage("Error occured during recoating");
+				pStateEnvironment->SetNextState("recoatingerror");
+			}
 		}
 		else {
 			// no response from PLC!
+			pStateEnvironment->LogMessage("Timeout: Error occured during recoating");
 			pStateEnvironment->SetNextState("recoatingerror");
 		}
 	}
@@ -1502,10 +1651,18 @@ __DECLARESTATE(finishlayer)
 	if (bFinished) {
 		pStateEnvironment->SetNextState("finishprocess");
 	}
-	else if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0 , pSignalHandler)) {
+	else if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0 , pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
 		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
 		pStateEnvironment->SetNextState("cancelprocess");
 		pSignalHandler->SignalHandled();
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetNextState("pauseprocess");
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
 	}
 	else {
 		pStateEnvironment->SetNextState("beginlayer");
@@ -1519,7 +1676,56 @@ __DECLARESTATE(finishprocess)
 
 __DECLARESTATE(pauseprocess)
 {
-	pStateEnvironment->SetNextState("beginlayer");
+	PSignalHandler pSignalHandler;
+	pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", true);
+	pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", true);
+
+	// check if CancelBuild button or PauseBuild button was clicked
+	if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) {
+		pStateEnvironment->SetNextState("beginlayer");
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Resuming the process at 'beginlayer' ...");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) {
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetNextState("cancelprocess");
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Aborting the process ...");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualmovementcontrol_enter", 0, pSignalHandler)) {
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetBoolParameter("ui", "manualcontrol_canbeleftforidle", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceledfrommanualcontrol", true);
+		pStateEnvironment->SetBoolParameter("ui", "build_canberesumedfrommanualcontrol", true);
+		pStateEnvironment->SetNextState("manualmovementcontrol");
+		pStateEnvironment->LogMessage("Entering the manual movement control ...");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_enter", 0, pSignalHandler)) {
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetBoolParameter("ui", "manualcontrol_canbeleftforidle", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceledfrommanualcontrol", true);
+		pStateEnvironment->SetBoolParameter("ui", "build_canberesumedfrommanualcontrol", true);
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
+		pStateEnvironment->LogMessage("Entering the manual atmosphere control ...");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualheatercontrol_enter", 0, pSignalHandler)) {
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+		pStateEnvironment->SetBoolParameter("ui", "manualcontrol_canbeleftforidle", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceledfrommanualcontrol", true);
+		pStateEnvironment->SetBoolParameter("ui", "build_canberesumedfrommanualcontrol", true);
+		pStateEnvironment->SetNextState("manualheatercontrol");
+		pStateEnvironment->LogMessage("Entering the manual heater control ...");
+	}
+	else {
+		pStateEnvironment->SetNextState("pauseprocess");
+	}
 }
 
 __DECLARESTATE(cancelprocess)
@@ -1528,9 +1734,17 @@ __DECLARESTATE(cancelprocess)
 }
 
 __DECLARESTATE(waitforshutdown)
-{	
+{
+	pStateEnvironment->SetNextState("waitforshutdown");
+
 	// reset shutdown parameters
 	pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "NOERROR");
+	pStateEnvironment->SetBoolParameter("processshutdown", "doorunlocked", false);
+	pStateEnvironment->SetBoolParameter("processshutdown", "vacuumpumpturnedoff", false);
+	pStateEnvironment->SetBoolParameter("processshutdown", "heaterturnedoff", false);
+	pStateEnvironment->SetBoolParameter("processshutdown", "shieldinggasturnedoff", false);
+	pStateEnvironment->SetBoolParameter("processshutdown", "circulationpumpturnedoff", false);
+	pStateEnvironment->SetBoolParameter("processshutdown", "valvesshut", false);
 
 	// get timeouts
 	uint32_t nLockDoorTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "lockdoortimeout");
@@ -1539,6 +1753,7 @@ __DECLARESTATE(waitforshutdown)
 
 	// disable cancel build button 
 	pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+	pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
 	
 	// unlock door
 	pStateEnvironment->LogMessage("Unlocking chamber door..");
@@ -1550,7 +1765,6 @@ __DECLARESTATE(waitforshutdown)
 		if (bDoorIsLocked) {
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTUNLOCKDOOR");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 		else
 		{
@@ -1560,7 +1774,6 @@ __DECLARESTATE(waitforshutdown)
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTUNLOCKDOOR");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 	
 	// turn off vacuum pump
@@ -1576,13 +1789,11 @@ __DECLARESTATE(waitforshutdown)
 		{
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFVACUUMPUMP");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 	}
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFVACUUMPUMP");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 
 	// disable heater controller
@@ -1599,13 +1810,11 @@ __DECLARESTATE(waitforshutdown)
 		{
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFHEATER");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 	}
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFHEATER");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 
 	// disable shielding gas controller
@@ -1622,13 +1831,11 @@ __DECLARESTATE(waitforshutdown)
 		{
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFSHIELDINGGAS");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 	}
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFSHIELDINGGAS");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 
 	// turn off circulation pump
@@ -1647,13 +1854,11 @@ __DECLARESTATE(waitforshutdown)
 		{
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFCIRCULATIONPUMP");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 	}
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFCIRCULATIONPUMP");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 
 	// shut valves
@@ -1674,13 +1879,11 @@ __DECLARESTATE(waitforshutdown)
 		{
 			// Invalid response from PLC!
 			pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFCIRCULATIONPUMP");
-			pStateEnvironment->SetNextState("waitforshutdown");
 		}
 	}
 	else {
 		// No response from PLC!
 		pStateEnvironment->SetStringParameter("processshutdown", "shutdownerror", "COULDNOTTURNOFFCIRCULATIONPUMP");
-		pStateEnvironment->SetNextState("waitforshutdown");
 	}
 
 	// shutdown flags
@@ -1693,9 +1896,13 @@ __DECLARESTATE(waitforshutdown)
 
 	if (bDoorUnlocked && bVacuumPumpTurnedOff && bHeaterTurnedOff && bShieldingGasTurnedOff && bCirculationPumpTurnedOff && bValvesShut)
 	{
+		// enable the manual control cancel button and disable the build process related buttons
+		pStateEnvironment->SetBoolParameter("ui", "manualcontrol_canbeleftforidle", true);
+		pStateEnvironment->SetBoolParameter("ui", "build_canbecanceledfrommanualcontrol", false);
+		pStateEnvironment->SetBoolParameter("ui", "build_canberesumedfrommanualcontrol", false);
+
 		pStateEnvironment->SetNextState("idle");
 	}
-	pStateEnvironment->SetNextState("idle");
 }
 
 __DECLARESTATE(initerror)
@@ -1714,16 +1921,60 @@ __DECLARESTATE(heatererror)
 {
 	// Get Timeouts
 	uint32_t nHeaterTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "heatercontroltimeout");
+	uint32_t nPauseTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "waitforpauseprocesstimeout");
+	uint32_t nLeavingStateTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "leavingstatetimeout");
 
 	auto pEnableControllerSignal = pStateEnvironment->PrepareSignal("plc", "signal_enablecontroller");
 	pEnableControllerSignal->SetInteger("controller_ID", CONTROLLER_ID_HEATER);
 	pEnableControllerSignal->Trigger();
+	
+	int nCounterStep = (int) (nPauseTimeout/10000);
+	int iMax = (int) (nPauseTimeout / nCounterStep);
+	PSignalHandler pSignalHandler;
+	for (int i = 0; i++; iMax)
+	{
+		if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pStateEnvironment->SetNextState("cancelprocess");
+			pSignalHandler->SignalHandled();
+			break;
+		}
+		else if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pSignalHandler->SignalHandled();
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
+			if (pLeaveStateForIdleSignal->WaitForHandling(nLeavingStateTimeout))
+			{
+				if (pLeaveStateForIdleSignal->GetBoolResult("success"))
+				{
+					pStateEnvironment->SetNextState("pauseprocess");
+					pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
+				}
+				else
+				{
+					pStateEnvironment->LogMessage("Leaving the current state of the plc state machine for the state idle is not currently not possible");
+					pStateEnvironment->SetNextState("waitforshutdown");
+				}
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Timeout: Leaving the current state of the plc state machine for the state idle is not currently not possible");
+				pStateEnvironment->SetNextState("waitforshutdown");
+			}
+			break;
+		}
+		pStateEnvironment->Sleep(nCounterStep);
+	}
 
 	if (pEnableControllerSignal->WaitForHandling(nHeaterTimeout))
 	{
 		if (pEnableControllerSignal->GetBoolResult("success"))
 		{
-			pStateEnvironment->SetNextState("pauseprocess");
+			pStateEnvironment->SetNextState("beginlayer");
+			pStateEnvironment->LogMessage("Reestablishing the build plate temperature was successful");
 		}
 		else
 		{
@@ -1740,7 +1991,77 @@ __DECLARESTATE(heatererror)
 
 __DECLARESTATE(atmosphereerror)
 {
+	// Get Timeouts
+	uint32_t nAtmosphereWithoutPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "atmospherewithoutpumptimeout");
+	uint32_t nPauseTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "waitforpauseprocesstimeout");
+	uint32_t nLeavingStateTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "leavingstatetimeout");
 
+	// Get oxygen threshold tolerance to switch on the circulation pump
+	int nThresholdTolerancePPM = pStateEnvironment->GetIntegerParameter("hardwareinformation", "o2_threshold_tolerance_ppm");
+
+	auto pEnableControllerSignal = pStateEnvironment->PrepareSignal("plc", "signal_enablecontroller");
+	pEnableControllerSignal->SetInteger("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+	pEnableControllerSignal->SetInteger("atmosphere_controller_threshold_tolerance_ppm", nThresholdTolerancePPM);
+	pEnableControllerSignal->Trigger();
+
+	int nCounterStep = (int)(nPauseTimeout / 10000);
+	int iMax = (int)(nPauseTimeout / nCounterStep);
+	PSignalHandler pSignalHandler;
+	for (int i = 0; i++; iMax)
+	{
+		if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pStateEnvironment->SetNextState("cancelprocess");
+			pSignalHandler->SignalHandled();
+			break;
+		}
+		else if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pSignalHandler->SignalHandled();
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
+			if (pLeaveStateForIdleSignal->WaitForHandling(nLeavingStateTimeout))
+			{
+				if (pLeaveStateForIdleSignal->GetBoolResult("success"))
+				{
+					pStateEnvironment->SetNextState("pauseprocess");
+					pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
+				}
+				else
+				{
+					pStateEnvironment->LogMessage("Leaving the current state of the plc state machine for the state idle is not currently not possible");
+					pStateEnvironment->SetNextState("waitforshutdown");
+				}
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Timeout: Leaving the current state of the plc state machine for the state idle is not currently not possible");
+				pStateEnvironment->SetNextState("waitforshutdown");
+			}
+			break;
+		}
+		pStateEnvironment->Sleep(nCounterStep);
+	}
+
+	if (pEnableControllerSignal->WaitForHandling(nAtmosphereWithoutPumpTimeout)) {
+		if (pEnableControllerSignal->GetBoolResult("success"))
+		{
+			pStateEnvironment->SetNextState("beginlayer");
+			pStateEnvironment->LogMessage("Reestablishing the atmosphere without pump was successful");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Recreating process atmosphere was not successful");
+			pStateEnvironment->SetNextState("waitforshutdown");
+		}
+	}
+	else
+	{
+		pStateEnvironment->LogMessage("Recreating process atmosphere timeout");
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
 }
 
 __DECLARESTATE(vacuumerror)
@@ -1751,12 +2072,114 @@ __DECLARESTATE(vacuumerror)
 
 __DECLARESTATE(gasflowerror)
 {
+	// Get Timeouts
+	uint32_t nAtmosphereWithPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "atmospherewithpumptimeout");
+	uint32_t nPauseTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "waitforpauseprocesstimeout");
+	uint32_t nLeavingStateTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "leavingstatetimeout");
 
+	// Check if the circulation pump was already started and not yet stopped
+	bool bCirculationPumpStartedFlag = pStateEnvironment->GetBoolParameter("jobinfo", "circulation_pump_started_flag");
+
+	// Get gasflow setpoint
+	int nSetpointInPercent = pStateEnvironment->GetIntegerParameter("jobinfo", "circulation_pump_setpoint_in_percent");
+
+	auto pStartGasFlowSignal = pStateEnvironment->PrepareSignal("plc", "signal_atmospherecontrol_start_gas_flow");
+	pStartGasFlowSignal->SetInteger("setpoint_in_percent", nSetpointInPercent);
+	pStartGasFlowSignal->SetBool("circulation_pump_started_flag", bCirculationPumpStartedFlag);
+	pStartGasFlowSignal->SetBool("is_process_flag", true);
+	pStartGasFlowSignal->Trigger();
+
+	int nCounterStep = (int)(nPauseTimeout / 10000);
+	int iMax = (int)(nPauseTimeout / nCounterStep);
+	PSignalHandler pSignalHandler;
+	for (int i = 0; i++; iMax)
+	{
+		if (pStateEnvironment->WaitForSignal("signal_cancelbuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pStateEnvironment->SetNextState("cancelprocess");
+			pSignalHandler->SignalHandled();
+			break;
+		}
+		else if (pStateEnvironment->WaitForSignal("signal_pausebuild", 0, pSignalHandler)) { // check if CancelBuild button or PauseBuild button was clicked
+			pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+			pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+			pSignalHandler->SignalHandled();
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
+			if (pLeaveStateForIdleSignal->WaitForHandling(nLeavingStateTimeout))
+			{
+				if (pLeaveStateForIdleSignal->GetBoolResult("success"))
+				{
+					pStateEnvironment->SetNextState("pauseprocess");
+					pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
+				}
+				else
+				{
+					pStateEnvironment->LogMessage("Leaving the current state of the plc state machine for the state idle is not currently not possible");
+					pStateEnvironment->SetNextState("waitforshutdown");
+				}
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Timeout: Leaving the current state of the plc state machine for the state idle is not currently not possible");
+				pStateEnvironment->SetNextState("waitforshutdown");
+			}
+			break;
+		}
+		pStateEnvironment->Sleep(nCounterStep);
+	}
+
+	if (pStartGasFlowSignal->WaitForHandling(nAtmosphereWithPumpTimeout)) {
+		if (pStartGasFlowSignal->GetBoolResult("success"))
+		{
+			// Set the circulation pump started flag
+			pStateEnvironment->SetBoolParameter("jobinfo", "circulation_pump_started_flag", true);
+
+			pStateEnvironment->SetNextState("beginlayer");
+			pStateEnvironment->LogMessage("Reestablishing the atmosphere with pump was successful");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Recreating process atmosphere was not successful");
+			pStateEnvironment->SetNextState("waitforshutdown");
+		}
+	}
+	else
+	{
+		pStateEnvironment->LogMessage("Recreating process atmosphere timeout");
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
 }
 
 __DECLARESTATE(recoatingerror)
 {
-	pStateEnvironment->SetNextState("pauseprocess");
+	// Get Timeouts
+	uint32_t nLeavingStateTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "leavingstatetimeout");
+
+	pStateEnvironment->SetBoolParameter("ui", "build_canbecanceled", false);
+	pStateEnvironment->SetBoolParameter("ui", "build_canbepausedorresumed", false);
+	auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+	pLeaveStateForIdleSignal->Trigger();
+
+	if (pLeaveStateForIdleSignal->WaitForHandling(nLeavingStateTimeout))
+	{
+		if (pLeaveStateForIdleSignal->GetBoolResult("success"))
+		{
+			pStateEnvironment->SetNextState("pauseprocess");
+			pStateEnvironment->LogMessage("Press the 'Pause Build' Button to resume the process at beginlayer or press the 'Cancel Build' Button to cancel the process!");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Leaving the current state of the plc state machine for the state idle is not currently not possible");
+			pStateEnvironment->SetNextState("waitforshutdown");
+		}
+	}
+	else
+	{
+		pStateEnvironment->LogMessage("Timeout: Leaving the current state of the plc state machine for the state idle is not currently not possible");
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
 }
 
 __DECLARESTATE(manualmovementcontrol)
@@ -1773,6 +2196,16 @@ __DECLARESTATE(manualmovementcontrol)
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_manualmovementcontrol_leave", 0, pSignalHandler)) {
 		pStateEnvironment->SetNextState("idle");
+		pSignalHandler->SignalHandled();
+	}
+
+	else if (pStateEnvironment->WaitForSignal("signal_manualmovementcontrol_leave_for_waitforshutdown", 0, pSignalHandler)) {
+		pStateEnvironment->SetNextState("waitforshutdown");
+		pSignalHandler->SignalHandled();
+	}
+
+	else if (pStateEnvironment->WaitForSignal("signal_manualmovementcontrol_leave_for_pauseprocess", 0, pSignalHandler)) {
+		pStateEnvironment->SetNextState("pauseprocess");
 		pSignalHandler->SignalHandled();
 	}
 	
@@ -1799,6 +2232,11 @@ __DECLARESTATE(manualmovementcontrol)
 
 		pStateEnvironment->StoreSignal("signal_manual_powder_dosing", pSignalHandler);
 	}
+	else if (pStateEnvironment->WaitForSignal("signal_singleaxismovement_change_layer", 0, pSignalHandler)) {
+		pStateEnvironment->SetNextState("manualchangelayer");
+
+		pStateEnvironment->StoreSignal("signal_singleaxismovement_change_layer", pSignalHandler);
+	}
 	else {
 		pStateEnvironment->SetNextState("manualmovementcontrol");
 	}
@@ -1812,7 +2250,6 @@ __DECLARESTATE(manualreferencing)
 	bool bDoReferenceRecoaterAxisLinear = pManualReferenceSignalHandler->GetBool("reference_recoateraxis_linear");
 	bool bDoReferenceRecoaterAxisPowder = pManualReferenceSignalHandler->GetBool("reference_recoateraxis_powder");
 	bool bDoReferencePlatform = pManualReferenceSignalHandler->GetBool("reference_platform");
-	bool bDoReferencePlatformAbsoluteSwitch = pManualReferenceSignalHandler->GetBool("reference_platform_absolute_switch");
 	bool bDoReferencePowderReservoir = pManualReferenceSignalHandler->GetBool("reference_powderreservoir");
 
 	std::vector<std::string> axesToMove; 
@@ -1820,7 +2257,7 @@ __DECLARESTATE(manualreferencing)
 		axesToMove.push_back("LinearRecoaterAxis");
 	if (bDoReferenceRecoaterAxisPowder)
 		axesToMove.push_back("PowderRecoaterAxis");
-	if (bDoReferencePlatform || bDoReferencePlatformAbsoluteSwitch)
+	if (bDoReferencePlatform)
 		axesToMove.push_back("Platform");
 	if (bDoReferencePowderReservoir)
 		axesToMove.push_back("PowderReservoir");
@@ -1841,7 +2278,6 @@ __DECLARESTATE(manualreferencing)
 		pReferenceSignal->SetBool("reference_recoateraxis_linear", bDoReferenceRecoaterAxisLinear);
 		pReferenceSignal->SetBool("reference_recoateraxis_powder", bDoReferenceRecoaterAxisPowder);
 		pReferenceSignal->SetBool("reference_platform", bDoReferencePlatform);
-		pReferenceSignal->SetBool("reference_platform_absolute_switch", bDoReferencePlatformAbsoluteSwitch);
 		pReferenceSignal->SetBool("reference_powderreservoir", bDoReferencePowderReservoir);
 		pReferenceSignal->Trigger();
 
@@ -1933,6 +2369,9 @@ __DECLARESTATE(manualmovement)
 
 					pStateEnvironment->LogMessage("Movement error.");
 
+					// leave the current waitformovement state to avoid a dead end in the plc state machine 
+					auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+					pLeaveStateForIdleSignal->Trigger();
 				}
 
 			}
@@ -1942,7 +2381,10 @@ __DECLARESTATE(manualmovement)
 				pSignalHandler->SetIntegerResult("errorcode", 2);
 
 				pStateEnvironment->LogMessage("Movement timeout!");
-				pStateEnvironment->SetNextState("manualmovementcontrol");
+
+				// leave the current waitformovement state to avoid a dead end in the plc state machine 
+				auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+				pLeaveStateForIdleSignal->Trigger();
 			}
 			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("manualmovementcontrol");
@@ -1971,14 +2413,16 @@ __DECLARESTATE(manualrecoating)
 	double dPlatformAxisClearanceInMM = pStateEnvironment->GetDoubleParameter("jobinfo", "platformaxis_clearance");
 	double dPlatformAxisSpeedInMMPerSecond = pStateEnvironment->GetDoubleParameter("jobinfo", "platformaxis_speed");
 	double dPlatformAxisAccelerationInMMPerSecondSqaured = pStateEnvironment->GetDoubleParameter("jobinfo", "platformaxis_acceleration");
-	double dLayerHeightInMM = pStateEnvironment->GetDoubleParameter("jobinfo", "layer_height");
+	double dLayerHeightInMM = 0;
 	double dRecoaterLinearAxisSpeedTravelInMMPerSecond = pStateEnvironment->GetDoubleParameter("jobinfo", "recoater_linear_speed_travel");
 	double dRecoaterLinearAxesAccelerationTravelInMMPerSecondSqaured = pStateEnvironment->GetDoubleParameter("jobinfo", "recoater_axes_linear_acceleration_travel");
 	double dRecoaterLinearAxisSpeedRecoatingInMMPerSecond = pStateEnvironment->GetDoubleParameter("jobinfo", "recoater_linear_speed_recoating");
 	double dRecoaterLinearAxesAccelerationRecoatingInMMPerSecondSqaured = pStateEnvironment->GetDoubleParameter("jobinfo", "recoater_axes_linear_acceleration_recoating");
+	bool bIsDualAxisRecoating = pStateEnvironment->GetBoolParameter("jobinfo", "is_dual_axis_recoating");
 	
 	double dRecoaterRefillPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoater_refill_position");
 	double dRecoatingStartPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoating_start_position");
+	double dRecoatingEndPositionInMM = pStateEnvironment->GetDoubleParameter("hardwareinformation", "recoating_end_position");
 
 	pStateEnvironment->LogMessage("Trigger recoating signal ...");
 	//Prepare the recoat layer signal
@@ -1994,6 +2438,8 @@ __DECLARESTATE(manualrecoating)
 	pRecoatLayer->SetDouble("recoater_axes_dosing_factor", dRecoaterDosingFactor);
 	pRecoatLayer->SetDouble("recoater_refill_position", dRecoaterRefillPositionInMM);
 	pRecoatLayer->SetDouble("recoating_start_position", dRecoatingStartPositionInMM);
+	pRecoatLayer->SetDouble("recoating_end_position", dRecoatingEndPositionInMM);
+	pRecoatLayer->SetBool("is_dual_axis_recoating", bIsDualAxisRecoating);
 	//Send the recoat layer signal to the plc state machine
 	pRecoatLayer->Trigger();
 	pStateEnvironment->LogMessage("Wait for recoating ...");
@@ -2052,7 +2498,6 @@ __DECLARESTATE(manualpowderdosing)
 		pStateEnvironment->SetDoubleParameter("jobinfo", "currentrecoaterpowdercapacity", (dOldRecoaterPowderVolumeInMMCubed + dRecoaterFillingVolumeInMMCubed));
 		pStateEnvironment->SetDoubleParameter("jobinfo", "currentreservoirpowdercapacity", (dOldReservoirPowderVolumeInMMCubed - dRecoaterFillingVolumeInMMCubed));
 
-		pStateEnvironment->LogMessage("Powder dosing finished");
 		pStateEnvironment->LogMessage("Current recoater powder capacity: " + std::to_string(dOldRecoaterPowderVolumeInMMCubed + dRecoaterFillingVolumeInMMCubed) + " cubic mm");
 		pStateEnvironment->LogMessage("Current reservoir powder capacity: " + std::to_string((dOldReservoirPowderVolumeInMMCubed - dRecoaterFillingVolumeInMMCubed)) + " cubic mm");
 
@@ -2062,8 +2507,65 @@ __DECLARESTATE(manualpowderdosing)
 		pSignalHandler->SetBoolResult("success", false);
 		pStateEnvironment->LogMessage("Powder dosing timeout");
 		pStateEnvironment->SetNextState("manualmovementcontrol");
+
+		// leave the current waitformovement state to avoid a dead end in the plc state machine 
+		auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+		pLeaveStateForIdleSignal->Trigger();
 	}
 	pSignalHandler->SignalHandled();
+}
+
+__DECLARESTATE(manualchangelayer)
+{
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement_change_layer");
+	pStateEnvironment->LogMessage("Start changing the layer by moving the build platform ...");
+
+	// retrieve dosing units of the manual powder dosing command
+	double dLayerHeight = pSignalHandler->GetDouble("layer_height_manual");
+
+	//Retrieve parameters of signal from jobinfo and hardware info
+	int nChangeLayerTimeOut = pStateEnvironment->GetDoubleParameter("timeouts", "changelayertimeout");
+	double dPlatformAxisSpeedInMMPerSecond = pStateEnvironment->GetDoubleParameter("jobinfo", "platformaxis_speed");
+	double dPlatformAxisAccelerationInMMPerSecondSqaured = pStateEnvironment->GetDoubleParameter("jobinfo", "platformaxis_acceleration");
+
+	//Prepare the powder dosing signal
+	auto pMovementSignal = pStateEnvironment->PrepareSignal("plc", "signal_singleaxismovement");
+	pMovementSignal->SetInteger("axis_ID", AXISID_BUILDPLATFORM); //axis_ID build platform
+	pMovementSignal->SetInteger("absoluterelative", RELATIVE_FLAG); //relative movement
+	pMovementSignal->SetDouble("target", -dLayerHeight);
+	pMovementSignal->SetDouble("speed", dPlatformAxisSpeedInMMPerSecond);
+	pMovementSignal->SetDouble("acceleration", dPlatformAxisAccelerationInMMPerSecondSqaured);
+
+	//Send the change layer signal to the plc state machine
+	pMovementSignal->Trigger();
+	pStateEnvironment->LogMessage("Wait for changing layer ...");
+	if (pMovementSignal->WaitForHandling(nChangeLayerTimeOut)) {
+		if (pMovementSignal->GetBoolResult("success"))
+		{
+			pSignalHandler->SetBoolResult("success", true);
+			pStateEnvironment->LogMessage("changing layer finished");
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pStateEnvironment->LogMessage("Manual layer change was not successful");
+
+			// leave the current waitformovement state to avoid a dead end in the plc state machine 
+			auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+			pLeaveStateForIdleSignal->Trigger();
+		}
+	}
+	else {
+		// no response from PLC!
+		pSignalHandler->SetBoolResult("success", false);
+		pStateEnvironment->LogMessage("Changing layer timeout");
+
+		// leave the current waitformovement state to avoid a dead end in the plc state machine 
+		auto pLeaveStateForIdleSignal = pStateEnvironment->PrepareSignal("plc", "signal_leavestateforidle");
+		pLeaveStateForIdleSignal->Trigger();
+	}
+	pSignalHandler->SignalHandled();
+	pStateEnvironment->SetNextState("manualmovementcontrol");
 }
 
 __DECLARESTATE(manualatmospherecontrol)
@@ -2072,9 +2574,10 @@ __DECLARESTATE(manualatmospherecontrol)
 	uint32_t nOxygenInitTimeout = pStateEnvironment->GetDoubleParameter("timeouts", "oxygeninittimeout");
 	uint32_t nVacuumInitTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "vacuuminittimeout");
 	uint32_t nAtmosphereInitTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "atmosphereinittimeout");
+	uint32_t nToggleValvesTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "togglevalvestimeout");
+	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
 	
 	//TODO: button to trigger manualexposure_signal
-	pStateEnvironment->SetNextState("manualatmospherecontrol");
 
 	LibMCEnv::PSignalHandler pSignalHandler;
 	if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_enter", 0, pSignalHandler)) {
@@ -2085,10 +2588,19 @@ __DECLARESTATE(manualatmospherecontrol)
 
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_leave", 0, pSignalHandler)) {
-
+		pSignalHandler->SetBoolResult("istuning", false);
 		pSignalHandler->SignalHandled();
-
 		pStateEnvironment->SetNextState("idle");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_leave_for_waitforshutdown", 0, pSignalHandler)) {
+		pSignalHandler->SetBoolResult("istuning", false);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_leave_for_pauseprocess", 0, pSignalHandler)) {
+		pSignalHandler->SetBoolResult("istuning", false);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("pauseprocess");
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_manualtogglevalves", 0, pSignalHandler)) {
 
@@ -2098,7 +2610,22 @@ __DECLARESTATE(manualatmospherecontrol)
 		auto pSignal_togglevalves = pStateEnvironment->PrepareSignal("plc", "signal_togglevalve");
 		pSignal_togglevalves ->SetInteger("valve_ID", nValve_ID);
 		pSignal_togglevalves->Trigger();
-
+		if (pSignal_togglevalves->WaitForHandling(nToggleValvesTimeout))
+		{
+			if (pSignal_togglevalves->GetBoolResult("success"))
+			{
+				pStateEnvironment->LogMessage("Toggle valves was successful");
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Toggle valves was not successful");
+			}
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Toggle valves timeout");
+		}
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_init", 0, pSignalHandler)) {
@@ -2127,8 +2654,8 @@ __DECLARESTATE(manualatmospherecontrol)
 			pStateEnvironment->LogMessage("No response from PLC");
 			pStateEnvironment->SetBoolParameter("processinitialization", "atmospherecontroller_ready", false);
 			pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALIZEATMOSPHERECONTROLLER");
-			pStateEnvironment->SetNextState("manualatmospherecontrol");
 		}
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_update_gas_flow_setpoint", 0, pSignalHandler)) {
@@ -2140,6 +2667,8 @@ __DECLARESTATE(manualatmospherecontrol)
 		auto pSignal_atmospherecontrol_update_gas_flow_setpoint = pStateEnvironment->PrepareSignal("plc", "signal_atmospherecontrol_update_gas_flow_setpoint");
 		pSignal_atmospherecontrol_update_gas_flow_setpoint->SetInteger("setpoint_in_percent", nsetpoint_in_percent);
 		pSignal_atmospherecontrol_update_gas_flow_setpoint->Trigger();
+
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_start_gas_flow", 0, pSignalHandler)) {
@@ -2147,13 +2676,18 @@ __DECLARESTATE(manualatmospherecontrol)
 		pSignalHandler->SignalHandled();
 
 		auto nsetpoint_in_percent = pStateEnvironment->GetIntegerParameter("jobinfo", "circulation_pump_setpoint_in_percent");
+		bool bCirculationPumpStartedFlag = pStateEnvironment->GetBoolParameter("jobinfo", "circulation_pump_started_flag");
 
-		auto pSignal_atmospherecontrol_update_gas_flow_setpoint = pStateEnvironment->PrepareSignal("plc", "signal_atmospherecontrol_start_gas_flow");
-		pSignal_atmospherecontrol_update_gas_flow_setpoint->SetInteger("setpoint_in_percent", nsetpoint_in_percent);
-		pSignal_atmospherecontrol_update_gas_flow_setpoint->Trigger();
+		auto pSignal_atmospherecontrol_start_gas_flow = pStateEnvironment->PrepareSignal("plc", "signal_atmospherecontrol_start_gas_flow");
+		pSignal_atmospherecontrol_start_gas_flow->SetInteger("setpoint_in_percent", nsetpoint_in_percent);
+		pSignal_atmospherecontrol_start_gas_flow->SetBool("circulation_pump_started_flag", bCirculationPumpStartedFlag);
+		pSignal_atmospherecontrol_start_gas_flow->SetBool("is_process_flag", false);
+		pSignal_atmospherecontrol_start_gas_flow->Trigger();
 
 		// Set the circulation pump started flag
 		pStateEnvironment->SetBoolParameter("jobinfo", "circulation_pump_started_flag", true);
+
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_turn_off_gas_flow", 0, pSignalHandler)) {
@@ -2165,14 +2699,21 @@ __DECLARESTATE(manualatmospherecontrol)
 
 		// Reset the circulation pump started flag
 		pStateEnvironment->SetBoolParameter("jobinfo", "circulation_pump_started_flag", false);
+
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_save", 0, pSignalHandler)) {
 
 		auto nsetpointinpercent = pSignalHandler->GetInteger("setpointinpercent");
+		auto noxygensetpointinppm = pSignalHandler->GetInteger("oxygensetpointinppm");
 		pSignalHandler->SignalHandled();
 
 		pStateEnvironment->SetIntegerParameter("jobinfo", "circulation_pump_setpoint_in_percent", nsetpointinpercent);
+		pStateEnvironment->SetIntegerParameter("jobinfo", "oxygencontroller_oxygen_setpoint_in_ppm", noxygensetpointinppm);
+		pStateEnvironment->SetIntegerParameter("oxygencontroller", "setpoint", noxygensetpointinppm);
+
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualvacuumcontrol_init", 0, pSignalHandler)) {
@@ -2199,18 +2740,22 @@ __DECLARESTATE(manualatmospherecontrol)
 			pStateEnvironment->LogMessage("No response from PLC");
 			pStateEnvironment->SetBoolParameter("processinitialization", "vacuumcontroller_ready", false);
 			pStateEnvironment->SetStringParameter("processinitialization", "initerror", "COULDNOTINITIALIZEVACUUMCONTROLLER");
-			pStateEnvironment->SetNextState("manualatmospherecontrol");
 		}
-
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualvacuumcontrol_start_vacuum_pump", 0, pSignalHandler)) {
 
 		pSignalHandler->SignalHandled();
 
+		// get vacuum pressure parameter
+		int nPressureThresholdVacuumOffInMbar = pStateEnvironment->GetIntegerParameter("jobinfo", "pressure_threshold_vacuum_off_in_mbar");
+
 		auto pSignal_vacuumcontrol_start_vacuum_pump = pStateEnvironment->PrepareSignal("plc", "signal_vacuumcontrol_start_vacuum_pump");
+		pSignal_vacuumcontrol_start_vacuum_pump->SetInteger("pressure_threshold_vacuum_off_in_mbar", nPressureThresholdVacuumOffInMbar);
 		pSignal_vacuumcontrol_start_vacuum_pump->Trigger();
 
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_manualvacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandler)) {
@@ -2220,6 +2765,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		auto pSignal_vacuumcontrol_turn_off_vacuum_pump = pStateEnvironment->PrepareSignal("plc", "signal_vacuumcontrol_turn_off_vacuum_pump");
 		pSignal_vacuumcontrol_turn_off_vacuum_pump->Trigger();
 
+		pStateEnvironment->SetNextState("manualatmospherecontrol");
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_initoxygen", 0, pSignalHandler)) {
@@ -2380,11 +2926,16 @@ __DECLARESTATE(manualatmospherecontrol)
 	{
 
 		pStateEnvironment->SetNextState("manualatmospherecontrol");
+
+		// Get oxygen threshold tolerance to switch on the circulation pump
+		int nThresholdTolerancePPM = pStateEnvironment->GetIntegerParameter("hardwareinformation", "o2_threshold_tolerance_ppm");
+
 		// send signal to plc state machine to enable the oxygen controller
 		auto pSignal = pStateEnvironment->PrepareSignal("plc", "signal_enablecontroller");
 		pSignal->SetInteger("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+		pSignal->SetInteger("atmosphere_controller_threshold_tolerance_ppm", nThresholdTolerancePPM);
 		pSignal->Trigger();
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2405,7 +2956,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		auto pSignal = pStateEnvironment->PrepareSignal("plc", "signal_disablecontroller");
 		pSignal->SetInteger("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
 		pSignal->Trigger();
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2441,7 +2992,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		pSignal->SetInteger("minout", nMinout);
 		pSignal->Trigger();
 
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2474,7 +3025,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		pSignal->SetBool("mode", bMode);
 		pSignal->Trigger();
 
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2509,7 +3060,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		pSignal->SetDouble("maxtuningtime", dMaxtuningtime);
 		pSignal->Trigger();
 
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2535,7 +3086,7 @@ __DECLARESTATE(manualatmospherecontrol)
 		pSignal->SetInteger("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
 		pSignal->SetInteger("setpoint", nSetpoint);
 		pSignal->Trigger();
-		if (pSignal->WaitForHandling(1000))
+		if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 		{
 			pSignalHandler->SetBoolResult("success", true);
 		}
@@ -2573,7 +3124,7 @@ __DECLARESTATE(manualatmospherecontrol)
 			pSignal->Trigger();
 
 
-			if (pSignal->WaitForHandling(1000))
+			if (pSignal->WaitForHandling(nGeneralCommandTimeout))
 			{
 				pSignalHandler->SetBoolResult("success", true);
 			}
@@ -2802,6 +3353,18 @@ __DECLARESTATE(manualheatercontrol)
 		pSignalHandler->SignalHandled();
 		pStateEnvironment->SetNextState("idle");
 	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualheatercontrol_leave_for_waitforshutdown", 0, pSignalHandler))
+	{
+	pSignalHandler->SetBoolResult("istuning", false);
+	pSignalHandler->SignalHandled();
+	pStateEnvironment->SetNextState("waitforshutdown");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualheatercontrol_leave_for_pauseprocess", 0, pSignalHandler))
+	{
+	pSignalHandler->SetBoolResult("istuning", false);
+	pSignalHandler->SignalHandled();
+	pStateEnvironment->SetNextState("pauseprocess");
+	}
 	else if (pStateEnvironment->WaitForSignal("signal_enableheater", 0, pSignalHandler))
 	{
 		
@@ -2920,6 +3483,7 @@ __DECLARESTATE(manualheatercontrol)
 
 		// store values in the parameter group
 		pStateEnvironment->SetIntegerParameter("heatercontroller", "setpoint", nSetpoint);
+		pStateEnvironment->SetIntegerParameter("jobinfo", "heatercontroller_temperature_setpoint_in_degree_celsius", nSetpoint);
 
 		pStateEnvironment->SetNextState("manualheatercontrol");
 	}
@@ -3048,13 +3612,19 @@ __DECLARESTATE(waitforcontrollertuning)
 	{
 		pSignalHandler->SetBoolResult("istuning", true);
 		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("waitforcontrollertuning");
+		pStateEnvironment->SetNextState("idle");
 	}
-	else if (pStateEnvironment->WaitForSignal("signal_manualatmospherecontrol_leave", 0, pSignalHandler))
+	else if (pStateEnvironment->WaitForSignal("signal_manualheatercontrol_leave_for_waitforshutdown", 0, pSignalHandler))
 	{
 		pSignalHandler->SetBoolResult("istuning", true);
 		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("waitforcontrollertuning");
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualheatercontrol_leave_for_pauseprocess", 0, pSignalHandler))
+	{
+		pSignalHandler->SetBoolResult("istuning", true);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("pauseprocess");
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_abort_controllertuning", 0, pSignalHandler))
 	{
@@ -3078,7 +3648,66 @@ __DECLARESTATE(waitforcontrollertuning)
 			pStateEnvironment->SetNextState("manualatmospherecontrol");
 		}
 	}
-	pStateEnvironment->SetNextState("waitforcontrollertuning");
+	else
+	{
+		pStateEnvironment->SetNextState("waitforcontrollertuning");
+	}
+}
+
+__DECLARESTATE(manualcameracontrol)
+{
+	LibMCEnv::PSignalHandler pSignalHandler;
+
+	if (pStateEnvironment->WaitForSignal("signal_manualcameracontrol_enter", 0, pSignalHandler))
+	{
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualcameracontrol_leave", 0, pSignalHandler))
+	{
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("idle");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualcameracontrol_leave_for_waitforshutdown", 0, pSignalHandler))
+	{
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("waitforshutdown");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_manualcameracontrol_leave_for_pauseprocess", 0, pSignalHandler))
+	{
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("pauseprocess");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_enablethermalcamera", 0, pSignalHandler))
+	{
+		pStateEnvironment->SetBoolParameter("jobinfo", "thermal_camera_active_flag", true);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_disablethermalcamera", 0, pSignalHandler))
+	{
+		pStateEnvironment->SetBoolParameter("jobinfo", "thermal_camera_active_flag", false);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_changefilenamethermalcamera", 0, pSignalHandler))
+	{
+		std::string sFilenameSSD = pSignalHandler->GetString("filename");
+		pStateEnvironment->SetStringParameter("jobinfo", "thermal_camera_footage_filename", sFilenameSSD);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_changeframenumberthermalcamera", 0, pSignalHandler))
+	{
+		int nNumberOfFrames = pSignalHandler->GetInteger("frame_number");
+		pStateEnvironment->SetIntegerParameter("jobinfo", "thermal_camera_frames", nNumberOfFrames);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
+	else
+	{
+		pStateEnvironment->SetNextState("manualcameracontrol");
+	}
 }
 
 

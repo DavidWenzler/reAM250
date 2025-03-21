@@ -1,0 +1,18 @@
+(*
+T: FUNCTION ACTF_S
+FW: YES
+CI#: 24
+QSL: 0
+QJM: 2
+QJ: 2
+*)
+		LD	@FUV 1
+		JMPC_S	@LBL 1
+		LD	@FUV 3
+		ST	@FUV 4
+		JMP	@LBL 2
+	@LBL 1		
+		LD	@FUV 2
+		ST	@FUV 4
+	@LBL 2		
+

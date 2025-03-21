@@ -1,0 +1,27 @@
+<!--xml version= "1.0" encoding="utf-8"-->
+<!--IOMapping Version="4.0"-->
+<IOOffsets SIBytes="6144" SOBytes="2048" NSIBytes="1024" NSOBytes="1024" ConnectionsValidOffset="4" >
+		<Module Name="SL1.SM1" Hardware="X20SL8101" SafeLogicID="1" SafeModuleID="1" SISize="1" SOSize="1" NSISize="516" NSOSize="516" SIOffset="5" SOOffset="0" NSIOffset="0" NSOOffset="0" ExtendedSourceSL="1" HWTypeCode="5" />
+		<Module Name="SL1.SM2" Hardware="X20SI8110" SafeLogicID="1" SafeModuleID="2" SISize="3" SOSize="0" NSISize="0" NSOSize="0" SIOffset="6" ConnectionValidBitNumber="0" HWTypeCode="27" >
+			<Channel Name="SafeDigitalInput03" Mapping="SIX6.2" Variable="BuildChamberDoorInput03" Address="IOMapping_115KF51.SafeDigitalInput03" SODIndex="0x6000" SODSubIndex="0x2" />
+			<Channel Name="SafeDigitalInput04" Mapping="SIX6.3" Variable="BuildChamberDoorInput04" Address="IOMapping_115KF51.SafeDigitalInput04" SODIndex="0x6000" SODSubIndex="0x2" />
+			<Channel Name="SafeTwoChannelInput0102" Mapping="SIX7.0" Variable="EStopInput" Address="IOMapping_115KF51.SafeTwoChannelInput0102" SODIndex="0x6000" SODSubIndex="0x3" />
+			<Channel Name="SafeDigitalInput05" Mapping="SIX6.4" Variable="FeedbackEStopRelaisSafeDI05" Address="IOMapping_115KF51.SafeDigitalInput05" SODIndex="0x6000" SODSubIndex="0x2" />
+			<Channel Name="SafeDigitalInput06" Mapping="SIX6.5" Variable="FeedbackUserSafeRelaisDI06" Address="IOMapping_115KF51.SafeDigitalInput06" SODIndex="0x6000" SODSubIndex="0x2" />
+			<Channel Name="SafeTwoChannelInput0708" Mapping="SIX7.3" Variable="EStopLaser" Address="IOMapping_115KF51.SafeTwoChannelInput0708" SODIndex="0x6000" SODSubIndex="0x3" />
+		</Module>
+		<Module Name="SL1.SM3" Hardware="X20SO6300" SafeLogicID="1" SafeModuleID="3" SISize="1" SOSize="1" NSISize="2" NSOSize="1" SIOffset="9" SOOffset="1" NSIOffset="516" NSOOffset="516" ConnectionValidBitNumber="1" HWTypeCode="43" >
+			<Channel Name="SafeDigitalOutput01" Mapping="SQX1.0" Variable="EmergencyStopRelais" SODIndex="0x6200" SODSubIndex="0x1" />
+			<Channel Name="SafeDigitalOutput02" Mapping="SQX1.1" Variable="UserSafeRelais" SODIndex="0x6200" SODSubIndex="0x1" />
+			<Channel Name="SafeDigitalOutput03" Mapping="SQX1.2" Variable="Enable0102" SODIndex="0x6200" SODSubIndex="0x1" />
+			<Channel Name="SafeDigitalOutput04" Mapping="SQX1.3" Variable="Enable0304" SODIndex="0x6200" SODSubIndex="0x1" />
+			<Channel Name="ReleaseOutput" Mapping="NSQX516.0" Variable="ReleaseSO" SODIndex="0x6200" SODSubIndex="0x3" />
+		</Module>
+		<Module Name="SL1.SM4" Hardware="X20SC0842" SafeLogicID="1" SafeModuleID="4" SISize="4" SOSize="2" NSISize="1" NSOSize="1" SIOffset="12" SOOffset="2" NSIOffset="518" NSOOffset="517" ConnectionValidBitNumber="2" HWTypeCode="59" >
+			<Channel Name="SafeDigitalInput02" Mapping="SIX12.1" Variable="Reset" Address="IOMapping_115KF53.SafeDigitalInput02" SODIndex="0x6000" SODSubIndex="0x2" />
+			<Channel Name="SafeTwoChannelInput0304" Mapping="SIX13.1" Variable="LaserCoverTwoChannelInput0304" Address="IOMapping_115KF53.SafeTwoChannelInput0304" SODIndex="0x6000" SODSubIndex="0x3" />
+			<Channel Name="SafeTwoChannelInput0506" Mapping="SIX13.2" Variable="EStopLaserCell" Address="IOMapping_115KF53.SafeTwoChannelInput0506" SODIndex="0x6000" SODSubIndex="0x3" />
+			<Channel Name="SafeTwoChannelInput0708" Mapping="SIX13.3" Variable="SafetyCircuitLaserCell" Address="IOMapping_115KF53.SafeTwoChannelInput0708" SODIndex="0x6000" SODSubIndex="0x3" />
+			<Channel Name="ReleaseOutput" Mapping="NSQX517.0" Variable="ReleaseSC" SODIndex="0x6200" SODSubIndex="0x3" />
+		</Module>
+</IOOffsets>

@@ -1,0 +1,18 @@
+                                                                      
+VAR CONSTANT
+	timEXSETTIME_NO_LOGENTRY	: USINT	:= 1;
+	timEXSETTIME_NO_OPTION		: USINT	:= 0;
+	DATE_AND_TIME_MAX			: UDINT	:= 4102444799;
+	TIME_MIN					: DINT	:= -2073600000;
+	TIME_MAX					: DINT	:= 2073600000;
+	timNORMAL_TIME				: USINT := 1;
+	timDAYLIGHT_SAVING_TIME		: USINT := 2;
+	timNO_DST					: USINT := 3;
+	timREAL_TIME_CLOCK			: USINT	:= 1;
+	timTIME_SERVER				: USINT := 2;
+	timREDUND_INTERFACE			: USINT := 3;
+	timERR_INVALID_PARAMETER	: UINT	:= 33210;
+	timERR_INVALID_LEN		 	: UINT	:= 33211;
+	timERR_INVALID_DTSTRUCTURE 	: UINT	:= 33212;
+	timERR_AR					: UINT	:= 33213;
+END_VAR

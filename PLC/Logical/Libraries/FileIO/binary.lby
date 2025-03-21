@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="The FileIO library provides function blocks for file handling." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>FileIO.fun</File>
+    <File>FileIO.typ</File>
+    <File>FileIO.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="runtime" />
+  </Dependencies>
+</Library>

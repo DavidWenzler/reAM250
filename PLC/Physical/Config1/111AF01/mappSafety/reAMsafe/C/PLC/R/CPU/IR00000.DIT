@@ -1,0 +1,106 @@
+(*
+T: RESOURCE CPU
+FW: NO
+CI#: 0
+QSL: 16
+QVE: 16
+QVPC: 16
+QPar: 0
+QFBI: 0
+*)
+@V 1 2 0
+EStopInput	1	VAR_GLOBAL	@TYP:43
+%SIX 7.0		     
+
+;
+
+@V 1 3 0
+Reset	2	VAR_GLOBAL	@TYP:43
+%SIX 12.1		     
+
+;
+
+@V 1 4 0
+ReleaseSC	3	VAR_GLOBAL	@TYP:1
+%NSQX 517.0		     
+
+;
+
+@V 1 5 0
+ReleaseSO	4	VAR_GLOBAL	@TYP:1
+%NSQX 516.0		     
+
+;
+
+@V 1 6 0
+Enable0102	5	VAR_GLOBAL	@TYP:43
+%SQX 1.2		     
+
+;
+
+@V 1 7 0
+Enable0304	6	VAR_GLOBAL	@TYP:43
+%SQX 1.3		     
+
+;
+
+@V 1 8 0
+UserSafeRelais	7	VAR_GLOBAL	@TYP:43
+%SQX 1.1		     
+
+;
+
+@V 1 9 0
+EmergencyStopRelais	8	VAR_GLOBAL	@TYP:43
+%SQX 1.0		     
+
+;
+
+@V 1 10 0
+LaserCoverTwoChannelInput0304	9	VAR_GLOBAL	@TYP:43
+%SIX 13.1		     
+
+;
+
+@V 1 11 0
+EStopLaser	10	VAR_GLOBAL	@TYP:43
+%SIX 7.3		     
+
+;
+
+@V 1 12 0
+FeedbackEStopRelaisSafeDI05	11	VAR_GLOBAL	@TYP:1
+%SIX 6.4		     
+
+;
+
+@V 1 13 0
+FeedbackUserSafeRelaisDI06	12	VAR_GLOBAL	@TYP:43
+%SIX 6.5		     
+
+;
+
+@V 1 14 0
+EStopLaserCell	13	VAR_GLOBAL	@TYP:43
+%SIX 13.2		     
+
+;
+
+@V 1 15 0
+SafetyCircuitLaserCell	14	VAR_GLOBAL	@TYP:43
+%SIX 13.3		     
+
+;
+
+@V 1 16 0
+BuildChamberDoorInput03	15	VAR_GLOBAL	@TYP:43
+%SIX 6.2		     
+
+;
+
+@V 1 17 0
+BuildChamberDoorInput04	16	VAR_GLOBAL	@TYP:43
+%SIX 6.3		     
+
+;
+

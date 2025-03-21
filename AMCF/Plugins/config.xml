@@ -55,8 +55,12 @@
 
     <machinestatus>
 
+	  <bool name="door_locked_closed" group="door" value="door_locked_closed" description="Door is in locked_closed state flag"/>
+
       <integer name="o2_chamber_ppm" group="O2Sensor" value="o2chamberinppm" description="O2 Content in the Chamber in ppm"/>
       <integer name="o2_filter_ppm" group="O2Sensor" value="o2filterinppm" description="O2 Content in the Filter in ppm"/>
+
+	  <double name="build_platform_temperature_in_degrees_celsius" group="heater" value="heater_build_platform_temperature" description="Build Platform Temperature in °C"/>
 
 	  <integer name="oxygencontrol_PID_setvalue" group="oxygen" value="oxygencontrol_PID_setvalue" description="Oxygen setpoint in ppm"/>
 	  <integer name="heater_PID_setvalue" group="heater" value="heater_PID_setvalue" description="Setpoint build plate heater in degree celcius"/>
@@ -553,9 +557,6 @@
         <bool name="reference_recoateraxis_linear" address="3" description="Reference linear recoateraxis"/>
       </command>
 
-	  <command name="absoluteswitchreferencing" id="2002">
-	  </command>
-
       <command name="recoaterdualaxismovement" id="2003">
         <dint name="recoateraxis_linear_start_position" address="0" description="Recoating start position in micro meter oder micro degree"/>
         <dint name="recoateraxis_linear_target_position" address="4" description="Target Position in micro meter oder micro degree"/>
@@ -662,6 +663,7 @@
 
   <driver name="raylase" library="driver_raylase" type="raylase"/>
   <driver name="scanlab" library="driver_scanlab" type="scanlab-rtc6"/>
+  <driver name="spinnaker" library="driver_spinnaker" type="spinnaker-1.0"/>
 
   <statemachine name="main" description="Main System" initstate="init" failedstate="fatalerror" library="plugin_main">
 
@@ -679,39 +681,61 @@
       <parameter name="printinprogress" description="Print is in progress" default="0" type="bool"/>
 
 	  <parameter name="initpowderdosingunits" description="Number of powder dosings at the start of a build job" default="10" type="int"/>
-      <parameter name="overdosefactor" description="Powder Overdose Factor" default="2.5" type="double"/>
+      <parameter name="overdosefactor" description="Powder Overdose Factor" default="1.0" type="double"/>
 	  <parameter name="currentrecoaterpowdercapacity" description="Current powder volume in the recoater carrier reservoir in cubic millimeters" default="0" type="double"/>
 	| <parameter name="currentreservoirpowdercapacity" description="Current powder volume in the powder reservoir reservoir in cubic millimeters" default="0" type="double"/>
       <parameter name="platformaxis_clearance" description="Clearance distance of the build platform for recoating in millimeter" default="1.0" type="double"/>
-	  <parameter name="platformaxis_initial_absolute_position" description="Absolute position of the build platform at the start of the process in millimeter" default="10.0" type="double"/>
+	  <parameter name="platformaxis_initial_absolute_position" description="Absolute position of the build platform at the end of initialization" default="143.29" type="double"/>
 	  <parameter name="platformaxis_speed" description="Build platform axis movement speed in millimeter per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="2.0" type="double"/>
       <parameter name="platformaxis_acceleration" description="Build platform axis acceleration and deceleration in millimeter per second squared. MUST be positive. Ignored if speed is 0." default="20.0" type="double"/>
-      <parameter name="recoater_linear_speed_travel" description="Recoater linear axis movement speed in millimeter per second during traveling. MUST NOT be negative. Axis is not moved at all if speed is 0." default="400.0" type="double"/>
-      <parameter name="recoater_axes_linear_acceleration_travel" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during traveling. MUST be positive. Ignored if speed is 0." default="4000.0" type="double"/>
-      <parameter name="recoater_linear_speed_recoating" description="Recoater linear axis movement speed in millimeter per second during recoating. MUST NOT be negative. Axis is not moved at all if speed is 0." default="80.0" type="double"/>
+      <parameter name="recoater_linear_speed_travel" description="Recoater linear axis movement speed in millimeter per second during traveling. MUST NOT be negative. Axis is not moved at all if speed is 0." default="100.0" type="double"/>
+      <parameter name="recoater_axes_linear_acceleration_travel" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during traveling. MUST be positive. Ignored if speed is 0." default="1000.0" type="double"/>
+      <parameter name="recoater_linear_speed_recoating" description="Recoater linear axis movement speed in millimeter per second during recoating. MUST NOT be negative. Axis is not moved at all if speed is 0." default="40.0" type="double"/>
       <parameter name="recoater_axes_linear_acceleration_recoating" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during recoating. MUST be positive. Ignored if speed is 0." default="1000.0" type="double"/>
+	  <parameter name="is_dual_axis_recoating" description="If true, the recoating cycle is performed with a dual axis movement." default="0" type="bool"/>
 
 	  <parameter name="powderreservoir_speed" description="Powder reservoir axis movement speed in degrees per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="60.0" type="double"/>
 	  <parameter name="powderreservoir_acceleration" description="Powder reservoir axis acceleration and deceleration in degrees per second squared. MUST be positive. Ignored if speed is 0." default="300.0" type="double"/>
 	  <parameter name="powderreservoir_dosing_units" description="Number of notches on the powder reservoir axis that are released per refilling step" default="1" type="int"/>
 
 	  <parameter name="vacuum_enabled_flag" description="If this flag is true, the vacuum system is used in the automated process flow" default="0" type="bool"/>
-	  <parameter name="pressure_threshold_vacuum_off_in_mbar" description="Below this threshold the vacuum pump is switched off" default="1000" type="int"/>
+	  <parameter name="pressure_threshold_vacuum_off_in_mbar" description="Below this threshold the vacuum pump is switched off" default="900" type="int"/>
 
-	  <parameter name="circulation_pump_setpoint_in_percent" description="Setpoint of the circulation pump" default="60" type="int"/>
-	  <parameter name="oxygencontroller_oxygen_setpoint_in_ppm" description="Oxygen setpoint in ppm" default="220000" type="int"/>
-	  <parameter name="oxygencontroller_tolerance_ppm" description="Oxygen setpoint tolerance in ppm" default="30000" type="int"/>
-	  <parameter name="circulation_pump_started_flag" description="If this flag is true, the circulation pump was already started before the build job" default="0" type="bool"/>
+	  <parameter name="circulation_pump_setpoint_in_percent" description="Setpoint of the circulation pump" default="20" type="int"/>
+	  <parameter name="oxygencontroller_oxygen_setpoint_in_ppm" description="Oxygen setpoint in ppm" default="1100" type="int"/>
+	  <parameter name="oxygencontroller_tolerance_ppm" description="Oxygen setpoint tolerance in ppm" default="100" type="int"/>
+	  <parameter name="circulation_pump_started_flag" description="If this flag is true, the circulation pump was already started and not yet stopped" default="0" type="bool"/>
 
-	  <parameter name="heatercontroller_temperature_setpoint_in_degree_celsius" description="Setpoint build plate heater in degree celcius" default="20" type="int"/>
-	  <parameter name="heatercontroller_tolerance_degree_celsius" description="Build platform heater setpoint tolerance" default="10" type="int"/>
+	  <parameter name="heatercontroller_temperature_setpoint_in_degree_celsius" description="Setpoint build plate heater in degree celcius" default="80" type="int"/>
+	  <parameter name="heatercontroller_tolerance_degree_celsius" description="Build platform heater setpoint tolerance" default="15" type="int"/>
+
+	  <parameter name="thermal_camera_active_flag" description="If this flag is true, the thermography camera is used during the process" default="1" type="bool"/>
+	  <parameter name="thermal_camera_footage_filename" description="Filename of the thermography camera footage (layer index is added automatically)" default="pyramid_uncontrolled" type="string"/>
+	  <parameter name="thermal_camera_waiting_time_interval_in_ms" description="Sleep time in ms in the wait-for-functions withing the spinnaker driver" default="1000" type="int"/>
+      <parameter name="thermal_camera_arming_time_in_ms" description="Timeout for arming the camera in ms" default="10000" type="int"/>
+	  <parameter name="thermal_camera_recording_time_in_ms" description="Timeout for recording with the camera in ms (timer starts after exposure)" default="10000" type="int"/>
+	  <parameter name="thermal_camera_saving_time_in_ms" description="Timeout for saving the camera footage in ms" default="30000" type="int"/>
+	  <parameter name="thermal_camera_filter_change_time_in_ms" description="Timeout for changing the filter on the camera" default="10000" type="int"/>
+	  <parameter name="thermal_camera_width_in_pixel" description="Width of the recording window on the camera sensor" default="192" type="int"/>
+	  <parameter name="thermal_camera_height_in_pixel" description="Height of the recording window on the camera sensor" default="165" type="int"/>
+	  <parameter name="thermal_camera_offset_x_in_pixel" description="Offset in x direction of the recording window on the camera sensor" default="256" type="int"/>
+	  <parameter name="thermal_camera_offset_y_in_pixel" description="Offset in y direction of the recording window on the camera sensor" default="184" type="int"/>
+	  <parameter name="thermal_camera_frames" description="Number of frames to record in one sequence" default="27000" type="int"/>
+	  <parameter name="thermal_camera_pretrigger_frames" description="Number of pretrigger frames to record in one sequence" default="0" type="int"/>
+	  <parameter name="thermal_camera_correction_name" description="Name of the supplied correction as a string" default="100mm, ND2, 500C - 1200C" type="string"/>
+	  <parameter name="thermal_camera_calibration_tag" description="Tag of the supplied calibration as a string" default="100mm, ND2, 500C - 1200C" type="string"/>
+	  <parameter name="thermal_camera_intermediate_filter_index" description="Index of the filter after the calibration is loaded" default="2" type="int"/>
+	  <parameter name="thermal_camera_desired_filter_index" description="Index of the filter that is used during the process" default="1" type="int"/>
     </parametergroup>
 
     <parametergroup name="ui" description="User interface">
       <parameter name="currentlayerdisplay" description="Current Layer Display" default="" type="string"/>
       <parameter name="currentheightdisplay" description="Current Height Display" default="" type="string"/>
-      <parameter name="build_canbepaused" description="Build can be paused" default="0" type="bool"/>
-      <parameter name="build_canbecanceled" description="Build can be paused" default="0" type="bool"/>
+      <parameter name="build_canbepausedorresumed" description="Build can be paused or resumed" default="0" type="bool"/>
+      <parameter name="build_canbecanceled" description="Build can be canceled" default="0" type="bool"/>
+	  <parameter name="manualcontrol_canbeleftforidle" description="Build can be canceled" default="1" type="bool"/>
+	  <parameter name="build_canbecanceledfrommanualcontrol" description="Build can be canceled from manual control" default="0" type="bool"/>
+	  <parameter name="build_canberesumedfrommanualcontrol" description="Build can be resumed from manual control" default="0" type="bool"/>
       <parameter name="build_canbestarted" description="Build can be started" default="1" type="bool"/>
     </parametergroup>
 
@@ -722,10 +746,12 @@
       <parameter name="powderreservoirheight" description="Powder Reservoir Height (in mm)" default="400" type="double"/>
       <parameter name="recoater_refill_position" description="Recoater linear axis powder refill position in millimeter. MUST be positive." default="5.0" type="double"/>
       <parameter name="recoating_start_position" description="Recoater linear axis recaoting start position in millimeter. MUST be positive." default="555.0" type="double"/>
+	  <parameter name="recoating_end_position" description="Recoater linear axis recaoting end position in millimeter. MUST be positive." default="300.0" type="double"/>
 	  <parameter name="recoater_powderbelt_width" description="Width of the Recoater powder belt in millimeters." default="269.0" type="double"/>
 	  <parameter name="recoater_powderbelt_levelingblade_height" description="Height of the leveling blade on the recoater powder belt in millimeter." default="1.0" type="double"/>
-      <parameter name="o2_threshold_circulation_on_in_ppm" description="Below this threshold the circulation pump can be switched on" default="220000" type="int"/>
-      <parameter name="o2_threshold_circulation_off_in_ppm" description="Above this threshold the circulation pump is switched off" default="250000" type="int"/>
+      <parameter name="o2_threshold_circulation_on_in_ppm" description="Below this threshold the circulation pump can be switched on" default="3200" type="int"/>
+	  <parameter name="o2_threshold_tolerance_ppm" description="Threshold tolerance in ppm. oxygencontroller_oxygen_setpoint_in_ppm has to be smaller than o2_threshold_circulation_on_in_ppm - o2_threshold_tolerance_ppm. o2_threshold_circulation_on_in_ppm + o2_threshold_tolerance_ppm has to be smaller than o2_threshold_circulation_off_in_ppm" default="100" type="int"/>
+      <parameter name="o2_threshold_circulation_off_in_ppm" description="Above this threshold the circulation pump is switched off" default="5000" type="int"/>
 	  <parameter name="powderreservoir_dosing_notch_count" description="Number of notches on the powder reservoir axis." default="6" type="int"/>
 	  <parameter name="powderreservoir_notch_volume_in_cubic_mm" description="Volume per notch of the powder dosing unit in cubic millimeters" default="17260" type="double"/>
     </parametergroup>
@@ -758,7 +784,7 @@
       <parameter name="maxout" description="Max oxygen control output in percent" default="100" type="int"/>
       <parameter name="minout" description="Min oxygen control output in percent" default="0" type="int"/>
       <parameter name="dutycycle" description="Oxygen PWM output duty cycle in percent" default="0" type="int"/>
-      <parameter name="periodTime" description="Oxygen PWM output period time in seconds" default="10.0" type="double"/>
+      <parameter name="periodTime" description="Oxygen PWM output period time in seconds" default="5.0" type="double"/>
       <parameter name="maxFrequency" description="Oxygen PWM output max frequency in Hz" default="2" type="int"/>
       <parameter name="mode" description="Oxygen PWM output mode, 0=middle, 1=beginning" default="1" type="bool"/>
       <parameter name="stepheight" description="Oxygen auto tuning step height in percent" default="80" type="int"/>
@@ -794,29 +820,33 @@
     </parametergroup>
 		  
     <parametergroup name="timeouts" description="Subsystem communication timeouts">
-	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="3000" type="int"/>
+	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="4000" type="int"/>
 	  <parameter name="heaterinittimeout" description="Heater Controler Initializing Timeout" default="10000" type="int"/>
 	  <parameter name="oxygeninittimeout" description="Oxygen Controler Initializing Timeout" default="10000" type="int"/>
 	  <parameter name="vacuuminittimeout" description="Vacuum Controler Initializing Timeout" default="5000" type="int"/>
 	  <parameter name="atmosphereinittimeout" description="Atmosphere Controler Initializing Timeout" default="5000" type="int"/>
 	  <parameter name="axesinittimeout" description="Axes Init Timeout" default="180000" type="int"/>
-	  <parameter name="emergencycircuittimeout" description="Emergency Circuit Timeout" default="1000" type="int"/>
+	  <parameter name="emergencycircuittimeout" description="Emergency Circuit Timeout" default="5000" type="int"/>
       <parameter name="powderavailabilitytimeout" description="Powder Availability Timeout" default="1000" type="int"/>
-      <parameter name="motorenabledchecktimeout" description="Motor Enable Check Timeout" default="1000" type="int"/>
+      <parameter name="motorenabledchecktimeout" description="Motor Enable Check Timeout" default="5000" type="int"/>
 	  <parameter name="controllersetpointupdatetimeout" description="Controller Setpoint Update Timeout" default="1800000" type="int"/>
       <parameter name="recoaterpositionchecktimeout" description="Recoater Position Check Timeout" default="1000" type="int"/>
       <parameter name="recoatingtimeout" description="Recoating Timeout" default="60000" type="int"/>
       <parameter name="exposuretimeout" description="Exposure Timeout" default="300000" type="int"/>
 	  <parameter name="initialrecoatermovementtimeout" description="Initial Recoater Movement Timeout" default="65000" type="int"/>
 	  <parameter name="powderdosingtimeout" description="Powder Dosing Timeout" default="65000" type="int"/>
+	  <parameter name="changelayertimeout" description="Change Layer Timeout" default="10000" type="int"/>
 	  <parameter name="initialplatformmovementtimeout" description="Initial Platform Movement Timeout" default="90000" type="int"/>
-	  <parameter name="heatercontroltimeout" description="Heater Control Timeout" default="60000" type="int"/>
+	  <parameter name="heatercontroltimeout" description="Heater Control Timeout" default="1800000" type="int"/>
 	  <parameter name="vacuumtimeout" description="Vacuum Timeout" default="30000" type="int"/>
-	  <parameter name="atmospherewithoutpumptimeout" description="Atmosphere Timeout before the circulation pump is switched on" default="30000" type="int"/>
-	  <parameter name="atmospherewithpumptimeout" description="Atmosphere Timeout after the circulation pump is switched on" default="30000" type="int"/>
+	  <parameter name="atmospherewithoutpumptimeout" description="Atmosphere Timeout before the circulation pump is switched on" default="1800000" type="int"/>
+	  <parameter name="atmospherewithpumptimeout" description="Atmosphere Timeout after the circulation pump is switched on" default="1800000" type="int"/>
+	  <parameter name="waitforpauseprocesstimeout" description="Waiting time in which the error states can be left for pauseprocess or cancelprocess" default="120000" type="int"/>
+	  <parameter name="leavingstatetimeout" description="Timeout for leaving the current state in the plc state machine" default="10000" type="int"/>
 	  <parameter name="togglevalvestimeout" description="Toggle Valves Timeout" default="6000" type="int"/>
 	  <parameter name="lockdoortimeout" description="Lock Chamber Door Timeout" default="10000" type="int"/>
 	  <parameter name="generalshutdowntimeout" description="General Shut Down Timeout" default="20000" type="int"/>
+	  <parameter name="flirinitializationtimeout" description="FLIR Camera Initialization Timeout" default="3000" type="int"/>
     </parametergroup>
 
 
@@ -831,23 +861,74 @@
 	<signaldefinition name="signal_cancelbuild">
     </signaldefinition>
 
-    <signaldefinition name="signal_manualmovementcontrol_enter" description="Signal to enter Manual Movement Control mode.">
+	<signaldefinition name="signal_pausebuild">
+	</signaldefinition>
+
+	  <signaldefinition name="signal_manualmovementcontrol_enter" description="Signal to enter Manual Movement Control mode.">
     </signaldefinition>
 
     <signaldefinition name="signal_manualmovementcontrol_leave" description="Signal to leave Manual Movement Control mode into idle.">
     </signaldefinition>
+	  
+	  <signaldefinition name="signal_manualmovementcontrol_leave_for_waitforshutdown" description="Signal to leave Manual Movement Control mode into waitforshutdown.">
+    </signaldefinition>
+	  
+	  <signaldefinition name="signal_manualmovementcontrol_leave_for_pauseprocess" description="Signal to leave Manual Movement Control mode into pauseprocess.">
+    </signaldefinition>
 
-    <signaldefinition name="signal_manualatmospherecontrol_enter" description="Signal to enter Manual Atmosphere Control mode.">
+	  <signaldefinition name="signal_manualcameracontrol_enter" description="Signal to enter Manual Camera Control mode.">
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_manualcameracontrol_leave" description="Signal to leave Manual Camera Control mode into idle.">
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_manualcameracontrol_leave_for_waitforshutdown" description="Signal to leave Manual Camera Control mode into wautforshutdown.">
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_manualcameracontrol_leave_for_pauseprocess" description="Signal to leave Manual Camera Control mode into pauseprocess.">
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_enablethermalcamera" description="Signal to enable the thermal camera during the process (has to be set before the process).">
+	  </signaldefinition>
+	  
+	  <signaldefinition name="signal_disablethermalcamera" description="Signal to disable the thermal camera during the process (has to be set before the process).">
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_changefilenamethermalcamera" description="Signal to disable the thermal camera during the process (has to be set before the process).">
+		  <parameter name="filename" type="string" description="Filename of the thermography camera footage (layer index is added automatically)."/>
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_changeframenumberthermalcamera" description="Signal to change the number of frames of one recording sequence with the thermal camera. (has to be set before the process).">
+		  <parameter name="frame_number" type="int" description="Number of frames of one recording sequence with the thermal camera."/>
+	  </signaldefinition>
+
+	  <signaldefinition name="signal_manualatmospherecontrol_enter" description="Signal to enter Manual Atmosphere Control mode.">
     </signaldefinition>
 
     <signaldefinition name="signal_manualatmospherecontrol_leave" description="Signal to leave Manual Atmosphere Control mode into idle.">
       <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_manualatmospherecontrol_leave_for_waitforshutdown" description="Signal to leave Manual Atmosphere Control mode into waitforshutdown.">
+    <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+	  
+	<signaldefinition name="signal_manualatmospherecontrol_leave_for_pauseprocess" description="Signal to leave Manual Atmosphere Control mode into pauseprocess.">
+    <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
     </signaldefinition>
 
     <signaldefinition name="signal_manualheatercontrol_enter" description="Signal to enter Manual Heater Control mode.">
     </signaldefinition>
 
     <signaldefinition name="signal_manualheatercontrol_leave" description="Signal to leave Manual Heater Control mode into idle.">
+      <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+	  
+	  <signaldefinition name="signal_manualheatercontrol_leave_for_waitforshutdown" description="Signal to leave Manual Heater Control mode into waitforshutdown.">
+      <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
+    </signaldefinition>
+		  
+	  <signaldefinition name="signal_manualheatercontrol_leave_for_pauseprocess" description="Signal to leave Manual Heater Control mode into pauseprocess.">
       <result name="istuning" type="bool" description="Flag if auto tuning is in progress."/>
     </signaldefinition>
 
@@ -867,7 +948,6 @@
       <parameter name="reference_recoateraxis_linear" type="bool" description="Flag if the linear recoater axis should perform a reference movement." />
       <parameter name="reference_recoateraxis_powder" type="bool" description="Flag if the powder recoater axis should perform a reference movement." />
       <parameter name="reference_platform" type="bool" description="Flag if the platform axis should perform a reference movement via the restored position."/>
-	  <parameter name="reference_platform_absolute_switch" type="bool" description="Flag if the platform axis should perform an absolute-switch reference movement."/>
       <parameter name="reference_powderreservoir" type="bool" description="Flag if the powder reservoir axis should perform a reference movement."/>
       <result name="success" type="bool" description="Flag if the operation succeeded."/>
       <result name="errorcode" type="int" description="Optional error code in case of failure."/>
@@ -936,6 +1016,7 @@
 
     <signaldefinition name="signal_manualatmospherecontrol_save" description="Signal to save the setpoint value in the UI.">
       <parameter name="setpointinpercent" type="int" description="Setpoint of the gas circulation pump in percent" />
+      <parameter name="oxygensetpointinppm" type="int" description="Setpoint of the oxygen control in ppm" />
       <result name="success" type="bool" description="Flag if the operation succeeded."/>
       <result name="errorcode" type="int" description="Optional error code in case of failure."/>
     </signaldefinition>
@@ -1066,17 +1147,20 @@
       <outstate target="manualatmospherecontrol"/>
       <outstate target="manuallasercontrol"/>
       <outstate target="manualheatercontrol"/>
+	  <outstate target="manualcameracontrol"/>
     </state>
 
     <state name="startprocess" repeatdelay="1000">
       <outstate target="processpreparation"/>
       <outstate target="cancelprocess"/>
+	  <outstate target="pauseprocess"/>
       <outstate target="initerror"/>
     </state>
 
     <state name="processpreparation" repeatdelay="1000">
       <outstate target="waitforheater"/>
 	  <outstate target="cancelprocess"/>
+	  <outstate target="pauseprocess"/>
       <outstate target="initerror"/>
     </state>
 
@@ -1131,6 +1215,11 @@
     </state>
 
     <state name="pauseprocess" repeatdelay="1000">
+	  <outstate target="pauseprocess"/>
+	  <outstate target="manualheatercontrol"/>
+      <outstate target="manualatmospherecontrol"/>
+	  <outstate target="manuallasercontrol"/>
+	  <outstate target="manualmovementcontrol"/>
       <outstate target="beginlayer"/>
       <outstate target="cancelprocess"/>
     </state>
@@ -1154,14 +1243,23 @@
 
     <state name="atmosphereerror" repeatdelay="1000">
       <outstate target="pauseprocess"/>
+      <outstate target="cancelprocess"/>
+	  <outstate target="beginlayer"/>
+	  <outstate target="waitforshutdown"/>
     </state>
 	  
     <state name="gasflowerror" repeatdelay="1000">
       <outstate target="pauseprocess"/>
+      <outstate target="cancelprocess"/>
+	  <outstate target="beginlayer"/>
+	  <outstate target="waitforshutdown"/>
     </state>
 	  
 	 <state name="heatererror" repeatdelay="1000">
-		 <outstate target="pauseprocess"/>
+	   <outstate target="pauseprocess"/>
+       <outstate target="cancelprocess"/>
+	   <outstate target="beginlayer"/>
+	   <outstate target="waitforshutdown"/>
 	 </state>
 
     <state name="recoatingerror" repeatdelay="1000">
@@ -1176,6 +1274,9 @@
       <outstate target="manualmovement"/>
       <outstate target="manualrecoating"/>
 	  <outstate target="manualpowderdosing"/>
+	  <outstate target="manualchangelayer"/>
+	  <outstate target="pauseprocess"/>
+	  <outstate target="waitforshutdown"/>
 	</state>
 
     <state name="manualreferencing" repeatdelay="1000">
@@ -1195,10 +1296,17 @@
 		<outstate target="manualmovementcontrol"/>
 	</state>
 	  
+	 <state name="manualchangelayer" repeatdelay="1000">
+		<outstate target="manualchangelayer"/>
+		<outstate target="manualmovementcontrol"/>
+	</state>
+	  
     <state name="manuallasercontrol" repeatdelay="1000">
       <outstate target="idle"/>
       <outstate target="manuallasercontrol"/>
+	  <outstate target="pauseprocess"/>
       <outstate target="manualexposure"/>
+	  <outstate target="waitforshutdown"/>
     </state>
 
     <state name="manualexposure" repeatdelay="1000">
@@ -1209,18 +1317,31 @@
       <outstate target="idle"/>
       <outstate target="manualatmospherecontrol"/>
       <outstate target="waitforcontrollertuning"/>
+	  <outstate target="pauseprocess"/>
+	  <outstate target="waitforshutdown"/>
     </state>
 
     <state name="manualheatercontrol" repeatdelay="1000">
       <outstate target="idle"/>
       <outstate target="manualheatercontrol"/>
       <outstate target="waitforcontrollertuning"/>
+	  <outstate target="pauseprocess"/>
+	  <outstate target="waitforshutdown"/>
     </state>
+
+	<state name="manualcameracontrol" repeatdelay="1000">
+	 <outstate target="idle"/>
+	 <outstate target="manualcameracontrol"/>
+     <outstate target="pauseprocess"/>
+	 <outstate target="waitforshutdown"/>
+	</state>
 
     <state name="waitforcontrollertuning" repeatdelay="1000">
       <outstate target="manualheatercontrol"/>
       <outstate target="manualatmospherecontrol"/>
       <outstate target="waitforcontrollertuning"/>
+      <outstate target="pauseprocess"/>
+      <outstate target="waitforshutdown"/>
     </state>
 
 
@@ -1242,15 +1363,36 @@
       <parameter name="netmask" description="Scanner Netmask" default="255.255.255.0" type="string"/>
       <parameter name="port" description="Port" default="49374" type="int"/>
       <parameter name="timeout" description="Connection timeout" default="1000" type="int"/>
-      <parameter name="maxlaserpower" description="Max. laser power (W)" default="1000" type="double"/>
+      <parameter name="maxlaserpower" description="Max. laser power (W)" default="1236" type="double"/>
       <parameter name="laserondelay" description="Laser On Delay in microseconds" default="100" type="double"/>
       <parameter name="laseroffdelay" description="Laser Off Delay in microseconds" default="100" type="double"/>
       <parameter name="markdelay" description="Mark Delay in microseconds" default="570" type="double"/>
       <parameter name="jumpdelay" description="Jump Delay in microseconds" default="1400" type="double"/>
       <parameter name="polygondelay" description="Polygon Delay in microseconds" default="280" type="double"/>
-      <parameter name="simulatelaser" description="Simulate the laser control" default="1" type="bool"/>
-	  <parameter name="pilotprofile" description="Excecute build job using the pilot laser" default="1" type="bool"/>
+      <parameter name="simulatelaser" description="Simulate the laser control" default="0" type="bool"/>
+	  <parameter name="pilotprofile" description="Excecute build job using the pilot laser" default="0" type="bool"/>
     </parametergroup>
+
+	<parametergroup name="flir_camera" description="Parameters associated with the FLIR thermography camera">
+		<parameter name="isinitflag" description="If this flag is true, the thermography camera was initialized and is active during the process" default="0" type="bool"/>
+		<parameter name="iserrorflag" description="If this flag is true, the thermography camera does not work properly" default="0" type="bool"/>
+		<parameter name="waiting_time_interval_in_ms" description="Sleep time in ms in the wait-for-functions withing the spinnaker driver" default="0" type="int"/>
+		<parameter name="arming_time_in_ms" description="Timeout for arming the camera in ms" default="0" type="int"/>
+		<parameter name="recording_time_in_ms" description="Timeout for recording with the camera in ms (timer starts after exposure)" default="0" type="int"/>
+		<parameter name="saving_time_in_ms" description="Timeout for saving the camera footage in ms" default="0" type="int"/>
+		<parameter name="footage_filename" description="Filename of the thermography camera footage (layer index is added automatically)" default="" type="string"/>
+		<parameter name="filter_change_time_in_ms" description="Timeout for changing the filter on the camera" default="0" type="int"/>
+	    <parameter name="width_in_pixel" description="Width of the recording window on the camera sensor" default="0" type="int"/>
+	    <parameter name="height_in_pixel" description="Height of the recording window on the camera sensor" default="0" type="int"/>
+	    <parameter name="offset_x_in_pixel" description="Offset in x direction of the recording window on the camera sensor" default="0" type="int"/>
+	    <parameter name="offset_y_in_pixel" description="Offset in y direction of the recording window on the camera sensor" default="0" type="int"/>
+	    <parameter name="frames" description="Number of frames to record in one sequence" default="0" type="int"/>
+	    <parameter name="pretrigger_frames" description="Number of pretrigger frames to record in one sequence" default="0" type="int"/>
+	    <parameter name="correction_name" description="Name of the supplied correction as a string" default="" type="string"/>
+	    <parameter name="calibration_tag" description="Tag of the supplied calibration as a string" default="" type="string"/>
+	    <parameter name="intermediate_filter_index" description="Index of the filter after the calibration is loaded" default="0" type="int"/>
+	    <parameter name="desired_filter_index" description="Index of the filter that is used during the process" default="0" type="int"/>
+	</parametergroup>
 
 	 <signaldefinition name="signal_exposure" description="Signal to launch a single layer exposure">
 		  <parameter name="jobuuid" type="string" description="UUID of the job that contains the exposure layer." />
@@ -1258,6 +1400,26 @@
 		  <result name="success" type="bool" description="Flag if the operation succeeded."/>
 		  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
 	</signaldefinition>
+
+	  <signaldefinition name="signal_init_flir" description="Signal to initialize the FLIR camera">
+		  <parameter name="waiting_time_interval_in_ms" type="int" description="Sleep time in ms in the wait-for-functions withing the spinnaker driver"/>
+		  <parameter name="arming_time_in_ms" type="int" description="Timeout for arming the camera in ms"/>
+		  <parameter name="recording_time_in_ms" type="int" description="Timeout for recording with the camera in ms (timer starts after exposure)"/>
+		  <parameter name="saving_time_in_ms" type="int" description="Timeout for saving the camera footage in ms"/>
+		  <parameter name="footage_filename" type="string" description="Filename of the thermography camera footage (layer index is added automatically)"/>
+		  <parameter name="filter_change_time_in_ms" description="Timeout for changing the filter on the camera" type="int" default="10000"/>
+	      <parameter name="width_in_pixel" type="int" description="Width of the recording window on the camera sensor"/>
+	      <parameter name="height_in_pixel" type="int" description="Height of the recording window on the camera sensor"/>
+	      <parameter name="offset_x_in_pixel" type="int" description="Offset in x direction of the recording window on the camera sensor"/>
+	      <parameter name="offset_y_in_pixel" type="int" description="Offset in y direction of the recording window on the camera sensor"/>
+	      <parameter name="frames" type="int" description="Number of frames to record in one sequence"/>
+	      <parameter name="pretrigger_frames" type="int" description="Number of pretrigger frames to record in one sequence"/>
+	      <parameter name="correction_name" type="string" description="Name of the supplied correction as a string"/>
+	      <parameter name="calibration_tag" type="string" description="Tag of the supplied calibration as a string"/>
+	      <parameter name="intermediate_filter_index" type="int" description="Index of the filter after the calibration is loaded"/>
+	      <parameter name="desired_filter_index" type="int" description="Index of the filter that is used during the process"/>
+		  <result name="success" type="bool" description="Flag if the operation succeeded."/>
+	  </signaldefinition>
 	  
     <state name="init" repeatdelay="100">
       <outstate target="updatescannerparameters"/>
@@ -1289,20 +1451,20 @@
   <statemachine name="plc" description="PLC System" initstate="init" failedstate="fatalerror" library="plugin_plc">
 
     <parametergroup name="configuration" description="PLC Configuration">
-      <parameter name="ipaddress" description="IP Address" default="127.0.0.1" type="string"/>
+      <parameter name="ipaddress" description="IP Address" default="192.168.2.100" type="string"/>
       <parameter name="port" description="Port" default="12200" type="int"/>
       <parameter name="connectiontimeout" description="Connection Timeout" default="3000" type="int"/>
     </parametergroup>
 
     <parametergroup name="timeouts" description="PLC Timeouts">
-	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="2000" type="int"/>
+	  <parameter name="generalplctimeout" description="General PLC command Timeout (ms)" default="3000" type="int"/>
       <parameter name="responsetimeout" description="PLC Response Timeout (ms)" default="300" type="int"/>
 	  <parameter name="vacuuminittimeout" description="PLC Vacuum Init Timeout (ms)" default="1000" type="int"/>
 	  <parameter name="atmosphereinittimeout" description="Atmosphere Controler Initializing Timeout" default="1000" type="int"/>
 	  <parameter name="axesinittimeout" description="Axes Init Timeout" default="5000" type="int"/>
 	  <parameter name="controllerupdatetimeout" description="PLC Controller Parameter Update Timeout (ms)" default="1000" type="int"/>
 	  <parameter name="togglevalvestimeout" description="Toggle Valves Timeout" default="4000" type="int"/>
-	  <parameter name="startstoppumptimeout" description="Start or Stop Pump Timeout" default="5000" type="int"/>
+	  <parameter name="startstoppumptimeout" description="Start or Stop Pump Timeout" default="10000" type="int"/>
     </parametergroup>
 
     <parametergroup name="simulation" description="Simulation Mode Configuration">
@@ -1311,9 +1473,15 @@
       <parameter name="plcsimulation_filllevel" description="PLC simulated fill level" default="0.5" type="double"/>
       <parameter name="plcsimulation_recoateraxis_linear_ready" description="PLC simulated linear recoater axis state" default="1" type="bool"/>
       <parameter name="plcsimulation_recoateraxis_powder_ready" description="PLC simulated powder recoater axis state" default="1" type="bool"/>
-      <parameter name="plcsimulation_powderreservoiraxis_ready" description="PLC simulated powderreservoir axis state" default="0" type="bool"/>
+      <parameter name="plcsimulation_powderreservoiraxis_ready" description="PLC simulated powderreservoir axis state" default="1" type="bool"/>
       <parameter name="plcsimulation_platformaxis_ready" description="PLC simulated platform axis state" default="1" type="bool"/>
       <parameter name="plcsimulation_recoaterisinfillposition" description="PLC simulated recoater axis state" default="1" type="bool"/>
+	  <parameter name="plcsimulation_lower_gas_flow_circuit_valve" description="PLC simulated lower gas flow circuit valve, 0 = close, 1 = open" default="0" type="bool"/>
+	  <parameter name="plcsimulation_upper_gas_flow_circuit_valve" description="PLC simulated upper gas flow circuit valve, 0 = close, 1 = open" default="0" type="bool"/>
+	  <parameter name="plcsimulation_shielding_gas_valve" description="PLC simulated shielding gas valve, 0 = close, 1 = open" default="0" type="bool"/>
+	  <parameter name="plcsimulation_chamber_vacuum_valve" description="PLC simulated chamber vaccuum valve, 0 = close, 1 = open" default="0" type="bool"/>
+	  <parameter name="plcsimulation_zAxis_vacuum_valve" description="PLC simulated z-axis vaccuum valve, 0 = close, 1 = open" default="0" type="bool"/>
+	  <parameter name="plcsimulation_circulation_pump_started_flag" description="PLC simulated flag if circulation pump is on, 0 = off, 1 = on" default="0" type="bool"/>
     </parametergroup>
 
     <parametergroup name="cacheplcstate" description="Cach to store BuR States">
@@ -1362,6 +1530,10 @@
 	  <signaldefinition name="signal_leavewaitforreferencing" description="Leave the waitforreferencing state in the plc state machine.">
       </signaldefinition>
 	  
+	   <signaldefinition name="signal_leavestateforidle" description="Leave the current state in the plc state machine for the state idle.">
+		   <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      </signaldefinition>
+	  
     <signaldefinition name="signal_checkaxisstate" description="Performs a check if axes are all powered and homed.">
       <result name="platformaxis_ready" type="bool" description="Platform axis is powered and homed."/>
       <result name="powderreservoiraxis_ready" type="bool" description="Powder reservoir axis is powered and homed."/>
@@ -1377,7 +1549,6 @@
       <parameter name="reference_recoateraxis_linear" type="bool"/>
       <parameter name="reference_recoateraxis_powder" type="bool"/>
       <parameter name="reference_platform" type="bool"/>
-	  <parameter name="reference_platform_absolute_switch" type="bool"/>
       <parameter name="reference_powderreservoir" type="bool"/>
       <result name="success" type="bool"/>
       <result name="errorcode" type="int"/>
@@ -1388,14 +1559,16 @@
       <parameter name="platformaxis_speed" description="Build Platform axis movement speed in millimeter per second. MUST NOT be negative. Axis is not moved at all if speed is 0." default="2.0" type="double"/>
       <parameter name="platformaxis_acceleration" description="Build platform axis acceleration and deceleration in millimeter per second squared. MUST be positive. Ignored if speed is 0." default="10.0" type="double"/>
       <parameter name="layer_height" description="Current job layer height" default="0.04" type="double"/>
-      <parameter name="recoater_refill_position" description="Recoater linear axis powder refill position in millimeter. MUST be positive." default="100.0" type="double"/>
-      <parameter name="recoating_start_position" description="Recoater linear axis recaoting start position in millimeter. MUST be positive." default="300.0" type="double"/>
+      <parameter name="recoater_refill_position" description="Recoater linear axis powder refill position in millimeter. MUST be positive." default="5.0" type="double"/>
+      <parameter name="recoating_start_position" description="Recoater linear axis recaoting start position in millimeter. MUST be positive." default="555.0" type="double"/>
+	  <parameter name="recoating_end_position" description="Recoater linear axis recaoting end position in millimeter. MUST be positive." default="250.0" type="double"/>
       <parameter name="recoater_linear_speed_travel" description="Recoater linear axis movement speed in millimeter per second during traveling. MUST NOT be negative. Axis is not moved at all if speed is 0." default="250.0" type="double"/>
       <parameter name="recoater_axes_linear_acceleration_travel" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during traveling. MUST be positive. Ignored if speed is 0." default="2500.0" type="double"/>
       <parameter name="recoater_linear_speed_recoating" description="Recoater linear axis movement speed in millimeter per second during recoating. MUST NOT be negative. Axis is not moved at all if speed is 0." default="80.0" type="double"/>
       <parameter name="recoater_axes_linear_acceleration_recoating" description="Recoater linear axis acceleration and deceleration in millimeter per second squared during recoating. MUST be positive. Ignored if speed is 0." default="25000.0" type="double"/>
       <parameter name="recoater_axes_dosing_factor" description="Ratio between the acceleration/speed of the recoater powder belt axis and the acceleration/speed of the recoater linear axis" default="1.0" type="double"/>
-      <result name="success" type="bool" description="Flag if the operation succeeded."/>
+      <parameter name="is_dual_axis_recoating" description="If true, the recoating cycle is performed with a dual axis movement." default="1" type="bool"/>
+	  <result name="success" type="bool" description="Flag if the operation succeeded."/>
 	  <result name="errorcode" type="int" description="Optional error code in case of failure."/>
     </signaldefinition>
 
@@ -1431,6 +1604,8 @@
 
     <signaldefinition name="signal_atmospherecontrol_start_gas_flow" description="Signal to start the gasflow for the atmosphere control.">
       <parameter name="setpoint_in_percent" type="int" description="Setpoint of the circulation pump"/>
+	  <parameter name="circulation_pump_started_flag" type="bool" description="If this flag is true, the circulation pump was already started and not yet stopped"/>
+	  <parameter name="is_process_flag" type="bool" description="If this flag is true, the signal is send out during the process and not during manual control"/>
       <result name="success" type="bool" description="Flag if the operation succeeded."/>
       <result name="errorcode" type="int" description="Optional error code in case of failure."/>
     </signaldefinition>
@@ -1448,6 +1623,7 @@
 
     <signaldefinition name="signal_vacuumcontrol_start_vacuum_pump" description="Signal to start the vacuum pump.">
 	  <parameter name="pressure_threshold_vacuum_off_in_mbar" type="int" description="Below this threshold the vacuum pump is switched off"/>
+	  <parameter name="is_process_flag" type="bool" description="If this flag is true, the signal is send out during the process and not during manual control"/>
       <result name="success" type="bool" description="Flag if the operation succeeded."/>
       <result name="errorcode" type="int" description="Optional error code in case of failure."/>
     </signaldefinition>
@@ -1458,12 +1634,14 @@
     </signaldefinition>
 
 	<signaldefinition name="signal_check_gas_flow" description="Check the gas flow during the process.">
-	  <parameter name="atmosphere_controller_tolerance_ppm" type="int" description="Oxygen setpoint tolerance"/>
+	  <parameter name="atmosphere_controller_setpoint_tolerance_ppm" type="int" description="Oxygen setpoint tolerance"/>
 	  <result name="circulation_pump_started_setpoint_reached" type="bool" description="Circulation pump is started and oxygen setpoint is reached."/>
 	</signaldefinition>
 
     <signaldefinition name="signal_enablecontroller" description="Signal to enable the build plate heater controller.">
       <parameter name="controller_ID" type="int" description="ID of the controller, 1 = plate temperature control, 2 = shielding gas control"/>
+	  <parameter name="atmosphere_controller_threshold_tolerance_ppm" type="int" description="Oxygen threshold tolerance"/>
+	  <parameter name="is_process_flag" type="bool" description="If this flag is true, the signal is send out during the process and not during manual control"/>
       <result name="success" type="bool" description="Flag if the operation succeeded."/>
       <result name="errorcode" type="int" description="Optional error code in case of failure."/>
     </signaldefinition>
@@ -1474,8 +1652,8 @@
 	 </signaldefinition>
 
 	 <signaldefinition name="signal_check_atmosphere" description="Check the atmosphere during the process.">
-	   <parameter name="atmosphere_controller_tolerance_ppm" type="int" description="Oxygen setpoint tolerance"/>
-	   <result name="atmosphere_controller_enabled_setpoint_reached" type="bool" description="Shielding gas controller is enabled and oxygen setpoint is reached."/>
+	   <parameter name="atmosphere_controller_threshold_tolerance_ppm" type="int" description="Oxygen threshold tolerance"/>
+	   <result name="atmosphere_controller_enabled_threshold_reached" type="bool" description="Shielding gas controller is enabled and oxygen threshold is reached to switch on the pump."/>
 	 </signaldefinition>
 
     <signaldefinition name="signal_updatecontrollerPID" description="Signal to save the controller parameters.">
@@ -1566,8 +1744,11 @@
       <outstate target="idle"/>
       <outstate target="emergencyofferror"/>
       <outstate target="shieldinggasflooding"/>
+	  <outstate target="waitforoxygen"/>
       <outstate target="startgasflow"/>
+	  <outstate target="waitforgasflow"/>
       <outstate target="updatebuildplatetemperature"/>
+	  <outstate target="waitforbuildplatetemperature"/>
 	  <outstate target="evacuatebuildchamber"/>
       <outstate target="moveplatformclear"/>
       <outstate target="moveplatform"/>
@@ -1591,6 +1772,7 @@
       <outstate target="waitforclearplatform"/>
       <outstate target="recoatertostartposition"/>
       <outstate target="connectionlost"/>
+	  <outstate target="idle"/>
     </state>
 
     <state name="recoatertostartposition" repeatdelay="1000">
@@ -1602,8 +1784,9 @@
       <outstate target="waitforrecoaterinstartposition"/>
       <outstate target="platformtolayer"/>
       <outstate target="connectionlost"/>
+	  <outstate target="idle"/>
     </state>
-
+	  
     <state name="platformtolayer" repeatdelay="1000">
       <outstate target="waitforplatformtolayer"/>
       <outstate target="connectionlost"/>
@@ -1612,7 +1795,9 @@
     <state name="waitforplatformtolayer" repeatdelay="1000">
       <outstate target="waitforplatformtolayer"/>
       <outstate target="recoatlayer"/>
+	  <outstate target="recoatlayerPowder"/>
       <outstate target="connectionlost"/>
+	  <outstate target="idle"/>
     </state>
 
     <state name="recoatlayer" repeatdelay="1000">
@@ -1622,10 +1807,44 @@
 
     <state name="waitforrecoatlayer" repeatdelay="1000">
       <outstate target="waitforrecoatlayer"/>
-      <outstate target="idle"/>
+      <outstate target="recoatertorefillposition"/>
+      <outstate target="connectionlost"/>
+	  <outstate target="idle"/>
+    </state>
+
+	  <state name="recoatlayerPowder" repeatdelay="1000">
+		  <outstate target="waitforrecoatlayerPowder"/>
+		  <outstate target="connectionlost"/>
+	  </state>
+
+	  <state name="waitforrecoatlayerPowder" repeatdelay="1000">
+		  <outstate target="waitforrecoatlayerPowder"/>
+		  <outstate target="recoatlayerLinear"/>
+		  <outstate target="connectionlost"/>
+		  <outstate target="idle"/>
+	  </state>
+
+	  <state name="recoatlayerLinear" repeatdelay="1000">
+		  <outstate target="waitforrecoatlayerLinear"/>
+		  <outstate target="connectionlost"/>
+	  </state>
+
+	  <state name="waitforrecoatlayerLinear" repeatdelay="1000">
+		  <outstate target="waitforrecoatlayerLinear"/>
+		  <outstate target="connectionlost"/>
+		  <outstate target="idle"/>
+	  </state>
+
+	  <state name="recoatertorefillposition" repeatdelay="1000">
+      <outstate target="waitforrecoaterinrefillposition"/>
       <outstate target="connectionlost"/>
     </state>
 
+    <state name="waitforrecoaterinrefillposition" repeatdelay="1000">
+      <outstate target="waitforrecoaterinrefillposition"/>
+      <outstate target="idle"/>
+      <outstate target="connectionlost"/>
+    </state>
 
     <state name="moverecoaterlinear" repeatdelay="1000">
       <outstate target="waitforaxismovement"/>
@@ -1763,7 +1982,6 @@
           </form>
           <buttongroup name="buttongroup_manual_movement_platform" distribution="equal">
             <button name="reference_axis" caption="Home Platform" event="event_manualcontrol_referenceaxis"/>
-			<button name="reference_axis_absolute_switch" caption="Home Platform with Switch" event="event_manualcontrol_referenceaxis"/>
             <button name="move_absolute" caption="Move Absolute Platform" event="event_singleaxismovement" formvalues="form_manual_movement_platform"/>
             <button name="move_relative" caption="Move Relative Platform" event="event_singleaxismovement" formvalues="form_manual_movement_platform"/>
           </buttongroup>
@@ -1838,9 +2056,11 @@
             <button name="button_recoat_layer" caption="Recoat layer" event="event_manualmovementcontrol_recoat_layer" formvalues="form_recoat_layer"/>
           </buttongroup>
         </content>
-        <content name="manual_movement_navigation" columnstart="1" rowstart="10" columnend="2" rowend="10" rowposition="centered">
+        <content name="manual_movement_navigation" columnstart="1" rowstart="10" columnend="4" rowend="10" rowposition="centered">
           <buttongroup name="buttongroup_manual_movement_navigation" distribution="equal">
-            <button name="cancel" caption="Cancel" event="event_manualmovementcontrol_leave"/>
+			<button name="cancel_build" caption="Cancel Build" event="event_manualmovementcontrol_leave_for_waitforshutdown" sync:disabled="!main.ui.build_canbecanceledfrommanualcontrol"/>
+		    <button name="resume_build" caption="Resume Build" event="event_manualmovementcontrol_leave_for_pauseprocess" sync:disabled="!main.ui.build_canberesumedfrommanualcontrol"/>
+            <button name="cancel" caption="Cancel" event="event_manualmovementcontrol_leave" sync:disabled="!main.ui.manualcontrol_canbeleftforidle"/>
           </buttongroup>
         </content>
       </grid>
@@ -1860,7 +2080,8 @@
         </buttongroup>
 
         <form name="form_gas_flow_control">
-          <edit name="setpoint" caption="Setpoint gas flow in %" value="0"/>
+          <edit name="setpoint" caption="Setpoint gas flow in %" value="28"/>
+		  <edit name="oxygen_setpoint" caption="Oxygen Setpoint in ppm" value="1000"/>
         </form>
 
         <buttongroup name="buttongroup_circulation" distribution="equal">
@@ -1890,11 +2111,6 @@
           <button name="button_change_controller_parameters" caption="Change Controller Parameters" event="event_controllerparameterlist_enter"/>
         </buttongroup>
 
-
-        <form name="form_oxygen_setpoint">
-          <edit name="setpoint" caption="Oxygen Setpoint in ppm" value="20"/>
-        </form>
-
         <parameterlist loadingtext="Loading oxygen setpoint">
           <entry statemachine="main" group="jobinfo" parameter="circulation_pump_setpoint_in_percent"/>
           <entry statemachine="main" group="oxygencontroller" parameter="setpoint"/>
@@ -1902,7 +2118,9 @@
 
         <buttongroup name="buttongroup_navigation" distribution="equal">
           <button name="button_save" caption="Save" event="event_manualatmospherecontrol_save" formvalues="form_gas_flow_control"/>
-          <button name="button_cancel" caption="Cancel" event="event_manualatmospherecontrol_leave"/>
+          <button name="button_cancel" caption="Cancel" event="event_manualatmospherecontrol_leave" sync:disabled="!main.ui.manualcontrol_canbeleftforidle"/>
+		  <button name="cancel_build" caption="Cancel Build" event="event_manualatmospherecontrol_leave_for_waitforshutdown" sync:disabled="!main.ui.build_canbecanceledfrommanualcontrol"/>
+		  <button name="resume_build" caption="Resume Build" event="event_manualatmospherecontrol_leave_for_pauseprocess" sync:disabled="!main.ui.build_canberesumedfrommanualcontrol"/>
         </buttongroup>
 
 
@@ -1980,11 +2198,40 @@
 
         <buttongroup name="buttongroup_navigation" distribution="equal">
           <button name="button_save" caption="Save" event="event_heatersetpoint_save" formvalues="form_heater_setpoint"/>
-          <button name="button_cancel" caption="Cancel" event="event_manualheatercontrol_leave"/>
+          <button name="button_cancel" caption="Cancel" event="event_manualheatercontrol_leave" sync:disabled="!main.ui.manualcontrol_canbeleftforidle"/>
+		  <button name="cancel_build" caption="Cancel Build" event="event_manualheatercontrol_leave_for_waitforshutdown" sync:disabled="!main.ui.build_canbecanceledfrommanualcontrol"/>
+		  <button name="resume_build" caption="Resume Build" event="event_manualheatercontrol_leave_for_pauseprocess" sync:disabled="!main.ui.build_canberesumedfrommanualcontrol"/>
         </buttongroup>
 
       </content>
     </dialog>
+
+
+	  <dialog name="dialog_manualcameracontrol">
+		  <content name="infobox_manualcameracontrol" title="Manual Camera Control">
+
+			  <image resource="login_background" aspectratio="2.5" maxheight="400"/>
+
+			  <buttongroup name="buttongroup_thermal_camera" distribution="equal">
+				  <button name="button_enable_thermal_camera" caption="Enable Thermal Camera" event="event_enablethermalcamera"/>
+				  <button name="button_disable_thermal_camera" caption="Disable Thermal Camera" event="event_disablethermalcamera"/>
+				  <button name="button_change_filename" caption="Change Filename" event="event_changefilenamethermalcamera" formvalues="form_thermal_camera"/>
+				  <button name="button_change_frame_number" caption="Change Number of Frames" event="event_changeframenumberthermalcamera" formvalues="form_thermal_camera"/>
+			  </buttongroup>
+
+			  <form name="form_thermal_camera">
+				  <edit name="SSD_filename" caption="Thermal Camera Filename" value="test_TK"/>
+				  <edit name="frame_number" caption="Thermal Camera Number of Frames" value="20000"/>
+			  </form>
+
+			  <buttongroup name="buttongroup_navigation" distribution="equal">
+				  <button name="button_cancel" caption="Cancel" event="event_manualcameracontrol_leave" sync:disabled="!main.ui.manualcontrol_canbeleftforidle"/>
+				  <button name="cancel_build" caption="Cancel Build" event="event_manualcameracontrol_leave_for_waitforshutdown" sync:disabled="!main.ui.build_canbecanceledfrommanualcontrol"/>
+				  <button name="resume_build" caption="Resume Build" event="event_manualcameracontrol_leave_for_pauseprocess" sync:disabled="!main.ui.build_canberesumedfrommanualcontrol"/>
+			  </buttongroup>
+
+		  </content>
+	  </dialog>
 
     <dialog name="dialog_heaterparameterlist">
       <content name="infobox" title="Heater Controller Parameters">
@@ -2038,6 +2285,7 @@
           <button name="button_manualmovement" caption="Enter manual movement mode" event="event_manualmovementcontrol_enter"/>
           <button name="button_manualatmospherecontrol" caption="Enter manual atmosphere control" event="event_manualatmospherecontrol_enter"/>
           <button name="button_manualheatercontrol" caption="Enter manual heater control" event="event_manualheatercontrol_enter"/>
+		  <button name="button_manualcameracontrol" caption="Enter manual camera control" event="event_manualcameracontrol_enter"/>
         </buttongroup>
 
         <buttongroup name="buttongroup" distribution="equal">
@@ -2185,7 +2433,7 @@
 
         <content name="actions1" columnstart="4" rowstart="1" columnend="5" rowend="1" rowposition="centered">
           <buttongroup distribution="equal">
-            <button caption="Pause Build" event="pausebuild" sync:disabled="!main.ui.build_canbepaused"/>
+            <button caption="Pause Build" event="event_pausebuild" sync:disabled="!main.ui.build_canbepausedorresumed"/>
           </buttongroup>
         </content>
 

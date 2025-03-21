@@ -1,0 +1,27 @@
+(*
+T: FUNCTION OR
+FW: YES	INL_PN OR SKIP_IMAGE
+CI#: 15
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN1	1	VAR_INPUT	@TYP:28	
+	
+
+;
+PFW:
+
+IN2	2	VAR_INPUT	@TYP:28	
+	
+
+;
+PFW: CF#1 EXT
+
+OR	3	VAR_OUTPUT	@TYP:28	
+	
+
+;
+PFW: CF#1

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.0" SubType="binary" Description="This library contains functionality to execute traces (to sample numeric values periodically for a defined time-span)" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>CoTrace.fun</File>
+    <File>CoTrace.typ</File>
+    <File>CoTrace.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="AsZip" />
+    <Dependency ObjectName="FileIO" />
+  </Dependencies>
+</Library>

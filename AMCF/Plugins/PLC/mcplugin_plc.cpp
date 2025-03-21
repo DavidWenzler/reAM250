@@ -114,6 +114,7 @@ __DECLARESTATE(idle)
 	if (pStateEnvironment->WaitForSignal("signal_checkemergencycircuit", 0, pSignalHandler)) {
 		if (bIsSimulation) {
 			// In simulation mode, just return values from config parameter group
+			pStateEnvironment->LogMessage("SIMULATE emergency circuit closed...");
 			bool bCircuitIsClosed = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_circuitisclosed");
 			pSignalHandler->SetBoolResult ("circuitisclosed", bCircuitIsClosed);
 			pSignalHandler->SignalHandled();
@@ -130,81 +131,101 @@ __DECLARESTATE(idle)
 
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_initaxes", 0, pSignalHandler)) {
-		pBuRDriver->QueryParameters();
-		pStateEnvironment->LogMessage("Triggering axes initialization...");
 
-		auto pPLCPlatformInitCommandList = pBuRDriver->CreateCommandList();
-		auto pPlatformInitCommand = pBuRDriver->CreateCommand("initaxes");
-		pPlatformInitCommand->SetIntegerParameter("axis_ID", AXISID_BUILDPLATFORM);
-		pPLCPlatformInitCommandList->AddCommand(pPlatformInitCommand);
-		pPLCPlatformInitCommandList->FinishList();
-		pPLCPlatformInitCommandList->ExecuteList();
-
-		auto pPLCReservoirInitCommandList = pBuRDriver->CreateCommandList();
-		auto pReservoirInitCommand = pBuRDriver->CreateCommand("initaxes");
-		pReservoirInitCommand->SetIntegerParameter("axis_ID", AXISID_POWDERRESERVOIR);
-		pPLCReservoirInitCommandList->AddCommand(pReservoirInitCommand);
-		pPLCReservoirInitCommandList->FinishList();
-		pPLCReservoirInitCommandList->ExecuteList();
-
-		auto pPLCRecoaterPowderInitCommandList = pBuRDriver->CreateCommandList();
-		auto pRecoaterPowderInitCommand = pBuRDriver->CreateCommand("initaxes");
-		pRecoaterPowderInitCommand->SetIntegerParameter("axis_ID", AXISID_RECOATERPOWDERBELT);
-		pPLCRecoaterPowderInitCommandList->AddCommand(pRecoaterPowderInitCommand);
-		pPLCRecoaterPowderInitCommandList->FinishList();
-		pPLCRecoaterPowderInitCommandList->ExecuteList();
-
-		auto pPLCRecoaterLinearInitCommandList = pBuRDriver->CreateCommandList();
-		auto pRecoaterLinearInitCommand = pBuRDriver->CreateCommand("initaxes");
-		pRecoaterLinearInitCommand->SetIntegerParameter("axis_ID", AXISID_RECOATELINEAR);
-		pPLCRecoaterLinearInitCommandList->AddCommand(pRecoaterLinearInitCommand);
-		pPLCRecoaterLinearInitCommandList->FinishList();
-		pPLCRecoaterLinearInitCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nGeneralCommandTimeout);
-		if (true)//pPLCPlatformInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCReservoirInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCRecoaterPowderInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCRecoaterLinearInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			pStateEnvironment->LogMessage("Init axes signal received ...");
-			pStateEnvironment->SetNextState("waitforreferencing");
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE initializing axes...");
 			pStateEnvironment->StoreSignal("signal_initaxes", pSignalHandler);
+			pStateEnvironment->SetNextState("waitforreferencing");
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pSignalHandler->SignalHandled();
-			pStateEnvironment->SetNextState("connectionlost");
+		else {
+
+			pBuRDriver->QueryParameters();
+			pStateEnvironment->LogMessage("Triggering axes initialization...");
+
+			auto pPLCPlatformInitCommandList = pBuRDriver->CreateCommandList();
+			auto pPlatformInitCommand = pBuRDriver->CreateCommand("initaxes");
+			pPlatformInitCommand->SetIntegerParameter("axis_ID", AXISID_BUILDPLATFORM);
+			pPLCPlatformInitCommandList->AddCommand(pPlatformInitCommand);
+			pPLCPlatformInitCommandList->FinishList();
+			pPLCPlatformInitCommandList->ExecuteList();
+
+			auto pPLCReservoirInitCommandList = pBuRDriver->CreateCommandList();
+			auto pReservoirInitCommand = pBuRDriver->CreateCommand("initaxes");
+			pReservoirInitCommand->SetIntegerParameter("axis_ID", AXISID_POWDERRESERVOIR);
+			pPLCReservoirInitCommandList->AddCommand(pReservoirInitCommand);
+			pPLCReservoirInitCommandList->FinishList();
+			pPLCReservoirInitCommandList->ExecuteList();
+
+			auto pPLCRecoaterPowderInitCommandList = pBuRDriver->CreateCommandList();
+			auto pRecoaterPowderInitCommand = pBuRDriver->CreateCommand("initaxes");
+			pRecoaterPowderInitCommand->SetIntegerParameter("axis_ID", AXISID_RECOATERPOWDERBELT);
+			pPLCRecoaterPowderInitCommandList->AddCommand(pRecoaterPowderInitCommand);
+			pPLCRecoaterPowderInitCommandList->FinishList();
+			pPLCRecoaterPowderInitCommandList->ExecuteList();
+
+			auto pPLCRecoaterLinearInitCommandList = pBuRDriver->CreateCommandList();
+			auto pRecoaterLinearInitCommand = pBuRDriver->CreateCommand("initaxes");
+			pRecoaterLinearInitCommand->SetIntegerParameter("axis_ID", AXISID_RECOATELINEAR);
+			pPLCRecoaterLinearInitCommandList->AddCommand(pRecoaterLinearInitCommand);
+			pPLCRecoaterLinearInitCommandList->FinishList();
+			pPLCRecoaterLinearInitCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nGeneralCommandTimeout);
+			if (true)//pPLCPlatformInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCReservoirInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCRecoaterPowderInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout) && pPLCRecoaterLinearInitCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pStateEnvironment->LogMessage("Init axes signal received ...");
+				pStateEnvironment->SetNextState("waitforreferencing");
+				pStateEnvironment->StoreSignal("signal_initaxes", pSignalHandler);
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pSignalHandler->SignalHandled();
+				pStateEnvironment->SetNextState("connectionlost");
+			}
 		}
 	}
 	else if (pStateEnvironment->WaitForSignal("signal_releasedoor", 0, pSignalHandler)) {
-		pBuRDriver->QueryParameters();
-		pStateEnvironment->LogMessage("Releasing door....");
 
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pCommand = pBuRDriver->CreateCommand("releasedoor");
-		pPLCCommandList->AddCommand(pCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nGeneralCommandTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			//TODO: get current state of door pBuRDriver->QueryParameters();
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE releasing door...");
 			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("idle");
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
+		else {
+			pBuRDriver->QueryParameters();
+			pStateEnvironment->LogMessage("Releasing door....");
 
-		pSignalHandler->SignalHandled();
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pCommand = pBuRDriver->CreateCommand("releasedoor");
+			pPLCCommandList->AddCommand(pCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nGeneralCommandTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				//TODO: get current state of door pBuRDriver->QueryParameters();
+				pSignalHandler->SetBoolResult("success", true);
+				pStateEnvironment->SetNextState("idle");
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+
+			pSignalHandler->SignalHandled();
+		}
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_lockdoor", 0, pSignalHandler)) {
-		
+
 		bool bLockDoor = pSignalHandler->GetBool("lockdoor");
 
 		if (bLockDoor) {
@@ -213,41 +234,90 @@ __DECLARESTATE(idle)
 		else {
 			pStateEnvironment->LogMessage("Unlocking door....");
 		}
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pCommand = pBuRDriver->CreateCommand("lockunlockdoor");
-		pCommand->SetBoolParameter("lockdoor", bLockDoor);
-		pPLCCommandList->AddCommand(pCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
 
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nGeneralCommandTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			//TODO: get current state of door pBuRDriver->QueryParameters();
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE locking/unlocking door...");
 			pSignalHandler->SetBoolResult("doorlockstate", bLockDoor);
 			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("idle");
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
+		else {
 
-		pSignalHandler->SignalHandled();
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pCommand = pBuRDriver->CreateCommand("lockunlockdoor");
+			pCommand->SetBoolParameter("lockdoor", bLockDoor);
+			pPLCCommandList->AddCommand(pCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nGeneralCommandTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+				bool bDoorLockedClosed = pStateEnvironment->GetBoolParameter("plcstate", "door_locked_closed");
+				pSignalHandler->SetBoolResult("doorlockstate", bDoorLockedClosed);
+				pStateEnvironment->SetNextState("idle");
+
+				if (bDoorLockedClosed == bLockDoor)
+				{
+					pSignalHandler->SetBoolResult("success", true);
+
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", false);
+
+				}
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+
+			pSignalHandler->SignalHandled();
+		}
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_togglevalve", 0, pSignalHandler)) {
-		pBuRDriver->QueryParameters();
 
-		pStateEnvironment->LogMessage("Toggling valve....");
-		// Retrieve state of the valves controlling digital ouputs from the PLC
-		bool bState_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output01");
-		bool bState_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output02");
-		bool bState_shielding_gas_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output03");
-		bool bState_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output04");
-		bool bState_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output05");
+		
+		bool bState_upper_gas_flow_circuit_valve;
+		bool bState_lower_gas_flow_circuit_valve;
+		bool bState_shielding_gas_valve;
+		bool bState_chamber_vacuum_valve;
+		bool bState_zAxis_vacuum_valve;
+
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE toggling valves...");
+			// Retrieve state of the valves from config xml
+			bState_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_upper_gas_flow_circuit_valve");
+			bState_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_lower_gas_flow_circuit_valve");
+			bState_shielding_gas_valve = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_shielding_gas_valve");
+			bState_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_chamber_vacuum_valve");
+			bState_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_zAxis_vacuum_valve");
+
+		}
+		else {
+			pBuRDriver->QueryParameters();
+			pStateEnvironment->LogMessage("Toggling valve....");
+			// Retrieve state of the valves controlling digital outputs from the PLC
+			bState_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output01");
+			bState_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output02");
+			bState_shielding_gas_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output03");
+			bState_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output04");
+			bState_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "114kf25_output05");
+		}
+
+		// Check if the desired state equals the actual state
+		bool bIs_set_upper_gas_flow_circuit_valve;
+		bool bIs_set_lower_gas_flow_circuit_valve;
+		bool bIs_set_chamber_vacuum_valve;
+		bool bIs_set_zAxis_vacuum_valve;
 
 		// get ID of the valve to toggle
 		int nValve_ID = pSignalHandler->GetInteger("valve_ID");
@@ -282,38 +352,104 @@ __DECLARESTATE(idle)
 			return;
 		}
 
-		
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pToggleValvesCommand = pBuRDriver->CreateCommand("togglevalves");
-		pToggleValvesCommand->SetBoolParameter("toggle_upper_gas_flow_circuit_valve", bState_upper_gas_flow_circuit_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_lower_gas_flow_circuit_valve", bState_lower_gas_flow_circuit_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_shielding_gas_valve", bState_shielding_gas_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_chamber_vacuum_valve", bState_chamber_vacuum_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_zAxis_vacuum_valve", bState_zAxis_vacuum_valve);
-		pPLCCommandList->AddCommand(pToggleValvesCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nToggleValvesTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nToggleValvesTimeout))
-		{
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_upper_gas_flow_circuit_valve", bState_upper_gas_flow_circuit_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_lower_gas_flow_circuit_valve", bState_lower_gas_flow_circuit_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_shielding_gas_valve", bState_shielding_gas_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_chamber_vacuum_valve", bState_chamber_vacuum_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_zAxis_vacuum_valve", bState_zAxis_vacuum_valve);
 			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("idle");
 		}
-		else
+		else{
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pToggleValvesCommand = pBuRDriver->CreateCommand("togglevalves");
+			pToggleValvesCommand->SetBoolParameter("toggle_upper_gas_flow_circuit_valve", bState_upper_gas_flow_circuit_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_lower_gas_flow_circuit_valve", bState_lower_gas_flow_circuit_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_shielding_gas_valve", bState_shielding_gas_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_chamber_vacuum_valve", bState_chamber_vacuum_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_zAxis_vacuum_valve", bState_zAxis_vacuum_valve);
+			pPLCCommandList->AddCommand(pToggleValvesCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nToggleValvesTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nToggleValvesTimeout))
 			{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
+				pBuRDriver->QueryParameters();
+
+				// Retrieve actual state of the valves from the PLC
+				bool bIs_opened_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input01");
+				bool bIs_closed_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input02");
+				bool bIs_opened_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input03");
+				bool bIs_closed_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input04");
+
+				bool bIs_opened_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input01");
+				bool bIs_closed_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input02");
+				bool bIs_opened_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input03");
+				bool bIs_closed_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input04");
+
+				if (bState_upper_gas_flow_circuit_valve)
+				{
+					bIs_set_upper_gas_flow_circuit_valve = bIs_opened_upper_gas_flow_circuit_valve;
+				}
+				else
+				{
+					bIs_set_upper_gas_flow_circuit_valve = bIs_closed_upper_gas_flow_circuit_valve;
+				}
+
+				if (bState_lower_gas_flow_circuit_valve)
+				{
+					bIs_set_lower_gas_flow_circuit_valve = bIs_opened_lower_gas_flow_circuit_valve;
+				}
+				else
+				{
+					bIs_set_lower_gas_flow_circuit_valve = bIs_closed_lower_gas_flow_circuit_valve;
+				}
+
+				if (bState_chamber_vacuum_valve)
+				{
+					bIs_set_chamber_vacuum_valve = bIs_opened_chamber_vacuum_valve;
+				}
+				else
+				{
+					bIs_set_chamber_vacuum_valve = bIs_closed_chamber_vacuum_valve;
+				}
+
+				if (bState_zAxis_vacuum_valve)
+				{
+					bIs_set_zAxis_vacuum_valve = bIs_opened_zAxis_vacuum_valve;
+				}
+				else
+				{
+					bIs_set_zAxis_vacuum_valve = bIs_closed_zAxis_vacuum_valve;
+				}
+
+				if (bIs_set_upper_gas_flow_circuit_valve && bIs_set_lower_gas_flow_circuit_valve && bIs_set_chamber_vacuum_valve && bIs_set_zAxis_vacuum_valve)
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
 			}
 
-		pSignalHandler->SignalHandled();
+			pSignalHandler->SignalHandled();
+		}
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_switchvalves", 0, pSignalHandler)) {
-		pBuRDriver->QueryParameters();
-
-		pStateEnvironment->LogMessage("Switching multiple valves....");
 
 		// Retrieve desired state of the valves from the main state machine
 		bool bSet_upper_gas_flow_circuit_valve = pSignalHandler->GetBool("toggle_upper_gas_flow_circuit_valve");
@@ -322,77 +458,140 @@ __DECLARESTATE(idle)
 		bool bSet_chamber_vacuum_valve = pSignalHandler->GetBool("toggle_chamber_vacuum_valve");
 		bool bSet_zAxis_vacuum_valve = pSignalHandler->GetBool("toggle_zAxis_vacuum_valve");
 
-		// Check if the desired state equals the actual state
-		bool bIs_set_upper_gas_flow_circuit_valve;
-		bool bIs_set_lower_gas_flow_circuit_valve;
-		bool bIs_set_chamber_vacuum_valve;
-		bool bIs_set_zAxis_vacuum_valve;
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE switching multiple valves...");
+			// Set vale state in the config xml
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_upper_gas_flow_circuit_valve", bSet_upper_gas_flow_circuit_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_lower_gas_flow_circuit_valve", bSet_lower_gas_flow_circuit_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_shielding_gas_valve", bSet_shielding_gas_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_chamber_vacuum_valve", bSet_chamber_vacuum_valve);
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_zAxis_vacuum_valve", bSet_zAxis_vacuum_valve);
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
 
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pToggleValvesCommand = pBuRDriver->CreateCommand("togglevalves");
-		pToggleValvesCommand->SetBoolParameter("toggle_upper_gas_flow_circuit_valve", bSet_upper_gas_flow_circuit_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_lower_gas_flow_circuit_valve", bSet_lower_gas_flow_circuit_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_shielding_gas_valve", bSet_shielding_gas_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_chamber_vacuum_valve", bSet_chamber_vacuum_valve);
-		pToggleValvesCommand->SetBoolParameter("toggle_zAxis_vacuum_valve", bSet_zAxis_vacuum_valve);
-		pPLCCommandList->AddCommand(pToggleValvesCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-		
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nToggleValvesTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nToggleValvesTimeout))
-		{
+		}
+		else {
+			pStateEnvironment->LogMessage("Switching multiple valves....");
 			pBuRDriver->QueryParameters();
 
-			// Retrieve actual state of the valves from the PLC
-			bool bIs_opened_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input01");
-			bool bIs_closed_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input02");
-			bool bIs_opened_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input03");
-			bool bIs_closed_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input04");
+			// Check if the desired state equals the actual state
 
-			bool bIs_opened_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input01");
-			bool bIs_closed_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input02");
-			bool bIs_opened_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input03");
-			bool bIs_closed_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input04");
+			bool bIs_set_upper_gas_flow_circuit_valve;
+			bool bIs_set_lower_gas_flow_circuit_valve;
+			bool bIs_set_chamber_vacuum_valve;
+			bool bIs_set_zAxis_vacuum_valve;
 
-			if (bSet_upper_gas_flow_circuit_valve)
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pToggleValvesCommand = pBuRDriver->CreateCommand("togglevalves");
+			pToggleValvesCommand->SetBoolParameter("toggle_upper_gas_flow_circuit_valve", bSet_upper_gas_flow_circuit_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_lower_gas_flow_circuit_valve", bSet_lower_gas_flow_circuit_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_shielding_gas_valve", bSet_shielding_gas_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_chamber_vacuum_valve", bSet_chamber_vacuum_valve);
+			pToggleValvesCommand->SetBoolParameter("toggle_zAxis_vacuum_valve", bSet_zAxis_vacuum_valve);
+			pPLCCommandList->AddCommand(pToggleValvesCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nToggleValvesTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nToggleValvesTimeout))
 			{
-				bIs_set_upper_gas_flow_circuit_valve = bIs_opened_upper_gas_flow_circuit_valve;
+				pBuRDriver->QueryParameters();
+
+				// Retrieve actual state of the valves from the PLC
+				bool bIs_opened_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input01");
+				bool bIs_closed_upper_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input02");
+				bool bIs_opened_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input03");
+				bool bIs_closed_lower_gas_flow_circuit_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf17_input04");
+
+				bool bIs_opened_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input01");
+				bool bIs_closed_chamber_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input02");
+				bool bIs_opened_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input03");
+				bool bIs_closed_zAxis_vacuum_valve = pStateEnvironment->GetBoolParameter("plcstate", "113kf21_input04");
+
+				if (bSet_upper_gas_flow_circuit_valve)
+				{
+					bIs_set_upper_gas_flow_circuit_valve = bIs_opened_upper_gas_flow_circuit_valve;
+				}
+				else
+				{
+					bIs_set_upper_gas_flow_circuit_valve = bIs_closed_upper_gas_flow_circuit_valve;
+				}
+
+				if (bSet_lower_gas_flow_circuit_valve)
+				{
+					bIs_set_lower_gas_flow_circuit_valve = bIs_opened_lower_gas_flow_circuit_valve;
+				}
+				else
+				{
+					bIs_set_lower_gas_flow_circuit_valve = bIs_closed_lower_gas_flow_circuit_valve;
+				}
+
+				if (bSet_chamber_vacuum_valve)
+				{
+					bIs_set_chamber_vacuum_valve = bIs_opened_chamber_vacuum_valve;
+				}
+				else
+				{
+					bIs_set_chamber_vacuum_valve = bIs_closed_chamber_vacuum_valve;
+				}
+
+				if (bSet_zAxis_vacuum_valve)
+				{
+					bIs_set_zAxis_vacuum_valve = bIs_opened_zAxis_vacuum_valve;
+				}
+				else
+				{
+					bIs_set_zAxis_vacuum_valve = bIs_closed_zAxis_vacuum_valve;
+				}
+
+				if (bIs_set_upper_gas_flow_circuit_valve && bIs_set_lower_gas_flow_circuit_valve && bIs_set_chamber_vacuum_valve && bIs_set_zAxis_vacuum_valve)
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
 			}
 			else
 			{
-				bIs_set_upper_gas_flow_circuit_valve = bIs_closed_upper_gas_flow_circuit_valve;
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
 			}
 
-			if (bSet_lower_gas_flow_circuit_valve)
-			{
-				bIs_set_lower_gas_flow_circuit_valve = bIs_opened_lower_gas_flow_circuit_valve;
-			}
-			else
-			{
-				bIs_set_lower_gas_flow_circuit_valve = bIs_closed_lower_gas_flow_circuit_valve;
-			}
+			pSignalHandler->SignalHandled();
+		}
+	}
 
-			if (bSet_chamber_vacuum_valve)
-			{
-				bIs_set_chamber_vacuum_valve = bIs_opened_chamber_vacuum_valve;
-			}
-			else
-			{
-				bIs_set_chamber_vacuum_valve = bIs_closed_chamber_vacuum_valve;
-			}
+	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_init", 0, pSignalHandler)) {
 
-			if (bSet_zAxis_vacuum_valve)
-			{
-				bIs_set_zAxis_vacuum_valve = bIs_opened_zAxis_vacuum_valve;
-			}
-			else
-			{
-				bIs_set_zAxis_vacuum_valve = bIs_closed_zAxis_vacuum_valve;
-			}
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE initializing atmosphere control...");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		else {
 
-			if (bIs_set_upper_gas_flow_circuit_valve && bIs_set_lower_gas_flow_circuit_valve && bIs_set_chamber_vacuum_valve && bIs_set_zAxis_vacuum_valve)
+			pStateEnvironment->LogMessage("Initializing atmosphere control....");
+
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pAtmosphereControlInitCommand = pBuRDriver->CreateCommand("initatmospherecontrol");
+			pAtmosphereControlInitCommand->SetIntegerParameter("o2_threshold_circulation_on_in_ppm", pSignalHandler->GetInteger("o2_threshold_circulation_on_in_ppm"));
+			pAtmosphereControlInitCommand->SetIntegerParameter("o2_threshold_circulation_off_in_ppm", pSignalHandler->GetInteger("o2_threshold_circulation_off_in_ppm"));
+			pPLCCommandList->AddCommand(pAtmosphereControlInitCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nAtmosphereInitTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nAtmosphereInitTimeout))
 			{
 				pSignalHandler->SetBoolResult("success", true);
 				pStateEnvironment->SetNextState("idle");
@@ -400,168 +599,156 @@ __DECLARESTATE(idle)
 			else
 			{
 				pSignalHandler->SetBoolResult("success", false);
-				pStateEnvironment->SetNextState("idle");
+				pStateEnvironment->SetNextState("connectionlost");
 			}
+
+			pSignalHandler->SignalHandled();
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
-
-		pSignalHandler->SignalHandled();
-	}
-
-	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_init", 0, pSignalHandler)) {
-		pStateEnvironment->LogMessage("Initializing atmosphere control....");
-
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pAtmosphereControlInitCommand = pBuRDriver->CreateCommand("initatmospherecontrol");
-		pAtmosphereControlInitCommand->SetIntegerParameter("o2_threshold_circulation_on_in_ppm", pSignalHandler->GetInteger("o2_threshold_circulation_on_in_ppm"));
-		pAtmosphereControlInitCommand->SetIntegerParameter("o2_threshold_circulation_off_in_ppm", pSignalHandler->GetInteger("o2_threshold_circulation_off_in_ppm"));
-		pPLCCommandList->AddCommand(pAtmosphereControlInitCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nAtmosphereInitTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nAtmosphereInitTimeout))
-		{
-			pSignalHandler->SetBoolResult("success", true);
-			pStateEnvironment->SetNextState("idle");
-		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
-
-		pSignalHandler->SignalHandled();
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_update_gas_flow_setpoint", 0, pSignalHandler)) {
-		pStateEnvironment->LogMessage("Updating gas flow setpoint for atmosphere control....");
 
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pAtmosphereControlUpdateGasFlowSetpointCommand = pBuRDriver->CreateCommand("updategasflowsetpoint");
-		pAtmosphereControlUpdateGasFlowSetpointCommand->SetIntegerParameter("setpoint_in_percent", pSignalHandler->GetInteger("setpoint_in_percent"));
-		pPLCCommandList->AddCommand(pAtmosphereControlUpdateGasFlowSetpointCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
-	}
-	
-	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_start_gas_flow", 0, pSignalHandler)) {
-
-			pStateEnvironment->LogMessage("Start circulation pump signal received ...");
-			pStateEnvironment->SetNextState("startgasflow");
-			pStateEnvironment->StoreSignal("signal_atmospherecontrol_start_gas_flow", pSignalHandler);
-	}
-	
-	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_turn_off_gas_flow", 0, pSignalHandler)) {
-		pStateEnvironment->LogMessage("Turning off gas flow for atmosphere control....");
-
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pAtmosphereControlTurnOffGasFlowCommand = pBuRDriver->CreateCommand("turnoffgasflow");
-		pPLCCommandList->AddCommand(pAtmosphereControlTurnOffGasFlowCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nStartStopPumpTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			pBuRDriver->QueryParameters();
-
-			bool bCirculationPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
-			if (bCirculationPumpIsTurnedOn == false)
-			{
-				pSignalHandler->SetBoolResult("success", true);
-				pStateEnvironment->SetNextState("idle");
-			}
-			else
-			{
-				pSignalHandler->SetBoolResult("success", true);
-				pStateEnvironment->SetNextState("idle");
-			}
-		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
-
-		pSignalHandler->SignalHandled();
-
-	}
-
-	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_init", 0, pSignalHandler)) {
-
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pVacuumControlInitCommand = pBuRDriver->CreateCommand("initvacuumsystem");
-		pVacuumControlInitCommand->SetIntegerParameter("pressure_threshold_vacuum_off_in_mbar", pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar"));
-		pPLCCommandList->AddCommand(pVacuumControlInitCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nVacuumInitTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nVacuumInitTimeout))
-		{
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE updating gas flow setpoint for atmosphere control...");
 			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("idle");
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
+		else {
 
-		pSignalHandler->SignalHandled();
-	}
+			pStateEnvironment->LogMessage("Updating gas flow setpoint for atmosphere control...");
 
-	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_start_vacuum_pump", 0, pSignalHandler)) {
-		
-		// Get desired absolute pressure in the PLC
-		int nPressureThresholdPLC = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_threshold_vacuum_off_in_mbar");
-		
-		// Get desired absolute pressure in the AMCF
-		int nPressureThresholdAMCF = pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar");
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pAtmosphereControlUpdateGasFlowSetpointCommand = pBuRDriver->CreateCommand("updategasflowsetpoint");
+			pAtmosphereControlUpdateGasFlowSetpointCommand->SetIntegerParameter("setpoint_in_percent", pSignalHandler->GetInteger("setpoint_in_percent"));
+			pPLCCommandList->AddCommand(pAtmosphereControlUpdateGasFlowSetpointCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
 
-		if (nPressureThresholdAMCF == nPressureThresholdPLC) // Check if both thresholds are identical and the initialization was done properly
-		{
-			pStateEnvironment->LogMessage("Start vacuum pump signal received ...");
-			pStateEnvironment->SetNextState("evacuatebuildchamber");
-			pStateEnvironment->StoreSignal("signal_vacuumcontrol_start_vacuum_pump", pSignalHandler);
-		}
-		else
-		{
-			pStateEnvironment->LogMessage("Initialization error of the vacuum system: Thresholds are not identical in the PLC and the AMCF ...");
-			pSignalHandler->SetBoolResult("success", false);
 			pSignalHandler->SignalHandled();
 			pStateEnvironment->SetNextState("idle");
 		}
 	}
+	
+	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_start_gas_flow", 0, pSignalHandler)) {
 
-	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandler)) {
-		pStateEnvironment->LogMessage("Turning off the vacuum pump....");
+		bool bCirculationPumpStartedFlag;
 
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pVacuumControlTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffvacuumpump");
-		pPLCCommandList->AddCommand(pVacuumControlTurnOffPumpCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE starting circulation pump...");
+			// retrieve simulated circulation pump state from config.xml parameter
+			bCirculationPumpStartedFlag = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_circulation_pump_started_flag");
+			if (bCirculationPumpStartedFlag)
+			{
+				pStateEnvironment->SetNextState("waitforgasflow");
+			}
+			else
+			{
+				pStateEnvironment->SetNextState("startgasflow");
+			}
+			pStateEnvironment->StoreSignal("signal_atmospherecontrol_start_gas_flow", pSignalHandler);
+		}
+		else {
+			bCirculationPumpStartedFlag = pSignalHandler->GetBool("circulation_pump_started_flag");
+			bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
+			bool bCirculationPumpIsError = !(pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input03"));
+			bool bCirculationPumpVentilatorIsError = pStateEnvironment->GetBoolParameter("plcstate", "113kf19_input03");
 
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nStartStopPumpTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			pBuRDriver->QueryParameters();
+			pStateEnvironment->LogMessage("Start circulation pump signal received ...");
+			if (bCirculationPumpStartedFlag && bIsProcessFlag)
+			{
+				pStateEnvironment->SetNextState("waitforgasflow");
+			}
+			else
+			{
+				pStateEnvironment->SetNextState("startgasflow");
+			}
 
-			bool bVacuumPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
-			if (bVacuumPumpIsTurnedOn == false)
+			if (bCirculationPumpIsError || bCirculationPumpVentilatorIsError)
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pSignalHandler->SignalHandled();
+				pStateEnvironment->SetNextState("idle");
+			}
+			else
+			{
+				pStateEnvironment->StoreSignal("signal_atmospherecontrol_start_gas_flow", pSignalHandler);
+			}
+		}
+	}
+	
+	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_turn_off_gas_flow", 0, pSignalHandler)) {
+
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE turning off circulation pump...");
+			// set simulated circulation pump state from config.xml parameter to 0
+			pStateEnvironment->SetBoolParameter("simulation", "plcsimulation_circulation_pump_started_flag", false);
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		else {
+			pStateEnvironment->LogMessage("Turning off gas flow for atmosphere control....");
+
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pAtmosphereControlTurnOffGasFlowCommand = pBuRDriver->CreateCommand("turnoffgasflow");
+			pPLCCommandList->AddCommand(pAtmosphereControlTurnOffGasFlowCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nStartStopPumpTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bCirculationPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
+				if (bCirculationPumpIsTurnedOn == false)
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+
+			pSignalHandler->SignalHandled();
+
+		}
+	}
+
+	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_init", 0, pSignalHandler)) {
+
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE initializing vacuum system...");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		else {
+			//TODO: check if threshold was set on PLC
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pVacuumControlInitCommand = pBuRDriver->CreateCommand("initvacuumsystem");
+			pVacuumControlInitCommand->SetIntegerParameter("pressure_threshold_vacuum_off_in_mbar", pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar"));
+			pPLCCommandList->AddCommand(pVacuumControlInitCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nVacuumInitTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nVacuumInitTimeout))
 			{
 				pSignalHandler->SetBoolResult("success", true);
 				pStateEnvironment->SetNextState("idle");
@@ -569,16 +756,88 @@ __DECLARESTATE(idle)
 			else
 			{
 				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+
+			pSignalHandler->SignalHandled();
+		}
+	}
+
+	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_start_vacuum_pump", 0, pSignalHandler)) {
+
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE starting vacuum system...");
+			pStateEnvironment->StoreSignal("signal_vacuumcontrol_start_vacuum_pump", pSignalHandler);
+			pStateEnvironment->SetNextState("evacuatebuildchamber");
+		}
+		else {
+			// Get desired absolute pressure in the PLC
+			int nPressureThresholdPLC = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_threshold_vacuum_off_in_mbar");
+
+			// Get desired absolute pressure in the AMCF
+			int nPressureThresholdAMCF = pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar");
+
+			bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
+
+			if (((nPressureThresholdAMCF == nPressureThresholdPLC) && bIsProcessFlag) || (!bIsProcessFlag)) // Check if both thresholds are identical and the initialization was done properly
+			{
+				pStateEnvironment->LogMessage("Start vacuum pump signal received ...");
+				pStateEnvironment->SetNextState("evacuatebuildchamber");
+				pStateEnvironment->StoreSignal("signal_vacuumcontrol_start_vacuum_pump", pSignalHandler);
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Initialization error of the vacuum system: Thresholds are not identical in the PLC and the AMCF ...");
+				pSignalHandler->SetBoolResult("success", false);
+				pSignalHandler->SignalHandled();
 				pStateEnvironment->SetNextState("idle");
 			}
 		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
+	}
+	else if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandler)) {
+		if (bIsSimulation) {
+			// In simulation mode
+			pStateEnvironment->LogMessage("SIMULATE turning off vacuum system...");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
 		}
+		else {
+			pStateEnvironment->LogMessage("Turning off the vacuum pump....");
 
-		pSignalHandler->SignalHandled();
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pVacuumControlTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffvacuumpump");
+			pPLCCommandList->AddCommand(pVacuumControlTurnOffPumpCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nStartStopPumpTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bVacuumPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
+				if (bVacuumPumpIsTurnedOn == false)
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+
+			pSignalHandler->SignalHandled();
+		}
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_checkpowderavailability", 0, pSignalHandler)) {
@@ -616,18 +875,12 @@ __DECLARESTATE(idle)
 
 			pStateEnvironment->LogMessage("Manually axis referencing");
 
-			if (pSignalHandler->GetBool("reference_platform_absolute_switch") == true) {
-				auto pReferenceAbsoluteSwitchCommand = pBuRDriver->CreateCommand("absoluteswitchreferencing");
-				pCommandList->AddCommand(pReferenceAbsoluteSwitchCommand);
-			}
-			else {
-				auto pReferenceCommand = pBuRDriver->CreateCommand("referenceaxes");
-				pReferenceCommand->SetBoolParameter("reference_recoateraxis_linear", pSignalHandler->GetBool("reference_recoateraxis_linear"));
-				pReferenceCommand->SetBoolParameter("reference_recoateraxis_powder", pSignalHandler->GetBool("reference_recoateraxis_powder"));
-				pReferenceCommand->SetBoolParameter("reference_platform", pSignalHandler->GetBool("reference_platform"));
-				pReferenceCommand->SetBoolParameter("reference_powderreservoir", pSignalHandler->GetBool("reference_powderreservoir"));
-				pCommandList->AddCommand(pReferenceCommand);
-			}
+			auto pReferenceCommand = pBuRDriver->CreateCommand("referenceaxes");
+			pReferenceCommand->SetBoolParameter("reference_recoateraxis_linear", pSignalHandler->GetBool("reference_recoateraxis_linear"));
+			pReferenceCommand->SetBoolParameter("reference_recoateraxis_powder", pSignalHandler->GetBool("reference_recoateraxis_powder"));
+			pReferenceCommand->SetBoolParameter("reference_platform", pSignalHandler->GetBool("reference_platform"));
+			pReferenceCommand->SetBoolParameter("reference_powderreservoir", pSignalHandler->GetBool("reference_powderreservoir"));
+			pCommandList->AddCommand(pReferenceCommand);
 
 			pCommandList->FinishList();
 			pCommandList->ExecuteList();
@@ -730,8 +983,6 @@ __DECLARESTATE(idle)
 		pStateEnvironment->SetNextState("moveplatformclear");
 
 		pStateEnvironment->StoreSignal("signal_recoatlayer", pSignalHandler);
-
-
 	}
 
 	else if (pStateEnvironment->WaitForSignal("signal_enablecontroller", 0, pSignalHandler)) {
@@ -746,19 +997,39 @@ __DECLARESTATE(idle)
 		}
 		else {
 
+			pBuRDriver->QueryParameters();
+			bool bHeaterControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
+			bool bShieldingGasControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
+
 			int nController_ID = pSignalHandler->GetInteger("controller_ID");
+
+			bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
 
 			if (nController_ID == CONTROLLER_ID_HEATER)
 			{
 				pStateEnvironment->LogMessage("Enable heater controller signal received");
-				pStateEnvironment->SetNextState("updatebuildplatetemperature");
 				pStateEnvironment->StoreSignal("signal_enablecontroller", pSignalHandler);
+				if (bHeaterControllerIsEnabled && bIsProcessFlag)
+				{
+					pStateEnvironment->SetNextState("waitforbuildplatetemperature");
+				}
+				else
+				{
+					pStateEnvironment->SetNextState("updatebuildplatetemperature");
+				}
 			}
 			else if (nController_ID == CONTROLLER_ID_SHIELDINGGAS)
 			{
 				pStateEnvironment->LogMessage("Enable shielding gas controller signal received");
-				pStateEnvironment->SetNextState("shieldinggasflooding");
 				pStateEnvironment->StoreSignal("signal_enablecontroller", pSignalHandler);
+				if (bShieldingGasControllerIsEnabled && bIsProcessFlag)
+				{
+					pStateEnvironment->SetNextState("waitforoxygen");
+				}
+				else
+				{
+					pStateEnvironment->SetNextState("shieldinggasflooding");
+				}
 			}
 		}
 
@@ -1148,7 +1419,7 @@ __DECLARESTATE(idle)
 			// Check if the heater controller is enabled
 			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
 
-			if ((nBuildPlateTemperatureInDegreeCelsius > nHeaterSetpointInDegreeCelsius - nToleranceInDegreeCelsius) && (nBuildPlateTemperatureInDegreeCelsius < nHeaterSetpointInDegreeCelsius + nToleranceInDegreeCelsius) && bControllerIsEnabled)
+			if ((nBuildPlateTemperatureInDegreeCelsius > (nHeaterSetpointInDegreeCelsius - nToleranceInDegreeCelsius)) && (nBuildPlateTemperatureInDegreeCelsius < (nHeaterSetpointInDegreeCelsius + nToleranceInDegreeCelsius)) && bControllerIsEnabled)
 			{
 				pSignalHandler->SetBoolResult("heater_controller_enabled_setpoint_reached", true);
 			}
@@ -1169,7 +1440,7 @@ __DECLARESTATE(idle)
 			pStateEnvironment->LogMessage("SIMULATE atmosphere check");
 			pStateEnvironment->Sleep(1000);
 
-			pSignalHandler->SetBoolResult("atmosphere_controller_enabled_setpoint_reached", true);
+			pSignalHandler->SetBoolResult("atmosphere_controller_enabled_threshold_reached", true);
 			pSignalHandler->SignalHandled();
 		}
 		else {
@@ -1180,17 +1451,17 @@ __DECLARESTATE(idle)
 			// Get desired oxygen value to turn on the circulation pump
 			int nO2ThresholdCirculationOnInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_threshold_circulation_on_in_ppm");
 			// Get the tolerance from the signal
-			int nToleranceInPPM = pSignalHandler->GetInteger("atmosphere_controller_tolerance_ppm");
+			int nToleranceInPPM = pSignalHandler->GetInteger("atmosphere_controller_threshold_tolerance_ppm");
 			// Check if the shielding gas controller is enabled
 			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
 
-			if ((nO2FilterInPPM < nO2ThresholdCirculationOnInPPM - nToleranceInPPM) && bControllerIsEnabled)
+			if ((nO2FilterInPPM < (nO2ThresholdCirculationOnInPPM + nToleranceInPPM)) && bControllerIsEnabled)
 			{
-				pSignalHandler->SetBoolResult("atmosphere_controller_enabled_setpoint_reached", true);
+				pSignalHandler->SetBoolResult("atmosphere_controller_enabled_threshold_reached", true);
 			}
 			else
 			{
-				pSignalHandler->SetBoolResult("atmosphere_controller_enabled_setpoint_reached", false);
+				pSignalHandler->SetBoolResult("atmosphere_controller_enabled_threshold_reached", false);
 			}
 
 			pSignalHandler->SignalHandled();
@@ -1216,11 +1487,11 @@ __DECLARESTATE(idle)
 			// Get desired oxygen value to start the process
 			int nO2SetpointInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "oxygencontrol_PID_setvalue");
 			// Get the tolerance from the signal
-			int nToleranceInPPM = pSignalHandler->GetInteger("atmosphere_controller_tolerance_ppm");
+			int nToleranceInPPM = pSignalHandler->GetInteger("atmosphere_controller_setpoint_tolerance_ppm");
 			// Check if circulation pump is running
 			bool bIsOnCirculationPump = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
 
-			if ((nO2ChamberInPPM > nO2SetpointInPPM - nToleranceInPPM) && (nO2ChamberInPPM < nO2SetpointInPPM + nToleranceInPPM) && bIsOnCirculationPump)
+			if ((nO2ChamberInPPM < (nO2SetpointInPPM + nToleranceInPPM)) && bIsOnCirculationPump)
 			{
 				pSignalHandler->SetBoolResult("circulation_pump_started_setpoint_reached", true);
 			}
@@ -1232,6 +1503,12 @@ __DECLARESTATE(idle)
 			pSignalHandler->SignalHandled();
 		}
 	}
+	else if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandler))
+	{
+		pSignalHandler->SetBoolResult("success", true);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("idle");
+	}
 	else {
 		pStateEnvironment->SetNextState("idle");
 	}
@@ -1240,525 +1517,1050 @@ __DECLARESTATE(idle)
 
 __DECLARESTATE(waitforreferencing)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	pStateEnvironment->SetNextState("waitforreferencing");
-
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 	auto pSignalHandlerInitAxes = pStateEnvironment->RetrieveSignal("signal_initaxes");
-	LibMCEnv::PSignalHandler pSignalHandlerLeaveWaitforreferencing;
 
-	bool bRecoaterAxisLinearReady = (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isreferenced"));
-	bool bRecoaterAxisPowderReady = (pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_isreferenced"));
-	bool bPowderReservoirAxisReady = (pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_isreferenced"));
-	bool bPlatformAxisReady = (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isreferenced"));
-	
-	if (bPlatformAxisReady && bPowderReservoirAxisReady && bRecoaterAxisPowderReady && bRecoaterAxisLinearReady)
-	{
-		pSignalHandlerInitAxes->SetBoolResult("platformaxis_initialized", bPlatformAxisReady);
-		pSignalHandlerInitAxes->SetBoolResult("powderreservoiraxis_initialized", bPowderReservoirAxisReady);
-		pSignalHandlerInitAxes->SetBoolResult("recoateraxis_powder_initialized", bRecoaterAxisPowderReady);
+	if (bIsSimulation) {
+		// In simulation mode, just return values from config parameter group
+		bool bRecoaterAxisLinearReady = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_recoateraxis_linear_ready");
+		bool bRecoaterAxisPowderReady = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_recoateraxis_powder_ready");
+		bool bPowderReservoirAxisReady = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_powderreservoiraxis_ready");
+		bool bPlatformAxisReady = pStateEnvironment->GetBoolParameter("simulation", "plcsimulation_platformaxis_ready");
 		pSignalHandlerInitAxes->SetBoolResult("recoateraxis_linear_initialized", bRecoaterAxisLinearReady);
+		pSignalHandlerInitAxes->SetBoolResult("recoateraxis_powder_initialized", bRecoaterAxisPowderReady);
+		pSignalHandlerInitAxes->SetBoolResult("powderreservoiraxis_initialized", bPowderReservoirAxisReady);
+		pSignalHandlerInitAxes->SetBoolResult("platformaxis_initialized", bPlatformAxisReady);
 		pSignalHandlerInitAxes->SignalHandled();
 		pStateEnvironment->SetNextState("idle");
+
 	}
+	else {
 
-	if (pStateEnvironment->WaitForSignal("signal_leavewaitforreferencing", 0, pSignalHandlerLeaveWaitforreferencing))
-	{
-		pSignalHandlerInitAxes->SetBoolResult("platformaxis_initialized", bPlatformAxisReady);
-		pSignalHandlerInitAxes->SetBoolResult("powderreservoiraxis_initialized", bPowderReservoirAxisReady);
-		pSignalHandlerInitAxes->SetBoolResult("recoateraxis_powder_initialized", bRecoaterAxisPowderReady);
-		pSignalHandlerInitAxes->SetBoolResult("recoateraxis_linear_initialized", bRecoaterAxisLinearReady);
-		pSignalHandlerInitAxes->SignalHandled();
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+		pStateEnvironment->SetNextState("waitforreferencing");
 
-		pSignalHandlerLeaveWaitforreferencing->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
+		LibMCEnv::PSignalHandler pSignalHandlerLeaveWaitforreferencing;
+
+		bool bRecoaterAxisLinearReady = (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isreferenced"));
+		bool bRecoaterAxisPowderReady = (pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_isreferenced"));
+		bool bPowderReservoirAxisReady = (pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_isreferenced"));
+		bool bPlatformAxisReady = (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_ispowered") && pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isreferenced"));
+
+		if (bPlatformAxisReady && bPowderReservoirAxisReady && bRecoaterAxisPowderReady && bRecoaterAxisLinearReady)
+		{
+			pSignalHandlerInitAxes->SetBoolResult("platformaxis_initialized", bPlatformAxisReady);
+			pSignalHandlerInitAxes->SetBoolResult("powderreservoiraxis_initialized", bPowderReservoirAxisReady);
+			pSignalHandlerInitAxes->SetBoolResult("recoateraxis_powder_initialized", bRecoaterAxisPowderReady);
+			pSignalHandlerInitAxes->SetBoolResult("recoateraxis_linear_initialized", bRecoaterAxisLinearReady);
+			pSignalHandlerInitAxes->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+
+		if (pStateEnvironment->WaitForSignal("signal_leavewaitforreferencing", 0, pSignalHandlerLeaveWaitforreferencing))
+		{
+			pSignalHandlerInitAxes->SetBoolResult("platformaxis_initialized", bPlatformAxisReady);
+			pSignalHandlerInitAxes->SetBoolResult("powderreservoiraxis_initialized", bPowderReservoirAxisReady);
+			pSignalHandlerInitAxes->SetBoolResult("recoateraxis_powder_initialized", bRecoaterAxisPowderReady);
+			pSignalHandlerInitAxes->SetBoolResult("recoateraxis_linear_initialized", bRecoaterAxisLinearReady);
+			pSignalHandlerInitAxes->SignalHandled();
+
+			pSignalHandlerLeaveWaitforreferencing->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
 	}
 }
 
 __DECLARESTATE(moveplatformclear)
 {
-	pStateEnvironment->LogMessage("Moving platform to a save position ...");
-	// Retrieve the recoat layer signal and the relevant parameters
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
-	double dPlatformAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("platformaxis_speed");
-	double dPlatformAxisAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("platformaxis_acceleration");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// aquire the BuR driver
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving platform to a save position ...");
+		pStateEnvironment->SetNextState("waitforclearplatform");
+	}
+	else {
+		pStateEnvironment->LogMessage("Moving platform to a save position ...");
+		// Retrieve the recoat layer signal and the relevant parameters
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
+		double dPlatformAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("platformaxis_speed");
+		double dPlatformAxisAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("platformaxis_acceleration");
 
-	pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition"));
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
 
-	//create a comand list with the recoating cycle
-	auto pCommandList = pBuRDriver->CreateCommandList();
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition"));
 
-	// First command, drive the build plate to a save position to avoi collisions
-	auto pPlatformAxisClearanceCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pPlatformAxisClearanceCommand->SetIntegerParameter("axis_ID", 1); // axis ID 1 = build platform
-	pPlatformAxisClearanceCommand->SetIntegerParameter("absoluterelative", 2); // 2 = relative movement
-	pPlatformAxisClearanceCommand->SetIntegerParameter("target", (int32_t)round(dPlatformAxisClearanceInMM * 1000.0 * -1.0));
-	pPlatformAxisClearanceCommand->SetIntegerParameter("speed", (int32_t)round(dPlatformAxisSpeedInMMPerSecond * 1000.0));
-	pPlatformAxisClearanceCommand->SetIntegerParameter("acceleration", (int32_t)round(dPlatformAxisAccelerationInMMPerSecondSqaured * 1000.0));
-	pCommandList->AddCommand(pPlatformAxisClearanceCommand);
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-	pStateEnvironment->SetNextState("waitforclearplatform");
-	pStateEnvironment->LogMessage("Waiting for platform to be clear ...");
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// First command, drive the build plate to a save position to avoi collisions
+		auto pPlatformAxisClearanceCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pPlatformAxisClearanceCommand->SetIntegerParameter("axis_ID", 1); // axis ID 1 = build platform
+		pPlatformAxisClearanceCommand->SetIntegerParameter("absoluterelative", 2); // 2 = relative movement
+		pPlatformAxisClearanceCommand->SetIntegerParameter("target", (int32_t)round(dPlatformAxisClearanceInMM * 1000.0 * -1.0));
+		pPlatformAxisClearanceCommand->SetIntegerParameter("speed", (int32_t)round(dPlatformAxisSpeedInMMPerSecond * 1000.0));
+		pPlatformAxisClearanceCommand->SetIntegerParameter("acceleration", (int32_t)round(dPlatformAxisAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pPlatformAxisClearanceCommand);
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+		pStateEnvironment->SetNextState("waitforclearplatform");
+		pStateEnvironment->LogMessage("Waiting for platform to be clear ...");
+	}
 }
 
 __DECLARESTATE(waitforclearplatform)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	pStateEnvironment->SetNextState("waitforclearplatform");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
-	double dTargetPosition = std::round((pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform") - dPlatformAxisClearanceInMM) * 1000.0) / 1000.0;
-	double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition")*1000.0)/1000.0;
-	// wait for the platform to be inposition
-	if (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition") && dActualPosition == dTargetPosition)
-	{
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
 		pStateEnvironment->SetNextState("recoatertostartposition");
-		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dTargetPosition);
 	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
 
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
+		double dTargetPosition = std::round((pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform") - dPlatformAxisClearanceInMM) * 1000.0) / 1000.0;
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
+		// wait for the platform to be inposition
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->SetNextState("recoatertostartposition");
+			pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dTargetPosition);
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforclearplatform");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
 }
 
 __DECLARESTATE(recoatertostartposition)
 {
-	pStateEnvironment->LogMessage("Moving recoater to the recoat start position ...");
-	// Retrieve the recoat layer signal and the relevant parameters
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_travel");
-	double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_travel");
-	double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// aquire the BuR driver
-	auto pBuRDriver = __acquireDriver(BuR);
-	pStateEnvironment->LogMessage("create a comand list with the recoating cycle ...");
-	//create a comand list with the recoating cycle
-	auto pCommandList = pBuRDriver->CreateCommandList();
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving recoater to the recoat start position ...");
+		pStateEnvironment->SetNextState("waitforrecoaterinstartposition");
+	}
+	else {
 
-	// Second command, drive the linear recoater axis to the recoating start position
-	auto pRecoatingStartPositionCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pRecoatingStartPositionCommand->SetIntegerParameter("axis_ID", 4); // axis ID 4 = recoater linear axis
-	pRecoatingStartPositionCommand->SetIntegerParameter("absoluterelative", 1); // 1 = absolute movement
-	pRecoatingStartPositionCommand->SetIntegerParameter("target", (int32_t)round(dRecoatingStartPositionInMM * 1000.0));
-	pRecoatingStartPositionCommand->SetIntegerParameter("speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
-	pRecoatingStartPositionCommand->SetIntegerParameter("acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
-	pCommandList->AddCommand(pRecoatingStartPositionCommand);
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-	pStateEnvironment->SetNextState("waitforrecoaterinstartposition");
-	pStateEnvironment->LogMessage("Waiting for the recaoter to reach the start position ...");
+		pStateEnvironment->LogMessage("Moving recoater to the recoat start position ...");
+		// Retrieve the recoat layer signal and the relevant parameters
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_travel");
+		double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_travel");
+		double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		pStateEnvironment->LogMessage("create a comand list with the recoating cycle ...");
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// Second command, drive the linear recoater axis to the recoating start position
+		auto pRecoatingStartPositionCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pRecoatingStartPositionCommand->SetIntegerParameter("axis_ID", 4); // axis ID 4 = recoater linear axis
+		pRecoatingStartPositionCommand->SetIntegerParameter("absoluterelative", 1); // 1 = absolute movement
+		pRecoatingStartPositionCommand->SetIntegerParameter("target", (int32_t)round(dRecoatingStartPositionInMM * 1000.0));
+		pRecoatingStartPositionCommand->SetIntegerParameter("speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
+		pRecoatingStartPositionCommand->SetIntegerParameter("acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pRecoatingStartPositionCommand);
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+		pStateEnvironment->SetNextState("waitforrecoaterinstartposition");
+		pStateEnvironment->LogMessage("Waiting for the recaoter to reach the start position ...");
+	}
 }
 
 __DECLARESTATE(waitforrecoaterinstartposition)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	pStateEnvironment->SetNextState("waitforrecoaterinstartposition");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
-	double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
-	double dTargetPosition = dRecoatingStartPositionInMM;
-	//wait for the recoater to be inposition
-	if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
-	{
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
 		pStateEnvironment->SetNextState("platformtolayer");
 	}
+	else {
 
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+		double dTargetPosition = dRecoatingStartPositionInMM;
+		//wait for the recoater to be inposition
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->SetNextState("platformtolayer");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforrecoaterinstartposition");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
 }
 
 __DECLARESTATE(platformtolayer)
 {
-	pStateEnvironment->LogMessage("Moving the platfrom to reach the current layer height ...");
-	// Retrieve the recoat layer signal and the relevant parameters
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
-	double dPlatformAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("platformaxis_speed");
-	double dPlatformAxisAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("platformaxis_acceleration");
-	double dLayerHeightInMM = pSignalHandler->GetDouble("layer_height");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// aquire the BuR driver
-	auto pBuRDriver = __acquireDriver(BuR);
-	//create a comand list with the recoating cycle
-	auto pCommandList = pBuRDriver->CreateCommandList();
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving the platfrom to reach the current layer height ...");
+		pStateEnvironment->SetNextState("waitforplatformtolayer");
+	}
+	else {
+		pStateEnvironment->LogMessage("Moving the platfrom to reach the current layer height ...");
+		// Retrieve the recoat layer signal and the relevant parameters
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
+		double dPlatformAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("platformaxis_speed");
+		double dPlatformAxisAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("platformaxis_acceleration");
+		double dLayerHeightInMM = pSignalHandler->GetDouble("layer_height");
 
-	// Third command, lift the build plate higher than the target heigth
-	auto pPlatformAxisRaisedPositionCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pPlatformAxisRaisedPositionCommand->SetIntegerParameter("axis_ID", 1); // axis ID 1 = build platform
-	pPlatformAxisRaisedPositionCommand->SetIntegerParameter("absoluterelative", 2); // 2 = relative movement
-	pPlatformAxisRaisedPositionCommand->SetIntegerParameter("target", (int32_t)round((dPlatformAxisClearanceInMM - dLayerHeightInMM) * 1000.0));
-	pPlatformAxisRaisedPositionCommand->SetIntegerParameter("speed", (int32_t)round(dPlatformAxisSpeedInMMPerSecond * 1000.0));
-	pPlatformAxisRaisedPositionCommand->SetIntegerParameter("acceleration", (int32_t)round(dPlatformAxisAccelerationInMMPerSecondSqaured * 1000.0));
-	pCommandList->AddCommand(pPlatformAxisRaisedPositionCommand);
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
 
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-	pStateEnvironment->SetNextState("waitforplatformtolayer");
-	pStateEnvironment->LogMessage("Waiting for the platfrom to reach the current layer height ...");
+		// Third command, lift the build plate higher than the target heigth
+		auto pPlatformAxisRaisedPositionCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pPlatformAxisRaisedPositionCommand->SetIntegerParameter("axis_ID", 1); // axis ID 1 = build platform
+		pPlatformAxisRaisedPositionCommand->SetIntegerParameter("absoluterelative", 2); // 2 = relative movement
+		pPlatformAxisRaisedPositionCommand->SetIntegerParameter("target", (int32_t)round((dPlatformAxisClearanceInMM - dLayerHeightInMM) * 1000.0));
+		pPlatformAxisRaisedPositionCommand->SetIntegerParameter("speed", (int32_t)round(dPlatformAxisSpeedInMMPerSecond * 1000.0));
+		pPlatformAxisRaisedPositionCommand->SetIntegerParameter("acceleration", (int32_t)round(dPlatformAxisAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pPlatformAxisRaisedPositionCommand);
+
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+		pStateEnvironment->SetNextState("waitforplatformtolayer");
+		pStateEnvironment->LogMessage("Waiting for the platfrom to reach the current layer height ...");
+	}
 }
 
 __DECLARESTATE(waitforplatformtolayer)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	pStateEnvironment->SetNextState("waitforplatformtolayer");
-	// wait for the platform to be inposition
-	
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
-	double dLayerHeight = pSignalHandler->GetDouble("layer_height");
-	double dTargetPosition = std::round((pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform") + dPlatformAxisClearanceInMM - dLayerHeight) * 1000.0) / 1000.0;;
-	double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
-	// wait for the platform to be inposition
-	if (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition") && dActualPosition == dTargetPosition)
-	{
-		pStateEnvironment->SetNextState("recoatlayer");
-		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dTargetPosition);
-	}
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+	bool bIsDualAxisRecoating = pSignalHandler->GetBool("is_dual_axis_recoating");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		if (bIsDualAxisRecoating)
+		{
+			pStateEnvironment->SetNextState("recoatlayer");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("recoatlayerPowder");
+		}
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+		// wait for the platform to be inposition
+
+		double dPlatformAxisClearanceInMM = pSignalHandler->GetDouble("platformaxis_clearance");
+		double dLayerHeight = pSignalHandler->GetDouble("layer_height");
+		double dTargetPosition = std::round((pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform") + dPlatformAxisClearanceInMM - dLayerHeight) * 1000.0) / 1000.0;;
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
+
+		// wait for the platform to be inposition
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dTargetPosition);
+			if (bIsDualAxisRecoating)
+			{
+				pStateEnvironment->SetNextState("recoatlayer");
+			}
+			else
+			{
+				pStateEnvironment->SetNextState("recoatlayerPowder");
+			}
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforplatformtolayer");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
 }
 
 __DECLARESTATE(recoatlayer)
-{	
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	pStateEnvironment->LogMessage("Recoating ...");
-	// Retrieve the recoat layer signal and its parameters
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_recoating");
-	double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_recoating");
-	double dRecoaterDosingFactor = pSignalHandler->GetDouble("recoater_axes_dosing_factor");
-	double dRecoaterRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
-	double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
-
-	double dRecoaterPowderbeltAxisSpeedInMMPerSecond = dRecoaterLinearAxisSpeedInMMPerSecond * dRecoaterDosingFactor;
-	double dRecoaterAxesPowderAccelerationInMMPerSecondSqaured = dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * dRecoaterDosingFactor;
-
-	// aquire the BuR driver
-	auto pBuRDriver = __acquireDriver(BuR);
-	//create a comand list with the recoating cycle
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	// Fifth command, recoat the powder layer
-	auto pRecoatingCommand = pBuRDriver->CreateCommand("recoaterdualaxismovement");
-	pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_start_position", (int32_t)round(dRecoatingStartPositionInMM * 1000.0));
-	pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_target_position", (int32_t)round(dRecoaterRefillPositionInMM * 1000.0));
-	pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
-	pRecoatingCommand->SetIntegerParameter("recoateraxis_powder_speed", (int32_t)round(dRecoaterPowderbeltAxisSpeedInMMPerSecond * 1000.0));
-	pRecoatingCommand->SetIntegerParameter("recoater_axes_linear_acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
-	pRecoatingCommand->SetIntegerParameter("recoater_axes_powder_acceleration", (int32_t)round(dRecoaterAxesPowderAccelerationInMMPerSecondSqaured * 1000.0));
-	pCommandList->AddCommand(pRecoatingCommand);
-
-	// Finish command list and send it to the PLC
-
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE recoating ...");
 		pStateEnvironment->SetNextState("waitforrecoatlayer");
 	}
-	else
-	{	
-		pStateEnvironment->LogMessage("Timeout while recoating!");
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
-	}
-	
-	/*
-	bool bReady = false;
-	for (uint32_t nIndex = 0; nIndex < 1000; nIndex++) {
-		pDriver->QueryParameters();
-
-		if (pCommandList->WaitForList(300, 100)) {
-			bReady = true;
-			break;
-		}
-	}
-
-
-	if (bReady) {
-		pStateEnvironment->LogMessage("Recoating finished");
-
-		pSignalHandler->SetBoolResult("success", true);
-		pSignalHandler->SignalHandled();
-	}
 	else {
-		pStateEnvironment->LogMessage("Timeout while recoating!");
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
 
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
+		pStateEnvironment->LogMessage("Recoating ...");
+		// Retrieve the recoat layer signal and its parameters
 
-	}*/
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_recoating");
+		double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_recoating");
+		double dRecoaterDosingFactor = pSignalHandler->GetDouble("recoater_axes_dosing_factor");
+		double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+		double dRecoaterEndPositionInMM = pSignalHandler->GetDouble("recoating_end_position");
 
-	
+		double dRecoaterPowderbeltAxisSpeedInMMPerSecond = dRecoaterLinearAxisSpeedInMMPerSecond * dRecoaterDosingFactor;
+		double dRecoaterAxesPowderAccelerationInMMPerSecondSqaured = dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * dRecoaterDosingFactor;
 
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// Fifth command, recoat the powder layer
+		auto pRecoatingCommand = pBuRDriver->CreateCommand("recoaterdualaxismovement");
+		pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_start_position", (int32_t)round(dRecoatingStartPositionInMM * 1000.0));
+		pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_target_position", (int32_t)round(dRecoaterEndPositionInMM * 1000.0));
+		pRecoatingCommand->SetIntegerParameter("recoateraxis_linear_speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
+		pRecoatingCommand->SetIntegerParameter("recoateraxis_powder_speed", (int32_t)round(dRecoaterPowderbeltAxisSpeedInMMPerSecond * 1000.0));
+		pRecoatingCommand->SetIntegerParameter("recoater_axes_linear_acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
+		pRecoatingCommand->SetIntegerParameter("recoater_axes_powder_acceleration", (int32_t)round(dRecoaterAxesPowderAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pRecoatingCommand);
+
+		// Finish command list and send it to the PLC
+
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayer");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Timeout while recoating!");
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+
+		/*
+		bool bReady = false;
+		for (uint32_t nIndex = 0; nIndex < 1000; nIndex++) {
+			pDriver->QueryParameters();
+
+			if (pCommandList->WaitForList(300, 100)) {
+				bReady = true;
+				break;
+			}
+		}
+
+
+		if (bReady) {
+			pStateEnvironment->LogMessage("Recoating finished");
+
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+		}
+		else {
+			pStateEnvironment->LogMessage("Timeout while recoating!");
+
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+		}*/
+
+
+
+	}
 }
 
 __DECLARESTATE(waitforrecoatlayer)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	pStateEnvironment->SetNextState("waitforrecoatlayer");
-	//wait for the recoater to be inposition
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
-	double dRecoaterRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
-	double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
-	double dTargetPosition = dRecoaterRefillPositionInMM;
-	if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
-	{
-		pStateEnvironment->LogMessage("Recoating finished");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE recoating finished");
+		pSignalHandler->SetBoolResult("success", true);
+		pSignalHandler->SignalHandled();
+		pStateEnvironment->SetNextState("recoatertorefillposition");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+		//wait for the recoater to be inposition
+		double dRecoaterEndPositionInMM = pSignalHandler->GetDouble("recoating_end_position");
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+		double dTargetPosition = dRecoaterEndPositionInMM;
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->SetNextState("recoatertorefillposition");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayer");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+
+__DECLARESTATE(recoatlayerPowder)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE powder deposition during recoating ...");
+		pStateEnvironment->SetNextState("waitforrecoatlayerPowder");
+	}
+	else {
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		pStateEnvironment->LogMessage("Powder deposition during recoating ...");
+		// Retrieve the recoat layer signal and its parameters
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_recoating");
+		double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_recoating");
+		double dRecoaterDosingFactor = pSignalHandler->GetDouble("recoater_axes_dosing_factor");
+		double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+		double dRecoaterEndPositionInMM = pSignalHandler->GetDouble("recoating_end_position");
+
+		double dRecoaterPowderbeltAxisTargetInMM = (-(dRecoaterEndPositionInMM - dRecoatingStartPositionInMM)) * dRecoaterDosingFactor;
+		double dRecoaterPowderbeltAxisSpeedInMMPerSecond = dRecoaterLinearAxisSpeedInMMPerSecond * dRecoaterDosingFactor;
+		double dRecoaterAxesPowderAccelerationInMMPerSecondSqaured = dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * dRecoaterDosingFactor;
+
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// chache the position prior to the movement
+		auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder", dActualPosition);
+
+		// Fifth command, recoat the powder layer
+		auto pRecoatingPowderCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pRecoatingPowderCommand->SetIntegerParameter("axis_ID", AXISID_RECOATERPOWDERBELT);
+		pRecoatingPowderCommand->SetIntegerParameter("absoluterelative", RELATIVE_FLAG);
+		pRecoatingPowderCommand->SetIntegerParameter("target", (int32_t)round(dRecoaterPowderbeltAxisTargetInMM * 1000.0));
+		pRecoatingPowderCommand->SetIntegerParameter("speed", (int32_t)round(dRecoaterPowderbeltAxisSpeedInMMPerSecond * 1000.0));
+		pRecoatingPowderCommand->SetIntegerParameter("acceleration", (int32_t)round(dRecoaterAxesPowderAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pRecoatingPowderCommand);
+
+		// Finish command list and send it to the PLC
+
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayerPowder");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Timeout while depositing powder during recoating!");
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(waitforrecoatlayerPowder)
+{
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE deposition of powder during recoating finished");
+		pStateEnvironment->SetNextState("recoatlayerLinear");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		double dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder");
+
+		//wait for the recoater powder belt to be inposition
+		double dRecoaterDosingFactor = pSignalHandler->GetDouble("recoater_axes_dosing_factor");
+		double dRecoatingStartPositionInMM = pSignalHandler->GetDouble("recoating_start_position");
+		double dRecoaterEndPositionInMM = pSignalHandler->GetDouble("recoating_end_position");
+
+		double dRecoaterPowderBeltEndPositionInMM = std::round((((-(dRecoaterEndPositionInMM - dRecoatingStartPositionInMM)) * dRecoaterDosingFactor) + dCachePosition) * 1000.0) / 1000.0;
+		double dRecoaterPowderBeltActualPositionInMM = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
+		
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_isinposition") && dRecoaterPowderBeltActualPositionInMM == dRecoaterPowderBeltEndPositionInMM)
+		{
+			pStateEnvironment->SetNextState("recoatlayerLinear");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayerPowder");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(recoatlayerLinear)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE linear recoater movement during recoating ...");
+		pStateEnvironment->SetNextState("waitforrecoatlayerLinear");
+	}
+	else {
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		pStateEnvironment->LogMessage("Linear recoater movement during recoating ...");
+		// Retrieve the recoat layer signal and its parameters
+
+		double dRecoaterRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
+		double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_recoating");
+		double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_recoating");
+
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// Fifth command, recoat the powder layer
+		auto pRecoatingLinearCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pRecoatingLinearCommand->SetIntegerParameter("axis_ID", AXISID_RECOATELINEAR);
+		pRecoatingLinearCommand->SetIntegerParameter("absoluterelative", ABSOLUTE_FLAG);
+		pRecoatingLinearCommand->SetIntegerParameter("target", (int32_t)round(dRecoaterRefillPositionInMM * 1000.0));
+		pRecoatingLinearCommand->SetIntegerParameter("speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
+		pRecoatingLinearCommand->SetIntegerParameter("acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pRecoatingLinearCommand);
+
+		// Finish command list and send it to the PLC
+
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayerLinear");
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Timeout while moving the recoater linear during recoating!");
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(waitforrecoatlayerLinear)
+{
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE linear recoater movement during recoating finished");
+		pStateEnvironment->LogMessage("SIMULATE recoating finished");
 		pSignalHandler->SetBoolResult("success", true);
 		pSignalHandler->SignalHandled();
 		pStateEnvironment->SetNextState("idle");
 	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+		//wait for the recoater to be inposition
+		double dRecoaterRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+		double dTargetPosition = dRecoaterRefillPositionInMM;
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->LogMessage("Linear recoater movement during recoating finished");
+			pStateEnvironment->LogMessage("Recoating finished");
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforrecoatlayerLinear");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
 
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(recoatertorefillposition)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving recoater to the refill position ...");
+		pStateEnvironment->SetNextState("waitforrecoaterinrefillposition");
+	}
+	else {
+
+		pStateEnvironment->LogMessage("Moving recoater to the refill position ...");
+		// Retrieve the recoat layer signal and the relevant parameters
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoaterLinearAxisSpeedInMMPerSecond = pSignalHandler->GetDouble("recoater_linear_speed_travel");
+		double dRecoaterAxesLinearAccelerationInMMPerSecondSqaured = pSignalHandler->GetDouble("recoater_axes_linear_acceleration_travel");
+		double dRecoaterRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
+
+		// aquire the BuR driver
+		auto pBuRDriver = __acquireDriver(BuR);
+		//create a comand list with the recoating cycle
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		// Second command, drive the linear recoater axis to the recoating start position
+		auto pRecoaterRefillPositionCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pRecoaterRefillPositionCommand->SetIntegerParameter("axis_ID", 4); // axis ID 4 = recoater linear axis
+		pRecoaterRefillPositionCommand->SetIntegerParameter("absoluterelative", 1); // 1 = absolute movement
+		pRecoaterRefillPositionCommand->SetIntegerParameter("target", (int32_t)round(dRecoaterRefillPositionInMM * 1000.0));
+		pRecoaterRefillPositionCommand->SetIntegerParameter("speed", (int32_t)round(dRecoaterLinearAxisSpeedInMMPerSecond * 1000.0));
+		pRecoaterRefillPositionCommand->SetIntegerParameter("acceleration", (int32_t)round(dRecoaterAxesLinearAccelerationInMMPerSecondSqaured * 1000.0));
+		pCommandList->AddCommand(pRecoaterRefillPositionCommand);
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+		pStateEnvironment->SetNextState("waitforrecoaterinrefillposition");
+		pStateEnvironment->LogMessage("Waiting for the recaoter to reach the refill position ...");
+	}
+}
+
+__DECLARESTATE(waitforrecoaterinrefillposition)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->SetNextState("idle");
+	}
+	else {
+
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_recoatlayer");
+		double dRecoatingRefillPositionInMM = pSignalHandler->GetDouble("recoater_refill_position");
+		double dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+		double dTargetPosition = dRecoatingRefillPositionInMM;
+		//wait for the recoater to be inposition
+		if (pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition") && dActualPosition == dTargetPosition)
+		{
+			pStateEnvironment->LogMessage("Recoating finished");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforrecoaterinrefillposition");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
 }
 
 __DECLARESTATE(moverecoaterpowderbelt)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
-	auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
-	auto dTargetInMM = pSignalHandler->GetDouble("target");
-	auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
-	auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
-
-	// chache the position prior to the movement
-	auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
-	pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder", dActualPosition);
-
-	auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_RECOATERPOWDERBELT);
-	pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
-	pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
-	pCommandList->AddCommand(pSingleAxisMovementCommand);
-
-	pStateEnvironment->LogMessage("Trigger single axis movement");
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving recoater powder belt ...");
 		pStateEnvironment->SetNextState("waitforaxismovement");
 	}
-	else
-	{
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("connectionlost");
-	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
 
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
+		auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
+		auto dTargetInMM = pSignalHandler->GetDouble("target");
+		auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
+		auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
+
+		// chache the position prior to the movement
+		auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder", dActualPosition);
+
+		auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_RECOATERPOWDERBELT);
+		pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
+		pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
+		pCommandList->AddCommand(pSingleAxisMovementCommand);
+
+		pStateEnvironment->LogMessage("Trigger single axis movement");
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforaxismovement");
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("connectionlost");
+		}
+
+	}
 }
 
 __DECLARESTATE(moverecoaterlinear)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
-	auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
-	auto dTargetInMM = pSignalHandler->GetDouble("target");
-	auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
-	auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
-
-	// chache the position prior to the movement
-	auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
-	pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_linear", dActualPosition);
-
-	auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_RECOATELINEAR);
-	pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
-	pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
-	pCommandList->AddCommand(pSingleAxisMovementCommand);
-
-	pStateEnvironment->LogMessage("Trigger single axis movement");
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving recoater linear axis ...");
 		pStateEnvironment->SetNextState("waitforaxismovement");
 	}
-	else
-	{
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("connectionlost");
-	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
 
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
+		auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
+		auto dTargetInMM = pSignalHandler->GetDouble("target");
+		auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
+		auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
+
+		// chache the position prior to the movement
+		auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_linear", dActualPosition);
+
+		auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_RECOATELINEAR);
+		pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
+		pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
+		pCommandList->AddCommand(pSingleAxisMovementCommand);
+
+		pStateEnvironment->LogMessage("Trigger single axis movement");
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforaxismovement");
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("connectionlost");
+		}
+
+	}
 }
 
 __DECLARESTATE(movepowderreservoir)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
-	auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
-	auto dTargetInDegree = pSignalHandler->GetDouble("target");
-	auto dSpeedInDegreePerSecond = pSignalHandler->GetDouble("speed");
-	auto dAccelerationInDegreePerSecondSquared = pSignalHandler->GetDouble("acceleration");
-
-	// chache the position prior to the movement
-	auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axPowderReservoir_actualposition") * 1000.0) / 1000.0;
-	pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_powderreservoir", dActualPosition);
-
-	auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_POWDERRESERVOIR);
-	pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
-	pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInDegree * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInDegreePerSecond * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInDegreePerSecondSquared * 1000.0));
-	pCommandList->AddCommand(pSingleAxisMovementCommand);
-
-	pStateEnvironment->LogMessage("Trigger single axis movement");
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving powder reservoir axis ...");
 		pStateEnvironment->SetNextState("waitforaxismovement");
 	}
-	else
-	{
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("connectionlost");
-	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
 
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
+		auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
+		auto dTargetInDegree = pSignalHandler->GetDouble("target");
+		auto dSpeedInDegreePerSecond = pSignalHandler->GetDouble("speed");
+		auto dAccelerationInDegreePerSecondSquared = pSignalHandler->GetDouble("acceleration");
+
+		// chache the position prior to the movement
+		auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axPowderReservoir_actualposition") * 1000.0) / 1000.0;
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_powderreservoir", dActualPosition);
+
+		auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_POWDERRESERVOIR);
+		pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
+		pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInDegree * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInDegreePerSecond * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInDegreePerSecondSquared * 1000.0));
+		pCommandList->AddCommand(pSingleAxisMovementCommand);
+
+		pStateEnvironment->LogMessage("Trigger single axis movement");
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforaxismovement");
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("connectionlost");
+		}
+
+	}
 }
 
 
 __DECLARESTATE(moveplatform)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
-	auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
-	auto dTargetInMM = pSignalHandler->GetDouble("target");
-	auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
-	auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
-
-	// chache the position prior to the movement
-	auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
-	pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dActualPosition);
-
-	auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
-	pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_BUILDPLATFORM);
-	pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
-	pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
-	pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
-	pCommandList->AddCommand(pSingleAxisMovementCommand);
-
-	pStateEnvironment->LogMessage("Trigger single axis movement");
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE moving build plate axis ...");
 		pStateEnvironment->SetNextState("waitforaxismovement");
 	}
-	else
-	{
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-		pStateEnvironment->SetNextState("connectionlost");
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
+		auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
+		auto dTargetInMM = pSignalHandler->GetDouble("target");
+		auto dSpeedInMMPerSecond = pSignalHandler->GetDouble("speed");
+		auto dAccelerationInMMPerSecondSquared = pSignalHandler->GetDouble("acceleration");
+
+		// chache the position prior to the movement
+		auto dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
+		pStateEnvironment->SetDoubleParameter("cacheplcstate", "cache_position_platform", dActualPosition);
+
+		auto pSingleAxisMovementCommand = pBuRDriver->CreateCommand("triggersingleaxismovement");
+		pSingleAxisMovementCommand->SetIntegerParameter("axis_ID", AXISID_BUILDPLATFORM);
+		pSingleAxisMovementCommand->SetIntegerParameter("absoluterelative", nAbsoluteRelative);
+		pSingleAxisMovementCommand->SetIntegerParameter("target", (int32_t)round(dTargetInMM * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("speed", (int32_t)round(dSpeedInMMPerSecond * 1000.0));
+		pSingleAxisMovementCommand->SetIntegerParameter("acceleration", (int32_t)round(dAccelerationInMMPerSecondSquared * 1000.0));
+		pCommandList->AddCommand(pSingleAxisMovementCommand);
+
+		pStateEnvironment->LogMessage("Trigger single axis movement");
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pStateEnvironment->SetNextState("waitforaxismovement");
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("connectionlost");
+		}
 	}
 }
 
 __DECLARESTATE(waitforaxismovement)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_singleaxismovement");
-	auto nAxisID = pSignalHandler->GetInteger("axis_ID");
-	auto dTarget = pSignalHandler->GetDouble("target");
-	auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
 
-	// Check if the actual position equals the target position
-	double dActualPosition = 0.0;
-	double dCachePosition = 0.0;
-	bool bIsInPosition = false;
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
 
-	if (nAxisID == AXISID_BUILDPLATFORM) {
-		dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0) / 1000.0;
-		dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform");
-		bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition");
-	}
-	else if (nAxisID == AXISID_POWDERRESERVOIR) {
-		dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axPowderReservoir_actualposition") * 1000.0) / 1000.0;
-		dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_powderreservoir");
-		bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_isinposition");
-	}
-	else if (nAxisID == AXISID_RECOATERPOWDERBELT) {
-		dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
-		dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder");
-		bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_isinposition");
-	}
-	else if (nAxisID == AXISID_RECOATELINEAR) {
-		dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
-		dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_linear");
-		bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition");
-	}
-
-	// in case of a relative movement, correct the target position by the cached position
-	if (nAbsoluteRelative == RELATIVE_FLAG) {
-		dTarget = dTarget + dCachePosition;
-	}
-	// check if the target position was reached
-	if (bIsInPosition && dActualPosition == dTarget)
-	{
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE single axis movement done...");
 		pSignalHandler->SetBoolResult("success", true);
 		pSignalHandler->SignalHandled();
 		pStateEnvironment->SetNextState("idle");
 		return;
 	}
-	pStateEnvironment->SetNextState("waitforaxismovement");
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		
+		auto nAxisID = pSignalHandler->GetInteger("axis_ID");
+		auto dTarget = pSignalHandler->GetDouble("target");
+		auto nAbsoluteRelative = pSignalHandler->GetInteger("absoluterelative");
+
+		// Check if the actual position equals the target position
+		double dActualPosition = 0.0;
+		double dCachePosition = 0.0;
+		bool bIsInPosition = false;
+
+		if (nAxisID == AXISID_BUILDPLATFORM) {
+			dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axBuildPlatform_actualposition") * 1000.0)/ 1000.0;
+			dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_platform");
+			bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axBuildPlatform_isinposition");
+		}
+		else if (nAxisID == AXISID_POWDERRESERVOIR) {
+			dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axPowderReservoir_actualposition") * 1000.0) / 1000.0;
+			dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_powderreservoir");
+			bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axPowderReservoir_isinposition");
+		}
+		else if (nAxisID == AXISID_RECOATERPOWDERBELT) {
+			dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoaterPowderBelt_actualposition") * 1000.0) / 1000.0;
+			dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_powder");
+			bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axRecoaterPowderBelt_isinposition");
+		}
+		else if (nAxisID == AXISID_RECOATELINEAR) {
+			dActualPosition = std::round(pStateEnvironment->GetDoubleParameter("plcstate", "axRecoater_actualposition") * 1000.0) / 1000.0;
+			dCachePosition = pStateEnvironment->GetDoubleParameter("cacheplcstate", "cache_position_recoateraxis_linear");
+			bIsInPosition = pStateEnvironment->GetBoolParameter("plcstate", "axRecoater_isinposition");
+		}
+
+		// in case of a relative movement, correct the target position by the cached position
+		if (nAbsoluteRelative == RELATIVE_FLAG) {
+			dTarget = dTarget + dCachePosition;
+		}
+		// check if the target position was reached
+		if (bIsInPosition && (std::abs(dActualPosition - dTarget) < 0.001))
+		{
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforaxismovement");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
 }
 
 __DECLARESTATE(connectionlost)
@@ -1784,400 +2586,58 @@ __DECLARESTATE(emergencyofferror)
 
 __DECLARESTATE(shieldinggasflooding)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-	
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
 
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	pStateEnvironment->LogMessage("Turn on shielding gas controller...");
-
-	auto pEnableOxygenControllerCommand = pBuRDriver->CreateCommand("enablecontroller");
-	pEnableOxygenControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
-	pCommandList->AddCommand(pEnableOxygenControllerCommand);
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
-		pBuRDriver->QueryParameters();
-
-		bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
-
-		if (bControllerIsEnabled == true)
-		{
-			pStateEnvironment->LogMessage("The shielding gas controller was enabled....");
-			pStateEnvironment->SetNextState("waitforoxygen");
-		}
-		else
-		{
-			pStateEnvironment->LogMessage("The shielding gas controller was not enabled....");
-			pStateEnvironment->SetNextState("idle");
-			pSignalHandler->SetBoolResult("success", false);
-			pSignalHandler->SignalHandled();
-		}
-}
-	else
-	{
-		pStateEnvironment->LogMessage("PLC has not responded....");
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-	}
-}
-
-__DECLARESTATE(waitforoxygen)
-{
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	// Get actual oxygen value in the filter
-	int nO2FilterInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_filter_ppm");
-
-	// Get desired oxygen value to turn on the circulation pump
-	int nO2ThresholdCirculationOnInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_threshold_circulation_on_in_ppm");
-
-	auto pSignalHandlerEnableController = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
-	LibMCEnv::PSignalHandler pSignalHandlerDisableController;
-
-	if (nO2FilterInPPM < nO2ThresholdCirculationOnInPPM)
-	{
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandlerEnableController->SetBoolResult("success", true);
-		pSignalHandlerEnableController->SignalHandled();
-	}
-	else {
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE turning on shielding gas controller ...");
 		pStateEnvironment->SetNextState("waitforoxygen");
 	}
-
-	if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
-	{
-		pSignalHandlerEnableController->SetBoolResult("success", false);
-		pSignalHandlerEnableController->SignalHandled();
-
-		pStateEnvironment->LogMessage("Disabling the shielding gas controller....");
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
-		pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
-		pPLCCommandList->AddCommand(pDisableControllerCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nGeneralCommandTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			pBuRDriver->QueryParameters();
-
-			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
-
-			if (bControllerIsEnabled == false)
-			{
-				pSignalHandlerDisableController->SetBoolResult("success", true);
-			}
-			else
-			{
-				pSignalHandlerDisableController->SetBoolResult("success", false);
-			}
-		}
-		else
-		{
-			pSignalHandlerDisableController->SetBoolResult("success", false);
-		}
-		pSignalHandlerDisableController->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
-	}
-
-}
-
-__DECLARESTATE(startgasflow)
-{
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
-	// Get Timeouts
-	uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_atmospherecontrol_start_gas_flow");
-
-	pStateEnvironment->LogMessage("Starting gas flow for atmosphere control....");
-	auto pPLCCommandList = pBuRDriver->CreateCommandList();
-	auto pAtmosphereControlStartGasFlowCommand = pBuRDriver->CreateCommand("startgasflow");
-	pAtmosphereControlStartGasFlowCommand->SetIntegerParameter("setpoint_in_percent", pSignalHandler->GetInteger("setpoint_in_percent"));
-	pPLCCommandList->AddCommand(pAtmosphereControlStartGasFlowCommand);
-	pPLCCommandList->FinishList();
-	pPLCCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nStartStopPumpTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
-		pBuRDriver->QueryParameters();
-		// Check if circulation pump was started
-		bool bIsOnCirculationPump = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
-
-		if (bIsOnCirculationPump == true)
-		{
-			pStateEnvironment->LogMessage("The circulation pump was started....");
-			pStateEnvironment->SetNextState("waitforgasflow");
-		}
-		else
-		{
-			pStateEnvironment->LogMessage("The circulation pump was not started....");
-			pStateEnvironment->SetNextState("idle");
-			pSignalHandler->SetBoolResult("success", false);
-			pSignalHandler->SignalHandled();
-		}
-	}
-	else
-	{
-		pStateEnvironment->LogMessage("PLC has not responded....");
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandler->SetBoolResult("success", false);
-		pSignalHandler->SignalHandled();
-	}
-}
-
-__DECLARESTATE(waitforgasflow)
-{
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
-	// Get Timeouts
-	uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
-
-	// Get actual oxygen value in the chamber
-	int nO2ChamberInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_chamber_ppm");
-
-	// Get desired oxygen value to start the process
-	int nO2SetpointInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "oxygencontrol_PID_setvalue");
-
-	auto pSignalHandlerStartPump = pStateEnvironment->RetrieveSignal("signal_atmospherecontrol_start_gas_flow");
-	LibMCEnv::PSignalHandler pSignalHandlerTurnOffPump;
-
-	if (nO2ChamberInPPM < nO2SetpointInPPM)
-	{
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandlerStartPump->SetBoolResult("success", true);
-		pSignalHandlerStartPump->SignalHandled();
-	}
-	else if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_turn_off_gas_flow", 0, pSignalHandlerTurnOffPump))
-	{
-		pSignalHandlerStartPump->SetBoolResult("success", false);
-		pSignalHandlerStartPump->SignalHandled();
-
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-
-		pStateEnvironment->LogMessage("Turning off the circulation pump....");
-		auto pTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffgasflow");
-		pPLCCommandList->AddCommand(pTurnOffPumpCommand);
-		
-		pStateEnvironment->LogMessage("Disabling the oxygen controller....");
-		auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
-		pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
-		pPLCCommandList->AddCommand(pDisableControllerCommand);
-
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nStartStopPumpTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-		{
-			pBuRDriver->QueryParameters();
-
-			bool bCirculationPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
-			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
-
-			if ((bCirculationPumpIsTurnedOn == false) && (bControllerIsEnabled == false))
-			{
-				pSignalHandlerTurnOffPump->SetBoolResult("success", true);
-			}
-			else
-			{
-				pSignalHandlerTurnOffPump->SetBoolResult("success", false);
-			}
-		}
-		else
-		{
-			pSignalHandlerTurnOffPump->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("connectionlost");
-		}
-		pSignalHandlerTurnOffPump->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
-	}
 	else {
-		pStateEnvironment->SetNextState("waitforgasflow");
-	}
-}
-
-__DECLARESTATE(updatebuildplatetemperature)
-{
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
-
-	auto pCommandList = pBuRDriver->CreateCommandList();
-
-	pStateEnvironment->LogMessage("Turn on heater controller");
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
-
-	auto pEnableHeaterCommand = pBuRDriver->CreateCommand("enablecontroller");
-	pEnableHeaterCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_HEATER);
-	pCommandList->AddCommand(pEnableHeaterCommand);
-	pCommandList->FinishList();
-	pCommandList->ExecuteList();
-
-	//TODO: delete sleep and repair PLC responce
-	pStateEnvironment->Sleep(nGeneralCommandTimeout);
-	if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
-	{
+		auto pBuRDriver = __acquireDriver(BuR);
 		pBuRDriver->QueryParameters();
 
-		bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
 
-		if (bControllerIsEnabled == true)
-		{
-			pStateEnvironment->LogMessage("The heater controller was enabled....");
-			pStateEnvironment->SetNextState("waitforbuildplatetemperature");
-			pSignalHandler->SetBoolResult("success", true);
-		}
-		else
-		{
-			pSignalHandler->SetBoolResult("success", false);
-			pStateEnvironment->SetNextState("idle");
-			pSignalHandler->SignalHandled();
-		}
-	}
-	else
-	{
-		pSignalHandler->SetBoolResult("success", false);
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandler->SignalHandled();
-	}
-}
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
+		bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
 
-__DECLARESTATE(waitforbuildplatetemperature)
-{
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
+		auto pCommandList = pBuRDriver->CreateCommandList();
 
-	// Get Timeouts
-	uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+		pStateEnvironment->LogMessage("Turn on shielding gas controller...");
 
-	// Get actual temperature of the build plate heater
-	int nBuildPlateTemperatureInDegreeCelsius = (int) (20 * pStateEnvironment->GetDoubleParameter("plcstate", "112kf15_voltage02"));
-
-	// Get desired temperature of the build plate heater
-	int nHeaterSetpointInDegreeCelsius = pStateEnvironment->GetIntegerParameter("plcstate", "heater_PID_setvalue");
-
-	auto pSignalHandlerEnableController = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
-	LibMCEnv::PSignalHandler pSignalHandlerDisableController;
-
-	if (nBuildPlateTemperatureInDegreeCelsius > nHeaterSetpointInDegreeCelsius)
-	{
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandlerEnableController->SetBoolResult("success", true);
-		pSignalHandlerEnableController->SignalHandled();
-	}
-	else
-	{
-		pStateEnvironment->SetNextState("waitforbuildplatetemperature");
-	}
-
-	if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
-	{
-		pSignalHandlerEnableController->SetBoolResult("success", false);
-		pSignalHandlerEnableController->SignalHandled();
-
-		pStateEnvironment->LogMessage("Disabling the heater controller....");
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
-		pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_HEATER);
-		pPLCCommandList->AddCommand(pDisableControllerCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
+		auto pEnableOxygenControllerCommand = pBuRDriver->CreateCommand("enablecontroller");
+		pEnableOxygenControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+		pCommandList->AddCommand(pEnableOxygenControllerCommand);
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
 
 		//TODO: delete sleep and repair PLC responce
 		pStateEnvironment->Sleep(nGeneralCommandTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
 		{
 			pBuRDriver->QueryParameters();
 
-			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
+			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
 
-			if (bControllerIsEnabled == false)
+			if (bControllerIsEnabled == true)
 			{
-				pSignalHandlerDisableController->SetBoolResult("success", true);
+				pStateEnvironment->LogMessage("The shielding gas controller was enabled....");
+				if (bIsProcessFlag)
+				{
+					pStateEnvironment->SetNextState("waitforoxygen");
+				}
+				else
+				{
+					pStateEnvironment->SetNextState("idle");
+					pSignalHandler->SetBoolResult("success", true);
+					pSignalHandler->SignalHandled();
+				}
 			}
 			else
 			{
-				pSignalHandlerDisableController->SetBoolResult("success", false);
-			}
-		}
-		else
-		{
-			pSignalHandlerDisableController->SetBoolResult("success", false);
-		}
-		pSignalHandlerDisableController->SignalHandled();
-		pStateEnvironment->SetNextState("idle");
-	}
-}
-
-__DECLARESTATE(evacuatebuildchamber)
-{
-
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
-
-	// Get Timeouts
-	uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
-
-	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_vacuumcontrol_start_vacuum_pump");
-
-	// Get absolute pressure
-	int nPressure = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_in_mbar");
-
-	// Get desired absolute pressure
-	int nPressureThreshold = pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar");
-
-	if (nPressure >= nPressureThreshold) //Check if turning on the vacuum pump is necessary
-	{
-		pStateEnvironment->LogMessage("Starting the vacuum pump....");
-
-		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pVacuumControlStartPumpCommand = pBuRDriver->CreateCommand("startvacuumpump");
-		pPLCCommandList->AddCommand(pVacuumControlStartPumpCommand);
-		pPLCCommandList->FinishList();
-		pPLCCommandList->ExecuteList();
-
-		//TODO: delete sleep and repair PLC responce
-		pStateEnvironment->Sleep(nStartStopPumpTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout,nGeneralCommandTimeout))
-		{
-			pBuRDriver->QueryParameters();
-
-			// Check if vacuum pump is switched on
-			bool bIsOnVacuumPump = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
-
-			if (bIsOnVacuumPump == true)
-			{
-				pStateEnvironment->SetNextState("waitforvaccuum");
-			}
-			else
-			{
-				pStateEnvironment->LogMessage("The vacuum pump was not started....");
+				pStateEnvironment->LogMessage("The shielding gas controller was not enabled....");
 				pStateEnvironment->SetNextState("idle");
 				pSignalHandler->SetBoolResult("success", false);
 				pSignalHandler->SignalHandled();
@@ -2191,76 +2651,617 @@ __DECLARESTATE(evacuatebuildchamber)
 			pSignalHandler->SignalHandled();
 		}
 	}
-	else
-	{
-		pStateEnvironment->LogMessage("The desired pressure is already reached....");
+}
+
+__DECLARESTATE(waitforoxygen)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandlerEnableController = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
+	LibMCEnv::PSignalHandler pSignalHandlerDisableController;
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE oxygen level reached...");
+		pSignalHandlerEnableController->SetBoolResult("success", true);
+		pSignalHandlerEnableController->SignalHandled();
+		if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
+		{
+			pStateEnvironment->LogMessage("Disabling the shielding gas controller....");
+			pStateEnvironment->LogMessage("SIMULATE disabling the shielding gas controller...");
+			pSignalHandlerDisableController->SetBoolResult("success", true);
+			pSignalHandlerDisableController->SignalHandled();
+		}
 		pStateEnvironment->SetNextState("idle");
-		pSignalHandler->SetBoolResult("success", true);
-		pSignalHandler->SignalHandled();
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		// Get actual oxygen value in the filter
+		int nO2FilterInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_filter_ppm");
+		// Get actual oxygen value in the chamber
+		int nO2ChamberInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_chamber_ppm");
+
+		// Get desired oxygen value to turn on the circulation pump
+		int nO2ThresholdCirculationOnInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_threshold_circulation_on_in_ppm");
+
+		int nToleranceInPPM = pSignalHandlerEnableController->GetInteger("atmosphere_controller_threshold_tolerance_ppm");
+		
+
+		if (nO2FilterInPPM < (nO2ThresholdCirculationOnInPPM - nToleranceInPPM))
+		{
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandlerEnableController->SetBoolResult("success", true);
+			pSignalHandlerEnableController->SignalHandled();
+		}
+		else {
+			pStateEnvironment->SetNextState("waitforoxygen");
+		}
+
+		if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
+		{
+			pSignalHandlerEnableController->SetBoolResult("success", false);
+			pSignalHandlerEnableController->SignalHandled();
+
+			pStateEnvironment->LogMessage("Disabling the shielding gas controller....");
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
+			pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+			pPLCCommandList->AddCommand(pDisableControllerCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nGeneralCommandTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
+
+				if (bControllerIsEnabled == false)
+				{
+					pSignalHandlerDisableController->SetBoolResult("success", true);
+				}
+				else
+				{
+					pSignalHandlerDisableController->SetBoolResult("success", false);
+				}
+			}
+			else
+			{
+				pSignalHandlerDisableController->SetBoolResult("success", false);
+			}
+			pSignalHandlerDisableController->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandlerEnableController->SetBoolResult("success", false);
+			pSignalHandlerEnableController->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
 	}
 }
 
-__DECLARESTATE(waitforvaccuum)
+__DECLARESTATE(startgasflow)
 {
-	auto pBuRDriver = __acquireDriver(BuR);
-	pBuRDriver->QueryParameters();
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	
+	auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_atmospherecontrol_start_gas_flow");
+	bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
 
-	// Get Timeouts
-	uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
-
-	auto pSignalHandlerStartPump = pStateEnvironment->RetrieveSignal("signal_vacuumcontrol_start_vacuum_pump");
-	LibMCEnv::PSignalHandler pSignalHandlerStopPump;
-
-	// Get absolute pressure
-	int nPressure = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_in_mbar");
-
-	// Get desired absolute pressure
-	int nPressureThreshold = pSignalHandlerStartPump->GetInteger("pressure_threshold_vacuum_off_in_mbar");
-
-	if (nPressure < nPressureThreshold)
-	{
-		pStateEnvironment->SetNextState("idle");
-		pSignalHandlerStartPump->SetBoolResult("success", true);
-		pSignalHandlerStartPump->SignalHandled();
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE starting gas flow for atmosphere control...");
+		pStateEnvironment->SetNextState("waitforgasflow");
 	}
 	else {
-		pStateEnvironment->SetNextState("waitforvaccuum"); 
-	}
-		
-	if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandlerStopPump))
-	{
-		pSignalHandlerStartPump->SetBoolResult("success", false);
-		pSignalHandlerStartPump->SignalHandled();
-		
-		pStateEnvironment->LogMessage("Turning off the vacuum pump....");
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
+
+		pStateEnvironment->LogMessage("Starting gas flow for atmosphere control...");
 		auto pPLCCommandList = pBuRDriver->CreateCommandList();
-		auto pVacuumControlTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffvacuumpump");
-		pPLCCommandList->AddCommand(pVacuumControlTurnOffPumpCommand);
+		auto pAtmosphereControlStartGasFlowCommand = pBuRDriver->CreateCommand("startgasflow");
+		pAtmosphereControlStartGasFlowCommand->SetIntegerParameter("setpoint_in_percent", pSignalHandler->GetInteger("setpoint_in_percent"));
+		pPLCCommandList->AddCommand(pAtmosphereControlStartGasFlowCommand);
 		pPLCCommandList->FinishList();
 		pPLCCommandList->ExecuteList();
 
 		//TODO: delete sleep and repair PLC responce
 		pStateEnvironment->Sleep(nStartStopPumpTimeout);
-		if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
 		{
 			pBuRDriver->QueryParameters();
+			// Check if circulation pump was started
+			bool bIsOnCirculationPump = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
 
-			bool bVacuumPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
-			if (bVacuumPumpIsTurnedOn == false)
+			if (bIsOnCirculationPump == true)
 			{
-				pSignalHandlerStopPump->SetBoolResult("success", true);
+				pStateEnvironment->LogMessage("The circulation pump was started....");
+				if (bIsProcessFlag)
+				{
+					pStateEnvironment->SetNextState("waitforgasflow");
+				}
+				else
+				{
+					pStateEnvironment->SetNextState("idle");
+					pSignalHandler->SetBoolResult("success", true);
+					pSignalHandler->SignalHandled();
+				}
 			}
 			else
 			{
-				pSignalHandlerStopPump->SetBoolResult("success", false);
+				pStateEnvironment->LogMessage("The circulation pump was not started....");
+				pStateEnvironment->SetNextState("idle");
+				pSignalHandler->SetBoolResult("success", false);
+				pSignalHandler->SignalHandled();
 			}
 		}
 		else
 		{
-			pSignalHandlerStopPump->SetBoolResult("success", false);
+			pStateEnvironment->LogMessage("PLC has not responded....");
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandler->SetBoolResult("success", false);
+			pSignalHandler->SignalHandled();
 		}
-		pSignalHandlerStopPump->SignalHandled();
+	}
+}
+
+__DECLARESTATE(waitforgasflow)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandlerStartPump = pStateEnvironment->RetrieveSignal("signal_atmospherecontrol_start_gas_flow");
+	LibMCEnv::PSignalHandler pSignalHandlerTurnOffPump;
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE reaching oxygen level with shielding gas flow...");
+		pSignalHandlerStartPump->SetBoolResult("success", true);
+		pSignalHandlerStartPump->SignalHandled();
+		if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_turn_off_gas_flow", 0, pSignalHandlerTurnOffPump))
+		{
+			pStateEnvironment->LogMessage("SIMULATE turning off the gas flow pump and dissable the ogygen controller...");
+			pSignalHandlerTurnOffPump->SetBoolResult("success", true);
+			pSignalHandlerTurnOffPump->SignalHandled();
+		}
 		pStateEnvironment->SetNextState("idle");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
+
+		// Get actual oxygen value in the chamber
+		int nO2ChamberInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "o2_chamber_ppm");
+
+		// Get desired oxygen value to start the process
+		int nO2SetpointInPPM = pStateEnvironment->GetIntegerParameter("plcstate", "oxygencontrol_PID_setvalue");
+
+		
+		if (nO2ChamberInPPM < nO2SetpointInPPM)
+		{
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandlerStartPump->SetBoolResult("success", true);
+			pSignalHandlerStartPump->SignalHandled();
+		}
+		else {
+			pStateEnvironment->SetNextState("waitforgasflow");
+		}
+		
+		if (pStateEnvironment->WaitForSignal("signal_atmospherecontrol_turn_off_gas_flow", 0, pSignalHandlerTurnOffPump))
+		{
+			pSignalHandlerStartPump->SetBoolResult("success", false);
+			pSignalHandlerStartPump->SignalHandled();
+
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+
+			pStateEnvironment->LogMessage("Turning off the circulation pump...");
+			auto pTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffgasflow");
+			pPLCCommandList->AddCommand(pTurnOffPumpCommand);
+
+			pStateEnvironment->LogMessage("Disabling the oxygen controller...");
+			auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
+			pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_SHIELDINGGAS);
+			pPLCCommandList->AddCommand(pDisableControllerCommand);
+
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nStartStopPumpTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bCirculationPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input02");
+				bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "oxygencontrol_PID_isenabled");
+
+				if ((bCirculationPumpIsTurnedOn == false) && (bControllerIsEnabled == false))
+				{
+					pSignalHandlerTurnOffPump->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandlerTurnOffPump->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandlerTurnOffPump->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+			pSignalHandlerTurnOffPump->SignalHandled();
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandlerStartPump->SetBoolResult("success", false);
+			pSignalHandlerStartPump->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(updatebuildplatetemperature)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE updating build plate temperature setpoint...");
+		pStateEnvironment->SetNextState("waitforbuildplatetemperature");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		auto pCommandList = pBuRDriver->CreateCommandList();
+
+		pStateEnvironment->LogMessage("Turn on heater controller");
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
+		bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
+
+		auto pEnableHeaterCommand = pBuRDriver->CreateCommand("enablecontroller");
+		pEnableHeaterCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_HEATER);
+		pCommandList->AddCommand(pEnableHeaterCommand);
+		pCommandList->FinishList();
+		pCommandList->ExecuteList();
+
+		//TODO: delete sleep and repair PLC responce
+		pStateEnvironment->Sleep(nGeneralCommandTimeout);
+		if (true)//pCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+		{
+			pBuRDriver->QueryParameters();
+
+			bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
+
+			if (bControllerIsEnabled == true)
+			{
+				pStateEnvironment->LogMessage("The heater controller was enabled....");
+				if (bIsProcessFlag)
+				{
+					pStateEnvironment->SetNextState("waitforbuildplatetemperature");
+				}
+				else
+				{
+					pSignalHandler->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+					pSignalHandler->SignalHandled();
+				}
+			}
+			else
+			{
+				pSignalHandler->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("idle");
+				pSignalHandler->SignalHandled();
+			}
+		}
+		else
+		{
+			pSignalHandler->SetBoolResult("success", false);
+			pStateEnvironment->SetNextState("connectionlost");
+			pSignalHandler->SignalHandled();
+		}
+	}
+}
+
+__DECLARESTATE(waitforbuildplatetemperature)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandlerEnableController = pStateEnvironment->RetrieveSignal("signal_enablecontroller");
+	LibMCEnv::PSignalHandler pSignalHandlerDisableController;
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE build plate temperature reached...");
+		pSignalHandlerEnableController->SetBoolResult("success", true);
+		pSignalHandlerEnableController->SignalHandled();
+
+		if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
+		{
+			pStateEnvironment->LogMessage("SIMULATE turning off bild plate heater...");
+			pSignalHandlerDisableController->SetBoolResult("success", false);
+			pSignalHandlerDisableController->SignalHandled();
+		}
+		pStateEnvironment->SetNextState("idle");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nGeneralCommandTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "generalplctimeout");
+
+		// Get actual temperature of the build plate heater
+		int nBuildPlateTemperatureInDegreeCelsius = (int)(20 * pStateEnvironment->GetDoubleParameter("plcstate", "112kf15_voltage02"));
+
+		// Get desired temperature of the build plate heater
+		int nHeaterSetpointInDegreeCelsius = pStateEnvironment->GetIntegerParameter("plcstate", "heater_PID_setvalue");
+
+		if (nBuildPlateTemperatureInDegreeCelsius > (nHeaterSetpointInDegreeCelsius - 2))
+		{
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandlerEnableController->SetBoolResult("success", true);
+			pSignalHandlerEnableController->SignalHandled();
+		}
+		else
+		{
+			pStateEnvironment->SetNextState("waitforbuildplatetemperature");
+		}
+
+		if (pStateEnvironment->WaitForSignal("signal_disablecontroller", 0, pSignalHandlerDisableController))
+		{
+			pSignalHandlerEnableController->SetBoolResult("success", false);
+			pSignalHandlerEnableController->SignalHandled();
+
+			pStateEnvironment->LogMessage("Disabling the heater controller....");
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pDisableControllerCommand = pBuRDriver->CreateCommand("disablecontroller");
+			pDisableControllerCommand->SetIntegerParameter("controller_ID", CONTROLLER_ID_HEATER);
+			pPLCCommandList->AddCommand(pDisableControllerCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nGeneralCommandTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bControllerIsEnabled = pStateEnvironment->GetBoolParameter("plcstate", "heater_PID_isenabled");
+
+				if (bControllerIsEnabled == false)
+				{
+					pSignalHandlerDisableController->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandlerDisableController->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandlerDisableController->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+
+			}
+			pSignalHandlerDisableController->SignalHandled();
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandlerEnableController->SetBoolResult("success", false);
+			pSignalHandlerEnableController->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
+	}
+}
+
+__DECLARESTATE(evacuatebuildchamber)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->LogMessage("SIMULATE starting the vacuum pump...");
+		pStateEnvironment->SetNextState("waitforvaccuum");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
+
+		auto pSignalHandler = pStateEnvironment->RetrieveSignal("signal_vacuumcontrol_start_vacuum_pump");
+
+		// Get absolute pressure
+		int nPressure = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_in_mbar");
+
+		// Get desired absolute pressure
+		int nPressureThreshold = pSignalHandler->GetInteger("pressure_threshold_vacuum_off_in_mbar");
+
+		bool bIsProcessFlag = pSignalHandler->GetBool("is_process_flag");
+
+		if ((nPressure >= nPressureThreshold) || (!bIsProcessFlag)) //Check if turning on the vacuum pump is necessary
+		{
+			pStateEnvironment->LogMessage("Starting the vacuum pump...");
+
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pVacuumControlStartPumpCommand = pBuRDriver->CreateCommand("startvacuumpump");
+			pPLCCommandList->AddCommand(pVacuumControlStartPumpCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nStartStopPumpTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout,nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				// Check if vacuum pump is switched on
+				bool bIsOnVacuumPump = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
+
+				if (bIsOnVacuumPump == true)
+				{
+					if (bIsProcessFlag)
+					{
+						pStateEnvironment->SetNextState("waitforvaccuum");
+					}
+					else
+					{
+						pStateEnvironment->SetNextState("idle");
+						pSignalHandler->SetBoolResult("success", true);
+						pSignalHandler->SignalHandled();
+					}
+				}
+				else
+				{
+					pStateEnvironment->LogMessage("The vacuum pump was not started....");
+					pStateEnvironment->SetNextState("idle");
+					pSignalHandler->SetBoolResult("success", false);
+					pSignalHandler->SignalHandled();
+				}
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("PLC has not responded....");
+				pStateEnvironment->SetNextState("idle");
+				pSignalHandler->SetBoolResult("success", false);
+				pSignalHandler->SignalHandled();
+			}
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("The desired pressure is already reached....");
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandler->SetBoolResult("success", true);
+			pSignalHandler->SignalHandled();
+		}
+	}
+}
+
+__DECLARESTATE(waitforvaccuum)
+{
+	bool bIsSimulation = pStateEnvironment->GetBoolParameter("simulation", "plc_is_simulated");
+	auto pSignalHandlerStartPump = pStateEnvironment->RetrieveSignal("signal_vacuumcontrol_start_vacuum_pump");
+	LibMCEnv::PSignalHandler pSignalHandlerStopPump;
+	LibMCEnv::PSignalHandler pSignalHandlerLeaveStateForIdle;
+
+	if (bIsSimulation) {
+		// In simulation mode
+		pStateEnvironment->Sleep(1000);
+		pStateEnvironment->LogMessage("SIMULATE vacuum pressure reached...");
+		pSignalHandlerStartPump->SetBoolResult("success", true);
+		pSignalHandlerStartPump->SignalHandled();
+
+		if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandlerStopPump))
+		{
+			pStateEnvironment->LogMessage("SIMULATE turning off vacuum pump...");
+			pSignalHandlerStopPump->SetBoolResult("success", true);
+			pSignalHandlerStopPump->SignalHandled();
+		}
+		pStateEnvironment->SetNextState("idle");
+	}
+	else {
+		auto pBuRDriver = __acquireDriver(BuR);
+		pBuRDriver->QueryParameters();
+
+		// Get Timeouts
+		uint32_t nStartStopPumpTimeout = pStateEnvironment->GetIntegerParameter("timeouts", "startstoppumptimeout");
+
+		// Get absolute pressure
+		int nPressure = pStateEnvironment->GetIntegerParameter("plcstate", "pressure_in_mbar");
+
+		// Get desired absolute pressure
+		int nPressureThreshold = pSignalHandlerStartPump->GetInteger("pressure_threshold_vacuum_off_in_mbar");
+
+		if (nPressure < nPressureThreshold)
+		{
+			pStateEnvironment->SetNextState("idle");
+			pSignalHandlerStartPump->SetBoolResult("success", true);
+			pSignalHandlerStartPump->SignalHandled();
+		}
+		else {
+			pStateEnvironment->SetNextState("waitforvaccuum");
+		}
+
+		if (pStateEnvironment->WaitForSignal("signal_vacuumcontrol_turn_off_vacuum_pump", 0, pSignalHandlerStopPump))
+		{
+			pSignalHandlerStartPump->SetBoolResult("success", false);
+			pSignalHandlerStartPump->SignalHandled();
+
+			pStateEnvironment->LogMessage("Turning off the vacuum pump....");
+			auto pPLCCommandList = pBuRDriver->CreateCommandList();
+			auto pVacuumControlTurnOffPumpCommand = pBuRDriver->CreateCommand("turnoffvacuumpump");
+			pPLCCommandList->AddCommand(pVacuumControlTurnOffPumpCommand);
+			pPLCCommandList->FinishList();
+			pPLCCommandList->ExecuteList();
+
+			//TODO: delete sleep and repair PLC responce
+			pStateEnvironment->Sleep(nStartStopPumpTimeout);
+			if (true)//pPLCCommandList->WaitForList(nResponseTimeout, nGeneralCommandTimeout))
+			{
+				pBuRDriver->QueryParameters();
+
+				bool bVacuumPumpIsTurnedOn = pStateEnvironment->GetBoolParameter("plcstate", "113kf18_input04");
+				if (bVacuumPumpIsTurnedOn == false)
+				{
+					pSignalHandlerStopPump->SetBoolResult("success", true);
+					pStateEnvironment->SetNextState("idle");
+				}
+				else
+				{
+					pSignalHandlerStopPump->SetBoolResult("success", false);
+					pStateEnvironment->SetNextState("idle");
+				}
+			}
+			else
+			{
+				pSignalHandlerStopPump->SetBoolResult("success", false);
+				pStateEnvironment->SetNextState("connectionlost");
+			}
+			pSignalHandlerStopPump->SignalHandled();
+		}
+		if (pStateEnvironment->WaitForSignal("signal_leavestateforidle", 0, pSignalHandlerLeaveStateForIdle))
+		{
+			pSignalHandlerStartPump->SetBoolResult("success", false);
+			pSignalHandlerStartPump->SignalHandled();
+
+			pSignalHandlerLeaveStateForIdle->SetBoolResult("success", true);
+			pSignalHandlerLeaveStateForIdle->SignalHandled();
+			pStateEnvironment->SetNextState("idle");
+		}
 	}
 }
 

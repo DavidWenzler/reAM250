@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.2" SubType="binary" Description="[mapp Motion] PLCopen axis library" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>McAxis.typ</File>
+    <File>McAxis.fun</File>
+    <File>McAxis.var</File>
+    <File>McAxisCfg.typ</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="McBase" FromVersion="5.16.0" ToVersion="5.16.9" />
+  </Dependencies>
+</Library>

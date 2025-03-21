@@ -219,6 +219,26 @@ public:
 
 };
 
+class CEvent_PauseBuild : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_pausebuild";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Clicked on PauseBuild Button");
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_pausebuild");
+		pSignal->Trigger();
+	}
+
+};
+
 class CEvent_SingleAxisMovement : public virtual CEvent {
 
 public:
@@ -381,7 +401,6 @@ public:
 
 };
 
-
 class CEvent_ManualMovementControl_Leave : public virtual CEvent {
 
 public:
@@ -414,6 +433,69 @@ public:
 
 };
 
+class CEvent_ManualMovementControl_Leave_For_Waitforshutdown : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualmovementcontrol_leave_for_waitforshutdown";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual control mode for waitforshutdown");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualmovementcontrol_leave_for_waitforshutdown");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Movement", "Could not leave manual control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualMovementControl_Leave_For_Pauseprocess : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualmovementcontrol_leave_for_pauseprocess";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual control mode for pauseprocess");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualmovementcontrol_leave_for_pauseprocess");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Movement", "Could not leave manual control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
 
 class CEvent_ManualControl_ReferenceAxis : public virtual CEvent {
 
@@ -433,7 +515,6 @@ public:
 
 		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_referenceaxis");
 		pSignal->SetBool("reference_platform", (sSender == "dialog_manualmovement.manual_movement_platform.buttongroup_manual_movement_platform.reference_axis"));
-		pSignal->SetBool("reference_platform_absolute_switch", (sSender == "dialog_manualmovement.manual_movement_platform.buttongroup_manual_movement_platform.reference_axis_absolute_switch"));
 		pSignal->SetBool("reference_powderreservoir", (sSender == "dialog_manualmovement.manual_movement_powderreservoir.buttongroup_manual_movement_powderreservoir.reference_axis"));
 		pSignal->SetBool("reference_recoateraxis_powder", (sSender == "dialog_manualmovement.manual_movement_recoater_powder.buttongroup_manual_movement_recoater_powder.reference_axis"));
 		pSignal->SetBool("reference_recoateraxis_linear", (sSender == "dialog_manualmovement.manual_movement_recoater_linear.buttongroup_manual_movement_recoater_linear.reference_axis"));
@@ -470,6 +551,219 @@ public:
 		else {
 			pUIEnvironment->ShowMessageDlg("Manual Movement Control", "Could not recoat layer", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
 		}
+
+	}
+
+};
+
+class CEvent_ManualCameraControl_Enter : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualcameracontrol_enter";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Entering manual camera control mode");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualcameracontrol_enter");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+			pUIEnvironment->ActivateModalDialog("dialog_manualcameracontrol");
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Camera Control", "Could not enter manual camera control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualCameraControl_Leave : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualcameracontrol_leave";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual camera control mode");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualcameracontrol_leave");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Camera Control", "Could not leave manual camera control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualCameraControl_Leave_For_Waitforshutdown : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualcameracontrol_leave_for_waitforshutdown";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual camera control mode for waitforshutdown");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualcameracontrol_leave_for_waitforshutdown");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Camera Control", "Could not leave manual camera control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualCameraControl_Leave_For_Pauseprocess : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualcameracontrol_leave_for_pauseprocess";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual camera control mode for pauseprocess");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualcameracontrol_leave_for_pauseprocess");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Camera Control", "Could not leave manual camera control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_EnableThermalCamera : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_enablethermalcamera";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Manually enable thermal camera");
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_enablethermalcamera");
+		pSignal->Trigger();
+
+	}
+
+};
+
+class CEvent_DisableThermalCamera : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_disablethermalcamera";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Manually disable thermal camera");
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_disablethermalcamera");
+		pSignal->Trigger();
+
+	}
+
+};
+
+class CEvent_ChangeFilenameThermalCamera : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_changefilenamethermalcamera";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Manually change the filename for the thermal camera");
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_changefilenamethermalcamera");
+		pSignal->SetString("filename", pUIEnvironment->GetUIProperty("dialog_manualcameracontrol.infobox_manualcameracontrol.form_thermal_camera.SSD_filename", "value"));
+		pSignal->Trigger();
+
+	}
+
+};
+
+class CEvent_ChangeFrameNumberThermalCamera : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_changeframenumberthermalcamera";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Manually change the number of frames to record with the thermal camera");
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_changeframenumberthermalcamera");
+		pSignal->SetInteger("frame_number", pUIEnvironment->GetUIPropertyAsInteger("dialog_manualcameracontrol.infobox_manualcameracontrol.form_thermal_camera.frame_number", "value"));
+		pSignal->Trigger();
 
 	}
 
@@ -523,6 +817,70 @@ public:
 		// TODO: Check if in Idle or Manualmovement!
 
 		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualatmospherecontrol_leave");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Atmosphere Control", "Could not leave manual atmosphere control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualAtmosphereControl_Leave_For_Waitforshutdown : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualatmospherecontrol_leave_for_waitforshutdown";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual atmosphere control mode for waitforshutdown");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualatmospherecontrol_leave_for_waitforshutdown");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+
+
+			pUIEnvironment->CloseModalDialog();
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Atmosphere Control", "Could not leave manual atmosphere control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+
+	}
+
+};
+
+class CEvent_ManualAtmosphereControl_Leave_For_Pauseprocess : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualatmospherecontrol_leave_for_pauseprocess";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual atmosphere control mode for pauseprocess");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualatmospherecontrol_leave_for_pauseprocess");
 		pSignal->Trigger();
 
 		if (pSignal->WaitForHandling(1000)) {
@@ -682,6 +1040,7 @@ public:
 		{
 			auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualatmospherecontrol_save");
 			pSignal->SetInteger("setpointinpercent", pUIEnvironment->GetUIPropertyAsInteger("dialog_manualatmospherecontrol.infobox_manualatmospherecontrol.form_gas_flow_control.setpoint", "value"));
+			pSignal->SetInteger("oxygensetpointinppm", pUIEnvironment->GetUIPropertyAsInteger("dialog_manualatmospherecontrol.infobox_manualatmospherecontrol.form_gas_flow_control.oxygen_setpoint", "value"));
 			pSignal->Trigger();
 		}
 
@@ -873,9 +1232,79 @@ public:
 		else {
 			pUIEnvironment->ShowMessageDlg("Manual Heater Control", "Could not leave manual heater control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
 		}
+	}
+};
 
+class CEvent_ManualHeaterControl_Leave_For_Waitforshutdown : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualheatercontrol_leave_for_waitforshutdown";
 	}
 
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual heater control mode for waitforshutdown");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualheatercontrol_leave_for_waitforshutdown");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+			bool bIsAutotuning = pSignal->GetBoolResult("istuning");
+
+			if (bIsAutotuning) {
+				pUIEnvironment->ShowMessageDlg("Manual Heater Control", "Could not leave manual heater control mode, auto tuning is in progress", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");;
+			}
+			else {
+				pUIEnvironment->CloseModalDialog();
+			}
+
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Heater Control", "Could not leave manual heater control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+	}
+};
+
+class CEvent_ManualHeaterControl_Leave_For_Pauseprocess : public virtual CEvent {
+
+public:
+
+	static std::string getEventName()
+	{
+		return "event_manualheatercontrol_leave_for_pauseprocess";
+	}
+
+	void Handle(LibMCEnv::PUIEnvironment pUIEnvironment) override
+	{
+
+		pUIEnvironment->LogMessage("Leaving manual heater control mode for pauseprocess");
+
+		// TODO: Check if in Idle or Manualmovement!
+
+		auto pSignal = pUIEnvironment->PrepareSignal("main", "signal_manualheatercontrol_leave_for_pauseprocess");
+		pSignal->Trigger();
+
+		if (pSignal->WaitForHandling(1000)) {
+			bool bIsAutotuning = pSignal->GetBoolResult("istuning");
+
+			if (bIsAutotuning) {
+				pUIEnvironment->ShowMessageDlg("Manual Heater Control", "Could not leave manual heater control mode, auto tuning is in progress", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");;
+			}
+			else {
+				pUIEnvironment->CloseModalDialog();
+			}
+
+		}
+		else {
+			pUIEnvironment->ShowMessageDlg("Manual Heater Control", "Could not leave manual heater control mode", LibMCEnv::eMessageDialogType::DialogOK, "", "", "");
+		}
+	}
 };
 
 class CEvent_ControllerParameterList_Save : public virtual CEvent {
@@ -1480,6 +1909,8 @@ IEvent* CEventHandler::CreateEvent(const std::string& sEventName, LibMCEnv::PUIE
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_CancelBuild>(sEventName, pEventInstance))
 		return pEventInstance;
+	if (createEventInstanceByName<CEvent_PauseBuild>(sEventName, pEventInstance))
+		return pEventInstance;
 	if (createEventInstanceByName<CEvent_OnImportLayerChange>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_CancelPreview>(sEventName, pEventInstance))
@@ -1490,6 +1921,10 @@ IEvent* CEventHandler::CreateEvent(const std::string& sEventName, LibMCEnv::PUIE
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ManualMovementControl_Leave>(sEventName, pEventInstance))
 		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualMovementControl_Leave_For_Waitforshutdown>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualMovementControl_Leave_For_Pauseprocess>(sEventName, pEventInstance))
+		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ManualControl_ReferenceAxis>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ReleaseDoorClick>(sEventName, pEventInstance))
@@ -1497,6 +1932,10 @@ IEvent* CEventHandler::CreateEvent(const std::string& sEventName, LibMCEnv::PUIE
 	if (createEventInstanceByName<CEvent_ManualAtmosphereControl_Enter>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ManualAtmosphereControl_Leave>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualAtmosphereControl_Leave_For_Waitforshutdown>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualAtmosphereControl_Leave_For_Pauseprocess>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ToggleValves>(sEventName, pEventInstance))
 		return pEventInstance;
@@ -1519,6 +1958,10 @@ IEvent* CEventHandler::CreateEvent(const std::string& sEventName, LibMCEnv::PUIE
 	if (createEventInstanceByName<CEvent_ManualHeaterControl_Enter>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ManualHeaterControl_Leave>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualHeaterControl_Leave_For_Waitforshutdown>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualHeaterControl_Leave_For_Pauseprocess>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_StartAutoTuneController>(sEventName, pEventInstance))
 		return pEventInstance;
@@ -1547,6 +1990,22 @@ IEvent* CEventHandler::CreateEvent(const std::string& sEventName, LibMCEnv::PUIE
 	if (createEventInstanceByName<CEvent_ControllerParameterList_Save>(sEventName, pEventInstance))
 		return pEventInstance;
 	if (createEventInstanceByName<CEvent_ManualMovementControl_RecoatLayer>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualCameraControl_Enter>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualCameraControl_Leave>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualCameraControl_Leave_For_Waitforshutdown>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ManualCameraControl_Leave_For_Pauseprocess>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_EnableThermalCamera>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_DisableThermalCamera>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ChangeFilenameThermalCamera>(sEventName, pEventInstance))
+		return pEventInstance;
+	if (createEventInstanceByName<CEvent_ChangeFrameNumberThermalCamera>(sEventName, pEventInstance))
 		return pEventInstance;
 	
 	

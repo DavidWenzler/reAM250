@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="This library contains standard function blocks and functions for IEC 61131-3." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>standard.fun</File>
+    <File>standard.typ</File>
+    <File>standard.var</File>
+  </Files>
+</Library>

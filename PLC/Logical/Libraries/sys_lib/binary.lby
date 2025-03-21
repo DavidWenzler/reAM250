@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="The SYS_LIB library contains functions for memory management and operating system manipulation as well as hardware-specific functions." xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>sys_lib.fun</File>
+    <File>sys_lib.typ</File>
+    <File>sys_lib.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="runtime" />
+  </Dependencies>
+</Library>

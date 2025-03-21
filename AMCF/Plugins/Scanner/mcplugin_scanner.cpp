@@ -31,16 +31,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "libmcplugin_impl.hpp"
 #include "libmcdriver_scanlab_dynamic.hpp"
 #include "libmcdriver_raylase_dynamic.hpp"
+#include "libmcdriver_spinnaker_dynamic.hpp"
 
 /*************************************************************************************************************************
   Driver import definition
 **************************************************************************************************************************/
 LIBMC_IMPORTDRIVERCLASSES(ScanLab, ScanLab_RTC6)
 LIBMC_IMPORTDRIVERCLASSES(Raylase, Raylase)
+LIBMC_IMPORTDRIVERCLASSES(Spinnaker, Spinnaker)
 
 __BEGINDRIVERIMPORT
 __IMPORTDRIVER(ScanLab_RTC6, "scanlab");
 __IMPORTDRIVER(Raylase, "raylase");
+__IMPORTDRIVER(Spinnaker, "spinnaker");
 __ENDDRIVERIMPORT
 
 void InitialiseScanlabDriver(LibMCEnv::PStateEnvironment pStateEnvironment, PDriver_ScanLab_RTC6 pDriver)
@@ -195,6 +198,49 @@ __DECLARESTATE(idle)
 		pStateEnvironment->SetNextState("exposelayer");
 
 	}
+	else if (pStateEnvironment->WaitForSignal("signal_init_flir", 0, pHandlerInstance))
+	{
+		int nWaitingTime = pHandlerInstance->GetInteger("waiting_time_interval_in_ms");
+		int nArmingTime = pHandlerInstance->GetInteger("arming_time_in_ms");
+		int nRecordingTime = pHandlerInstance->GetInteger("recording_time_in_ms");
+		int nSavingTime = pHandlerInstance->GetInteger("saving_time_in_ms");
+		std::string sFilename = pHandlerInstance->GetString("footage_filename");
+		int nFilterChangeTime = pHandlerInstance->GetInteger("filter_change_time_in_ms");
+		int nWidth = pHandlerInstance->GetInteger("width_in_pixel");
+		int nHeight = pHandlerInstance->GetInteger("height_in_pixel");
+		int nOffsetX = pHandlerInstance->GetInteger("offset_x_in_pixel");
+		int nOffsetY = pHandlerInstance->GetInteger("offset_y_in_pixel");
+		int nNumberOfFrames = pHandlerInstance->GetInteger("frames");
+		int nNumberOfPretriggerFrames = pHandlerInstance->GetInteger("pretrigger_frames");
+		std::string sCorrectionName = pHandlerInstance->GetString("correction_name");
+		std::string sCalibrationTag = pHandlerInstance->GetString("calibration_tag");
+		int nIntermediateFilterIndex = pHandlerInstance->GetInteger("intermediate_filter_index");
+		int nDesiredFilterIndex = pHandlerInstance->GetInteger("desired_filter_index");
+
+		pStateEnvironment->SetIntegerParameter("flir_camera", "waiting_time_interval_in_ms", nWaitingTime);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "arming_time_in_ms", nArmingTime);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "recording_time_in_ms", nRecordingTime);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "saving_time_in_ms", nSavingTime);
+		pStateEnvironment->SetStringParameter("flir_camera", "footage_filename", sFilename);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "filter_change_time_in_ms", nFilterChangeTime);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "width_in_pixel", nWidth);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "height_in_pixel", nHeight);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "offset_x_in_pixel", nOffsetX);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "offset_y_in_pixel", nOffsetY);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "frames", nNumberOfFrames);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "pretrigger_frames", nNumberOfPretriggerFrames);
+		pStateEnvironment->SetStringParameter("flir_camera", "correction_name", sCorrectionName);
+		pStateEnvironment->SetStringParameter("flir_camera", "calibration_tag", sCalibrationTag);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "intermediate_filter_index", nIntermediateFilterIndex);
+		pStateEnvironment->SetIntegerParameter("flir_camera", "desired_filter_index", nDesiredFilterIndex);
+
+		// By setting the isinitflag true the FLIR is used within the exposelayer state
+		pStateEnvironment->SetBoolParameter("flir_camera", "isinitflag", true);
+
+		pHandlerInstance->SetBoolResult("success", true);
+		pHandlerInstance->SignalHandled();
+		pStateEnvironment->SetNextState("idle");
+	}
 	else {
 		pStateEnvironment->SetNextState("idle");
 	}
@@ -208,9 +254,85 @@ __DECLARESTATE(exposelayer)
 	pStateEnvironment->LogMessage("Exposure...");
 	auto pBuildJob = pStateEnvironment->GetBuildJob(pSignalHandler->GetString("jobuuid"));
 	auto nLayerIndex = (uint32_t)pSignalHandler->GetInteger("layerindex");
-
-
 	std::string sCardType = pStateEnvironment->GetStringParameter("cardconfig", "cardtype");
+
+	// aquire the spinnaker driver
+	PDriver_Spinnaker pDriver_ThermoCamera = __acquireDriver(Spinnaker);
+	bool bFlirCameraIsInitFlag = pStateEnvironment->GetBoolParameter("flir_camera", "isinitflag");
+	if (bFlirCameraIsInitFlag) // check if the thermography camera is supposed to be active in this sequence
+	{
+		int nWaitingTime = pStateEnvironment->GetIntegerParameter("flir_camera", "waiting_time_interval_in_ms");
+		int nArmingTime = pStateEnvironment->GetIntegerParameter("flir_camera", "arming_time_in_ms");
+		int nRecordingTime = pStateEnvironment->GetIntegerParameter("flir_camera", "recording_time_in_ms");
+		int nSavingTime = pStateEnvironment->GetIntegerParameter("flir_camera", "saving_time_in_ms");
+		std::string sFilename = pStateEnvironment->GetStringParameter("flir_camera", "footage_filename");
+		int nFilterChangeTime = pStateEnvironment->GetIntegerParameter("flir_camera", "filter_change_time_in_ms");
+		int nWidth = pStateEnvironment->GetIntegerParameter("flir_camera", "width_in_pixel");
+		int nHeight = pStateEnvironment->GetIntegerParameter("flir_camera", "height_in_pixel");
+		int nOffsetX = pStateEnvironment->GetIntegerParameter("flir_camera", "offset_x_in_pixel");
+		int nOffsetY = pStateEnvironment->GetIntegerParameter("flir_camera", "offset_y_in_pixel");
+		int nNumberOfFrames = pStateEnvironment->GetIntegerParameter("flir_camera", "frames");
+		int nNumberOfPretriggerFrames = pStateEnvironment->GetIntegerParameter("flir_camera", "pretrigger_frames");
+		std::string sCorrectionName = pStateEnvironment->GetStringParameter("flir_camera", "correction_name");
+		std::string sCalibrationTag = pStateEnvironment->GetStringParameter("flir_camera", "calibration_tag");
+		int nIntermediateFilterIndex = pStateEnvironment->GetIntegerParameter("flir_camera", "intermediate_filter_index");
+		int nDesiredFilterIndex = pStateEnvironment->GetIntegerParameter("flir_camera", "desired_filter_index");
+
+		// initialize the flir camera
+		bool bInitSpinnakerSuccess = pDriver_ThermoCamera->InitSpinnaker(nWaitingTime, nArmingTime, nRecordingTime, nSavingTime, nFilterChangeTime, nWidth, nHeight, nOffsetX, nOffsetY, nNumberOfFrames, nNumberOfPretriggerFrames, sCorrectionName, sCalibrationTag, nIntermediateFilterIndex, nDesiredFilterIndex);
+		if (bInitSpinnakerSuccess)
+		{
+			// set the filename of the footage of the flir camera
+			bool bSetFilenameSpinnakerSuccess = pDriver_ThermoCamera->SetFilenameSpinnaker(sFilename, nLayerIndex);
+			if (bSetFilenameSpinnakerSuccess)
+			{
+				// connect to the flir camera
+
+				bool bConnectToFlirSuccess = pDriver_ThermoCamera->ConnectToFlir(0); // index of the port within the camera list instance
+				if (bConnectToFlirSuccess)
+				{
+					pStateEnvironment->LogMessage("Flir camera is connected!");
+					// arm the flir camera
+					bool bArmFlirSuccess = pDriver_ThermoCamera->ArmFlir();
+					if (bArmFlirSuccess)
+					{
+						// start recording with the flir camera
+						bool bStartRecordingFlirSuccess = pDriver_ThermoCamera->StartRecordingFlir();
+						if (bStartRecordingFlirSuccess)
+						{
+							pStateEnvironment->LogMessage("Starting to record with the flir camera..");
+						}
+						else
+						{
+							pStateEnvironment->LogMessage("Starting to record with the flir camera was not successful..");
+							pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+						}
+					}
+					else
+					{
+						pStateEnvironment->LogMessage("Arming the flir camera was not successful..");
+						pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+					}
+				}
+				else
+				{
+					pStateEnvironment->LogMessage("Connecting to the flir camera was not successful..");
+					pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+				}
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Setting the filename within the spinnaker driver was not successful..");
+				pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+			}
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Initializing the spinnaker driver was not successful..");
+			pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+		}
+	}
+
 	if (sCardType == "scanlab")
 	{
 		auto pDriver = __acquireDriver(ScanLab_RTC6);
@@ -264,12 +386,39 @@ __DECLARESTATE(exposelayer)
 		pStateEnvironment->LogMessage("Get Connected Card...");
 		auto pCard = pDriver->GetConnectedCard("card1");
 		pStateEnvironment->LogMessage("Drawing Layer...");
-		pCard->DrawLayer(pBuildJob->GetStorageUUID(), nLayerIndex);
+		pCard->DrawLayer(pBuildJob->GetStorageUUID(), nLayerIndex, 300000);
 		pStateEnvironment->LogMessage("Drawing Layer successful...");
 	}
 
 	pSignalHandler->SetBoolResult("success", true);
 	pSignalHandler->SignalHandled();
+
+	bool bFlirCameraIsErrorFlag = pStateEnvironment->GetBoolParameter("flir_camera", "iserrorflag");
+	if ((bFlirCameraIsErrorFlag == false) && (bFlirCameraIsInitFlag == true)) // if an error occured in the first thermography-camera-related sequence, this sequence is unnecessary
+	{
+		// wait for the recording to stop and then save the footage on the SSD of the flir camera
+		bool bWaitForRecordAndSaveFlirSuccess = pDriver_ThermoCamera->WaitForRecordAndSaveFlir();
+		if (bWaitForRecordAndSaveFlirSuccess)
+		{
+			pStateEnvironment->LogMessage("The recording with the FLIR camera is finished and the footage was saved!");
+			// disconnect from the flir camera
+			bool bDisconnectFlirSuccess = pDriver_ThermoCamera->DisconnectFlir();
+			if (bDisconnectFlirSuccess)
+			{
+				pStateEnvironment->LogMessage("Successfuly disconnected from the FLIR camera");
+			}
+			else
+			{
+				pStateEnvironment->LogMessage("Disconnecting from the FLIR camera was not successful..");
+				pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+			}
+		}
+		else
+		{
+			pStateEnvironment->LogMessage("Either saving or recording with the FLIR camera was not successful..");
+			pStateEnvironment->SetBoolParameter("flir_camera", "iserrorflag", true);
+		}
+	}
 
 	pStateEnvironment->SetNextState("idle");
 }

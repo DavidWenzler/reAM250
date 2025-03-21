@@ -1,0 +1,14 @@
+(*
+T: FUNCTION S_BIT_IN_BYTE
+FW: YES
+CI#: 65
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 1
+*)
+		LD	@FUV 1
+		LD	@TYP:17# 00#01
+		SHL	@FUV 2
+		XOR	@FUV 1
+		ST	@FUV 3

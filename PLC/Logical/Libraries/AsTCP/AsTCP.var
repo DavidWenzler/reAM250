@@ -1,0 +1,62 @@
+                                                                      
+VAR CONSTANT
+	tcpERR_INVALID_IDENT				: UINT := 32600;	(*invalid ident*)
+	tcpERR_NOMORE_IDENTS				: UINT := 32601;	(*no more idents*)
+	tcpERR_ALREADY_EXIST				: UINT := 32602;	(*socket already exists*)
+	tcpERR_PARAMETER					: UINT := 32603;	(*invalid parameter, check parameter*)
+	tcpERR_INVALID_IOCTL				: UINT := 32604;	(*io control not supported*)
+	tcpERR_NO_DATA						: UINT := 32605;	(*no data to receive*)
+	tcpERR_SENTLEN						: UINT := 32606;	(*length sent error, call again*)
+	tcpERR_WOULDBLOCK					: UINT := 32607;	(*would block, call again*)
+	tcpERR_INVALID						: UINT := 32608;	(*invalid argument*)
+	tcpERR_NOT_CONNECTED				: UINT := 32609;	(*socket is not connected*)
+	tcpERR_ALREADY_CONNECTED			: UINT := 32610;	(*connected has been already established*)
+	tcpERR_NO_OOBDATA					: UINT := 32611;	(*no out of band data*)
+	tcpERR_INTERFACE					: UINT := 32612;	(*illegal interface*)
+	tcpERR_NOCLIENT						: UINT := 32613;	(*client not yet connected*)
+	
+	tcpERR_SOCKET_CREATE				: UINT := 32650;	(*create socket failed*)
+	tcpERR_SOCKET_BIND					: UINT := 32651;	(*bind socket failed*)
+	tcpERR_SOCKET_LISTEN				: UINT := 32652;	(*listen socket failed*)
+	tcpERR_SOCKET_ACCEPT				: UINT := 32653;	(*accept socket failed*)
+	
+	tcpERR_INVALID_SSL_CONFIG			: UINT := 32697;	(*invalid SSL configuration given*)
+	tcpERR_SSL_HANDSHAKE_FAILED			: UINT := 32698;	(*SSL handshake failed*)
+	
+	tcpERR_SYSTEM						: UINT := 32699;	(*system error*)
+
+	tcpSO_LINGER_SET					: UDINT := 1001;	(*set option linger*)
+	tcpSO_LINGER_GET					: UDINT := 1002;	(*get option linger*)
+	tcpSO_KEEPALIVE_SET					: UDINT := 1003;	(*set option keep alive*)
+	tcpSO_KEEPALIVE_GET					: UDINT := 1004;	(*get option keep alive*)
+	tcpSO_SNDBUF_SET					: UDINT := 1005;	(*set option send buffer*)
+	tcpSO_SNDBUF_GET					: UDINT := 1006;	(*get option send buffer*)
+	tcpSO_RCVBUF_SET					: UDINT := 1007;	(*set option receive buffer*)
+	tcpSO_RCVBUF_GET					: UDINT := 1008;	(*get option receive buffer*)
+	tcpSO_OOBINLINE_SET					: UDINT := 1009;	(*set option out of band data inline*)
+	tcpSO_OOBINLINE_GET					: UDINT := 1010;	(*get option out of band data inline*)
+	tcpSO_ADDRESS_GET					: UDINT := 1011;	(*get socket address*)
+	tcpSO_NOWAITING_SET					: UDINT := 1012;	(*set option no waiting until client connects*)
+	tcpSO_NOWAITING_GET					: UDINT := 1013;	(*get option no waiting until client connects*)
+	tcpTCP_NODELAY_SET					: UDINT := 2001;	(*set option tcp no delay*)
+	tcpTCP_NODELAY_GET					: UDINT := 2002;	(*get option tcp no delay*)
+	tcpTCP_KEEPCNT_SET					: UDINT := 2003;	(*set option tcp keep count*)
+	tcpTCP_KEEPCNT_GET					: UDINT := 2004;	(*get option tcp keep count*)
+	tcpTCP_KEEPIDLE_SET					: UDINT := 2005;	(*set option tcp keep idle*)
+	tcpTCP_KEEPIDLE_GET					: UDINT := 2006;	(*get option tcp keep idle*)
+	tcpTCP_KEEPINTVL_SET				: UDINT := 2007;	(*set option tcp keep intervall*)
+	tcpTCP_KEEPINTVL_GET				: UDINT := 2008;	(*get option tcp keep intervall*)
+	tcpID_LIST_GET						: UDINT := 3001;	(*get ident list*)
+	tcpID_MAX_GET						: UDINT := 3002;	(*get max ident count*)
+	
+	tcpMSG_OOB							: UDINT := 1;		(*out of band message*)
+	tcpMSG_PEEK							: UDINT := 2;		(*don't remove data from socket (receive)*)
+	tcpMSG_DONTROUTE					: UDINT := 4;		(*message don't route (send)*)
+	
+	tcpOPT_REUSEADDR					: UDINT := 1;		(*option reuse address*)
+	
+	tcpSHUT_RD							: UDINT := 1;		(*shutdown read channel*)
+	tcpSHUT_WR							: UDINT := 2;		(*shutdown write channel*)
+	
+	tcpINVALID_IDENT					: UDINT := 0;		(*invalid ident*)
+END_VAR

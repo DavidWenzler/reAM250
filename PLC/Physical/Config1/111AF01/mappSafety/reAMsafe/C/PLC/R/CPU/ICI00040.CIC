@@ -1,0 +1,14 @@
+(*
+T: FUNCTION_BLOCK SR_S
+FW: YES
+CI#: 40
+QSL: 0
+QJM: 0
+QJ: 0
+*)
+		LDN	@IV 2
+		AND_S	@IV 3
+		ST	@IV 4
+		LD	@IV 1
+		OR_S	@IV 4
+		ST	@IV 3

@@ -1,0 +1,16 @@
+(*
+T: FUNCTION SET_MSB
+FW: YES
+CI#: 62
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 0
+*)
+		LD	@FUV 1
+		BYTE_TO_WORD
+		SHL	@TYP:18# 00#0008
+		OR(	@FUV 2
+		AND	@TYP:18# 00#00FF
+		)
+		ST	@FUV 3

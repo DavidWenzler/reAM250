@@ -1,0 +1,20 @@
+(*
+T: FUNCTION GET_LSB
+FW: YES	INLINE GET_LSB SKIP_IMAGE
+CI#: 61
+QSL: 0
+QVE: 2
+QPar: 2
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:18
+		    
+
+;
+
+
+GET_LSB	2	VAR_OUTPUT	@TYP:17
+		    
+
+;

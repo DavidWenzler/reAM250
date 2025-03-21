@@ -1,3 +1,0 @@
-We are currently addressing some issues with the PLC code.
-Until these issues are resolved, the code will not be available for use.
-Stay tuned for further updates and we appreciate your patience during this time.

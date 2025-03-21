@@ -1,0 +1,14 @@
+(*
+T: FUNCTION I_BIT_IN_WORD
+FW: YES
+CI#: 66
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 1
+*)
+		LD	@FUV 1
+		LD	@TYP:18# 00#0001
+		SHL	@FUV 2
+		XOR	@FUV 1	
+		ST	@FUV 3

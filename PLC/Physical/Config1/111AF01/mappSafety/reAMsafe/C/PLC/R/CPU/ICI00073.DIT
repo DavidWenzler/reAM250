@@ -1,0 +1,27 @@
+(*
+T: FUNCTION R_BIT_IN_DWORD
+FW: YES	INLINE R_BIT_IN_DWORD SKIP_IMAGE
+CI#: 73
+QSL: 0
+QVE: 3
+QPar: 3
+QFBI: 0
+*)
+
+IN	1	VAR_INPUT	@TYP:19
+		    
+
+;
+
+
+BIT_NO	2	VAR_INPUT	@TYP:17
+		    
+
+;
+
+
+R_BIT_IN_DWORD	3	VAR_OUTPUT	@TYP:19
+		    
+
+;
+

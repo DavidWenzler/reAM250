@@ -1,0 +1,15 @@
+(*
+T: FUNCTION SET_LSB
+FW: YES
+CI#: 63
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 0
+*)
+		LD	@FUV 1
+		BYTE_TO_WORD
+		OR(	@FUV 2
+		AND	@TYP:18# 00#FF00
+		)
+		ST	@FUV 3

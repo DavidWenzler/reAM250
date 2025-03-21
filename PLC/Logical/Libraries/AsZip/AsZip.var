@@ -1,0 +1,10 @@
+
+VAR CONSTANT
+	zipERR_NULLPOINTER				: UINT		:= 38060;	(*null pointer given*)
+	zipERR_INVALID_DEVICE			: UINT		:= 38061;	(*device doesn't exist or device not configured*)
+	zipERR_UNSUPPORTED_EXTENSION	: UINT		:= 38062;	(*unsupported extension*)
+	zipERR_INTERNAL_ERROR			: UINT		:= 38063;	(*internal error*)
+	zipERR_SPACE					: UINT		:= 38064;	(*device is out of space*)
+	zipERR_FILE_NOT_FOUND			: UINT		:= 38065;	(*file not found*)
+	zipERR_FILE_WRITE_ERROR			: UINT		:= 38066;	(*could not write extracted file*)
+END_VAR

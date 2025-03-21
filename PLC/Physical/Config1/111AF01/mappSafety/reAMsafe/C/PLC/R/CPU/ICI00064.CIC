@@ -1,0 +1,12 @@
+(*
+T: FUNCTION SWAP
+FW: YES
+CI#: 64
+QSL: 0
+QJM: 0
+QJ: 0
+QR: 0
+*)
+		LD	@FUV 1
+		ROR	@TYP:18# 00#0008
+		ST	@FUV 2

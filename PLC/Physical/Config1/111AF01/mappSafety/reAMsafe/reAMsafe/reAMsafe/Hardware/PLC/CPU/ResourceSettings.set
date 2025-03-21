@@ -1,0 +1,7 @@
+﻿RESOURCE
+
+TASK MyTask(INTERVAL := T#100ms, PRIORITY := 1) { Watchdog := T#500ms };
+
+PROGRAM Main1 WITH MyTask : Main;
+
+END_RESOURCE

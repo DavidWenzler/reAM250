@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library SubType="binary" Description="The AsZip library offers compressing archive-support" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>AsZip.fun</File>
+    <File>AsZip.typ</File>
+    <File>AsZip.var</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="runtime" />
+  </Dependencies>
+</Library>

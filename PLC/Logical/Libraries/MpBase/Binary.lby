@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Library Version="5.16.0" SubType="Binary" Description="Core library for mapp components" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File Description="Exported data types">MpBase.typ</File>
+    <File Description="Exported constants">MpBase.var</File>
+    <File Description="Exported functions and function blocks">MpBase.fun</File>
+    <File>Common_EventLog.tmx</File>
+  </Files>
+</Library>
